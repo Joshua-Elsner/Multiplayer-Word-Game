@@ -39,6 +39,7 @@ h2 {
     color: #888;
 }
 
+/*-------Game Board----------------*/
 #game-board {
     display: flex;
     flex-direction: column;
@@ -65,4 +66,49 @@ h2 {
     font-size: 2rem;
     font-weight: bold;
     text-transform: uppercase;
+}
+
+
+/*--------Keyboard-------------------*/
+#keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 500px;
+    padding: 10px;
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+
+.key {
+    background-color: #818384; /*Unguessed keys */
+    color: var(--color-text);
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 4px; /*Rounds key edges*/
+    height: 58px;
+    
+    flex: 1; 
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    cursor: pointer; /*Turns mouse into pointing hand when hovering*/
+    user-select: none; 
+    text-transform: uppercase;
+}
+
+.wide-key {
+    flex: 1.5;
+    font-size: 0.9rem;
+}
+
+.spacer {
+    flex: 0.5; /*For either end of middle row*/
 }
