@@ -105,3 +105,23 @@ function checkGuess() {
     }
 
 }
+
+const tryAgainBtn = document.getElementById('try-again-btn');
+
+tryAgainBtn.addEventListener('click', () => {
+    document.getElementById('lose-modal').classList.add('hidden');
+
+    currentRow = 0;
+    currentTile = 0;
+    currentGuess = "";
+    isGameOver = false;
+
+    //Clear all letters and colors from the bubbles
+    for (let r = 0; r < 6; r++) {
+        for (let c = 0; c < 5; c++) {
+            const tile = rows[r].children[c];
+            tile.textContent = "";
+            tile.classList.remove('correct', 'present', 'absent');
+        }
+    }
+});
