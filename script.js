@@ -59,6 +59,7 @@ function checkGuess() {
            rows[currentRow].children[i].classList.add('absent');
         }
     }
+
     //Win chekc
     if (currentGuess === secretWord) {
         document.getElementById('win-modal').classList.remove('hidden');
@@ -67,5 +68,13 @@ function checkGuess() {
     currentRow++;
     currentTile = 0;
     currentGuess = "";
+
+    //Lose check
+    if (currentRow === 6) {
+        document.getElementById('lose-modal').classList.remove('hidden');
+        
+        //TODO: Add 1 to Fish Eaten on leaderboard
+        console.log("Shark gets a point!");
+    }
 
 }
