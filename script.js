@@ -59,6 +59,11 @@ function checkGuess() {
            rows[currentRow].children[i].classList.add('absent');
         }
     }
+    //Win chekc
+    if (currentGuess === secretWord) {
+        document.getElementById('win-modal').classList.remove('hidden');
+        return;
+    }
     currentRow++;
     currentTile = 0;
     currentGuess = "";
