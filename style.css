@@ -130,7 +130,7 @@ background-color: var(--color-absent) !important;
 border-color: var(--color-absent) !important;
 }
 
-#win-modal {
+#win-modal, #lose-modal {
     position: fixed;
     top: 0;
     left: 0;
