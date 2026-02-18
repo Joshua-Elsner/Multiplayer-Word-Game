@@ -2,12 +2,15 @@ const secretWord = "SHARK"; //Starts as shark initially
 let currentRow = 0; 
 let currentTile = 0;
 let currentGuess = "";
+let isGameOver = false;
 
 const rows = document.querySelectorAll('.board-row');
 const keys = document.querySelectorAll('.key'); 
 
 keys.forEach(key => {
     key.addEventListener('click', () => {
+        if (isGameOver) return;
+
         const letter = key.textContent.trim();
 
         if (letter === "ENTER") {
@@ -23,6 +26,8 @@ keys.forEach(key => {
 
 //Physical keyboard strokes
 document.addEventListener('keydown', (e) => {
+    if (isGameOver) return;
+
     if (e.key === 'Enter') {
         checkGuess();
         return;
@@ -83,6 +88,7 @@ function checkGuess() {
     //Win chekc
     if (currentGuess === secretWord) {
         document.getElementById('win-modal').classList.remove('hidden');
+        isGameOver = true;
         return;
     }
     currentRow++;
@@ -92,6 +98,7 @@ function checkGuess() {
     //Lose check
     if (currentRow === 6) {
         document.getElementById('lose-modal').classList.remove('hidden');
+        isGameOver = true;
         
         //TODO: Add 1 to Fish Eaten on leaderboard
         console.log("Shark gets a point!");
