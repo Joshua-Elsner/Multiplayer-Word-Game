@@ -7,12 +7,12 @@
 
 /*Color variables*/
 :root {
-    --color-correct: #538d4e;
-    --color-present: #b59f3b;
-    --color-absent: #3a3a3c;
-    --color-background: #121213;
-    --color-text: #ffffff;
-    --color-tile-border: #3a3a3c; /*Empty tile outlines*/
+    --color-correct: #00b4d8;
+    --color-present: #e9c46a;
+    --color-absent: white; 
+    --color-background: #0F172A;
+    --color-text: #7DD3FC; 
+    --color-tile-border: #334155;
 }
 
 body {
@@ -86,7 +86,7 @@ h2 {
 }
 
 .key {
-    background-color: #818384; /*Unguessed keys */
+    background-color: #334155; /*Unguessed keys */
     color: var(--color-text);
     font-size: 1.2rem;
     font-weight: bold;
