@@ -12,7 +12,7 @@ keys.forEach(key => {
 
         if (letter === "ENTER") {
             //TODO: checking logic
-            console.log("Submit guess:", currentGuess);
+            checkGuess();
         } else if (letter === "BACK") {
             deleteLetter();
         } else {
@@ -37,4 +37,30 @@ function deleteLetter() {
         tile.textContent = ""; 
         currentGuess = currentGuess.slice(0, -1);
     }
+}
+
+function checkGuess() {
+    //Make sure the user actually typed a full 5-letter word 
+    if (currentGuess.length !== 5) {
+        return;
+    }
+
+    //Compare their guess against the secretWord SHARK letter by letter
+    for (let i = 0; i < secretWord.length; i++) {
+        if (currentGuess[i] === secretWord[i]) {
+           rows[currentRow].children[i].classList.add('correct');
+        }
+
+        else if (secretWord.includes(currentGuess[i])) {
+           rows[currentRow].children[i].classList.add('present');
+        }
+
+        else {
+           rows[currentRow].children[i].classList.add('absent');
+        }
+    }
+    currentRow++;
+    currentTile = 0;
+    currentGuess = "";
+
 }

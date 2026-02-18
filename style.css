@@ -112,3 +112,20 @@ h2 {
 .spacer {
     flex: 0.5; /*For either end of middle row*/
 }
+
+.correct {
+background-color: var(--color-correct) !important;
+border-color: var(--color-correct) !important;
+color: var(--color-background) !important;
+}
+
+.present {
+background-color: var(--color-present) !important;
+border-color: var(--color-present) !important;
+color: var(--color-background) !important;
+}
+
+.absent {
+background-color: var(--color-absent) !important;
+border-color: var(--color-absent) !important;
+}
