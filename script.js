@@ -21,6 +21,26 @@ keys.forEach(key => {
     });
 });
 
+//Physical keyboard strokes
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        checkGuess();
+        return;
+    }
+
+    if (e.key === 'Backspace') {
+        deleteLetter();
+        return; 
+    }
+
+    //Regex for a single char
+    const isLetter = /^[a-zA-Z]$/.test(e.key);
+    
+    if (isLetter) {
+        addLetter(e.key.toUpperCase());
+    }
+});
+
 function addLetter(letter) {
     if (currentTile < 5) {
         const tile = rows[currentRow].children[currentTile]; 
