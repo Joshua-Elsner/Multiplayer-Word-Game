@@ -161,3 +161,83 @@ submitNewWordBtn.addEventListener('click', () => {
     // window.location.href = "leaderboard.html"; 
     console.log("TODO: Updating leaderboard will happen here.");
 });
+
+
+//-------------------Main menu and modals----------
+
+const homeScreen = document.getElementById('home-screen');
+const gameScreen = document.getElementById('game-screen');
+
+//Play game button
+const startGameBtn = document.getElementById('start-game-btn');
+startGameBtn.addEventListener('click', () => {
+    homeScreen.classList.add('hidden');
+    gameScreen.classList.remove('hidden');
+});
+
+//Choose player logic
+const chooseNameBtn = document.getElementById('choose-name-btn');
+const choosePlayerModal = document.getElementById('choose-player-modal');
+const confirmPlayerBtn = document.getElementById('confirm-player-btn');
+const playerSelect = document.getElementById('player-select');
+
+chooseNameBtn.addEventListener('click', () => {
+    choosePlayerModal.classList.remove('hidden');
+});
+
+confirmPlayerBtn.addEventListener('click', () => {
+    const selectedPlayer = playerSelect.value;
+    startGameBtn.textContent = `Play as ${selectedPlayer}`; //Update text on button 
+    choosePlayerModal.classList.add('hidden');
+});
+
+//Daredevil challenge logic
+const challengeBtn = document.getElementById('challenge-btn');
+const challengeStakeModal = document.getElementById('challenge-stake-modal');
+const confirmStakeBtn = document.getElementById('confirm-stake-btn');
+const cancelStakeBtn = document.getElementById('cancel-stake-btn');
+const stakeSelect = document.getElementById('stake-select');
+let isDaredevil = false;
+
+challengeBtn.addEventListener('click', () => {
+    if (isDaredevil) {
+        isDaredevil = false;
+        challengeBtn.textContent = "Daredevil? NO";
+    } else {
+        challengeStakeModal.classList.remove('hidden');
+    }
+});
+
+confirmStakeBtn.addEventListener('click', () => {
+    const points = stakeSelect.value;
+    isDaredevil = true;
+    challengeBtn.textContent = `Daredevil? YES (${points} pts)`;
+    challengeStakeModal.classList.add('hidden');
+});
+
+cancelStakeBtn.addEventListener('click', () => {
+    challengeStakeModal.classList.add('hidden');
+});
+
+//Info Modals
+const challengeInfoBtn = document.getElementById('challenge-info-btn');
+const challengeInfoModal = document.getElementById('challenge-info-modal');
+const closeChallengeInfoBtn = document.getElementById('close-challenge-info-btn');
+
+challengeInfoBtn.addEventListener('click', () => {
+    challengeInfoModal.classList.remove('hidden');
+});
+closeChallengeInfoBtn.addEventListener('click', () => {
+    challengeInfoModal.classList.add('hidden');
+});
+
+const howToPlayBtn = document.getElementById('how-to-play-btn');
+const howToPlayModal = document.getElementById('how-to-play-modal');
+const closeHowToPlayBtn = document.getElementById('close-how-to-play-btn');
+
+howToPlayBtn.addEventListener('click', () => {
+    howToPlayModal.classList.remove('hidden');
+});
+closeHowToPlayBtn.addEventListener('click', () => {
+    howToPlayModal.classList.add('hidden');
+});
