@@ -1,4 +1,4 @@
-const secretWord = "SHARK"; //Starts as shark initially
+let secretWord = "SHARK"; //Starts as shark initially
 let currentRow = 0; 
 let currentTile = 0;
 let currentGuess = "";
@@ -124,4 +124,40 @@ tryAgainBtn.addEventListener('click', () => {
             tile.classList.remove('correct', 'present', 'absent');
         }
     }
+});
+
+const submitNewWordBtn = document.getElementById('submit-new-word');
+const newWordInput = document.getElementById('new-word-input');
+
+submitNewWordBtn.addEventListener('click', () => {
+    const newWord = newWordInput.value.toUpperCase().trim();
+
+    if (newWord.length !== 5) {
+        alert("Must be 5 letters");
+        return; 
+    }
+
+    console.log("TODO: Update databas with new word here.");
+    
+    secretWord = newWord; 
+
+    //Hide the Modal and clear the input box
+    document.getElementById('win-modal').classList.add('hidden');
+    newWordInput.value = ""; 
+
+    currentRow = 0;
+    currentTile = 0;
+    currentGuess = "";
+    isGameOver = false;
+
+    for (let r = 0; r < 6; r++) {
+        for (let c = 0; c < 5; c++) {
+            const tile = rows[r].children[c];
+            tile.textContent = ""; 
+            tile.classList.remove('correct', 'present', 'absent'); 
+        }
+    }
+
+    // window.location.href = "leaderboard.html"; 
+    console.log("TODO: Updating leaderboard will happen here.");
 });
