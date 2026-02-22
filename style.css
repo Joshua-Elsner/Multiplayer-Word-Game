@@ -7,7 +7,7 @@
 
 /*Color variables*/
 :root {
-    --color-correct: green;
+    --color-correct: rgb(45, 202, 45);
     --color-present: #e9c46a;
     --color-absent: gray; 
     --color-background: #0F172A;
@@ -74,6 +74,24 @@ h2 {
     font-weight: bold;
     text-transform: uppercase;
     color: black;
+
+    /*For shine depth depth*/
+    position: relative; 
+    box-shadow: inset -4px -4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* The shiny bubble reflection */
+.tile::after {
+    content: ""; /*Ghost element*/
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    width: 16px;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.7); /*Translucent white shine */
+    border-radius: 50%; /*Make it an oval*/
+    transform: rotate(-30deg); /*Tilt the shine*/
+    pointer-events: none; /*Can't click the shine*/
 }
 
 
