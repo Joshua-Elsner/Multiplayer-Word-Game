@@ -7,12 +7,13 @@
 
 /*Color variables*/
 :root {
-    --color-correct: #00b4d8;
+    --color-correct: green;
     --color-present: #e9c46a;
-    --color-absent: white; 
+    --color-absent: gray; 
     --color-background: #0F172A;
     --color-text: #7DD3FC; 
     --color-tile-border: #334155;
+    --color-accent: #00b4d8;
 }
 
 body {
@@ -60,8 +61,10 @@ h2 {
 .tile {
     width: 60px;
     height: 60px;
-    border: 2px solid var(--color-tile-border);
+    border: none;
     border-radius: 50%;
+
+    background-color: #6caef0;
     
     display: flex;
     justify-content: center;
@@ -70,6 +73,7 @@ h2 {
     font-size: 2rem;
     font-weight: bold;
     text-transform: uppercase;
+    color: black;
 }
 
 
@@ -121,19 +125,18 @@ h2 {
 
 .correct {
 background-color: var(--color-correct) !important;
-border-color: var(--color-correct) !important;
 color: var(--color-background) !important;
+color: black !important;
 }
 
 .present {
 background-color: var(--color-present) !important;
-border-color: var(--color-present) !important;
 color: var(--color-background) !important;
+color: black !important;
 }
 
 .absent {
 background-color: var(--color-absent) !important;
-border-color: var(--color-absent) !important;
 }
 
 #win-modal, 
@@ -162,7 +165,7 @@ border-color: var(--color-absent) !important;
     background-color: var(--color-tile-border);
     padding: 30px;
     border-radius: 12px;
-    border: 2px solid var(--color-correct);
+    border: 2px solid var(--color-accent);
     text-align: center;
     max-width: 400px;
     display: flex;
@@ -183,7 +186,7 @@ border-color: var(--color-absent) !important;
 #submit-new-word {
     padding: 12px;
     font-size: 1.2rem;
-    background-color: var(--color-correct);
+    background-color: var(--color-accent);
     color: var(--color-background);
     border: none;
     border-radius: 6px;
@@ -228,14 +231,14 @@ border-color: var(--color-absent) !important;
     font-size: 1.2rem;
     background-color: var(--color-tile-border);
     color: var(--color-text);
-    border: 2px solid var(--color-correct);
+    border: 2px solid var(--color-accent);
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
 }
 
 .menu-buttons button:hover {
-    background-color: var(--color-correct);
+    background-color: var(--color-accent);
     color: var(--color-background);
 }
 
