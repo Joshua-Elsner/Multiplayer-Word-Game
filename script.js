@@ -9,7 +9,7 @@ const keys = document.querySelectorAll('.key');
 
 //Hide all rows except bottom
 for (let i = 1; i < 6; i++) {
-    rows[i].classList.add('hidden');
+    rows[i].classList.add('row-collapsed');
 }
 
 keys.forEach(key => {
@@ -110,7 +110,7 @@ function checkGuess() {
     }
 
     //Reveal next row of bubbles
-    rows[currentRow].classList.remove('hidden');
+    rows[currentRow].classList.remove('row-collapsed');
 }
 
 const tryAgainBtn = document.getElementById('try-again-btn');
@@ -127,7 +127,7 @@ tryAgainBtn.addEventListener('click', () => {
     for (let r = 0; r < 6; r++) {
         //Hide all bubbles again
         if (r > 0) {
-            rows[r].classList.add('hidden');
+            rows[r].classList.add('row-collapsed');
         }
 
         for (let c = 0; c < 5; c++) {
@@ -165,7 +165,7 @@ submitNewWordBtn.addEventListener('click', () => {
     for (let r = 0; r < 6; r++) {
         //Hide all bubbles again
         if (r > 0) {
-            rows[r].classList.add('hidden');
+            rows[r].classList.add('row-collapsed');
         }
 
         for (let c = 0; c < 5; c++) {
