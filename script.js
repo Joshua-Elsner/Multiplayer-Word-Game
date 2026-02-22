@@ -7,6 +7,11 @@ let isGameOver = false;
 const rows = document.querySelectorAll('.board-row');
 const keys = document.querySelectorAll('.key'); 
 
+//Hide all rows except bottom
+for (let i = 1; i < 6; i++) {
+    rows[i].classList.add('hidden');
+}
+
 keys.forEach(key => {
     key.addEventListener('click', () => {
         if (isGameOver) return;
@@ -104,6 +109,8 @@ function checkGuess() {
         console.log("Shark gets a point!");
     }
 
+    //Reveal next row of bubbles
+    rows[currentRow].classList.remove('hidden');
 }
 
 const tryAgainBtn = document.getElementById('try-again-btn');
@@ -118,6 +125,11 @@ tryAgainBtn.addEventListener('click', () => {
 
     //Clear all letters and colors from the bubbles
     for (let r = 0; r < 6; r++) {
+        //Hide all bubbles again
+        if (r > 0) {
+            rows[r].classList.add('hidden');
+        }
+
         for (let c = 0; c < 5; c++) {
             const tile = rows[r].children[c];
             tile.textContent = "";
@@ -151,6 +163,11 @@ submitNewWordBtn.addEventListener('click', () => {
     isGameOver = false;
 
     for (let r = 0; r < 6; r++) {
+        //Hide all bubbles again
+        if (r > 0) {
+            rows[r].classList.add('hidden');
+        }
+
         for (let c = 0; c < 5; c++) {
             const tile = rows[r].children[c];
             tile.textContent = ""; 
