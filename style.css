@@ -280,3 +280,32 @@ background-color: var(--color-absent) !important;
     width: 100%;
     height: 100%;
 }
+
+/*BUBBLE IDLE ANIMATION---------------------
+
+/*Define the floating motion */
+@keyframes idleBob {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+/*Apply the animation to all tiles*/
+.tile {
+    animation: idleBob 3s ease-in-out infinite; 
+}
+
+/*Stagger the timing with negative delays*/
+.tile:nth-child(1) { animation-delay: -0.2s; }
+.tile:nth-child(2) { animation-delay: -1.4s; }
+.tile:nth-child(3) { animation-delay: -0.8s; }
+.tile:nth-child(4) { animation-delay: -2.1s; }
+.tile:nth-child(5) { animation-delay: -1.1s; }
+
+/*Break the columns by altering the duration of different rows*/
+.board-row:nth-child(even) .tile { animation-duration: 3.4s; }
+.board-row:nth-child(3n) .tile { animation-duration: 2.7s; }
+.board-row:nth-child(5n) .tile { animation-duration: 3.1s; }
