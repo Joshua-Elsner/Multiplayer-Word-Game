@@ -23,7 +23,12 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 50px; 
+    justify-content: center;
+    
+    margin: 0; 
+    padding: 0;
+    height: 100dvh;
+    overflow: hidden;
 }
 
 h1 {
@@ -76,6 +81,8 @@ h2 {
     width: 100%;
     max-width: 500px;
     padding: 10px;
+
+    margin-bottom: 20px;
 }
 
 .keyboard-row {
@@ -200,6 +207,8 @@ border-color: var(--color-absent) !important;
 }
 
 #home-screen {
+    height: 100%;
+    justify-content: center;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -234,5 +243,7 @@ border-color: var(--color-absent) !important;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-end;
     width: 100%;
+    height: 100%;
 }
