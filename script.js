@@ -198,6 +198,7 @@ submitNewWordBtn.addEventListener('click', () => {
 
     // window.location.href = "leaderboard.html"; 
     console.log("TODO: Updating leaderboard will happen here.");
+    renderLeaderboard(dummyPlayers);
 
     document.getElementById('win-modal').classList.add('hidden');
     document.getElementById('game-screen').classList.add('hidden');
