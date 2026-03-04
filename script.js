@@ -70,46 +70,67 @@ function deleteLetter() {
 }
 
 function checkGuess() {
-    //Make sure the user actually typed a full 5-letter word 
+    // Make sure the user actually typed a full 5 letter word 
     if (currentGuess.length !== 5) {
         return;
     }
 
-    //Compare their guess against the secretWord SHARK letter by letter
-    for (let i = 0; i < secretWord.length; i++) {
+    const tiles = rows[currentRow].children;
+    let secretLetterCounts = {};
+    let guessStatuses = new Array(5).fill('absent'); //Default everything to gray
+
+    // Frequency map of letters in secret word 
+    for (let char of secretWord) {
+        secretLetterCounts[char] = (secretLetterCounts[char] || 0) + 1;
+    }
+
+    // Find exact matches
+    for (let i = 0; i < 5; i++) {
         if (currentGuess[i] === secretWord[i]) {
-           rows[currentRow].children[i].classList.add('correct');
-        }
-
-        else if (secretWord.includes(currentGuess[i])) {
-           rows[currentRow].children[i].classList.add('present');
-        }
-
-        else {
-           rows[currentRow].children[i].classList.add('absent');
+            guessStatuses[i] = 'correct';
+            secretLetterCounts[currentGuess[i]]--;
         }
     }
 
-    //Win chekc
+    //Find partial matches
+    for (let i = 0; i < 5; i++) {
+        if (guessStatuses[i] !== 'correct') { 
+            const letter = currentGuess[i];
+            
+            //In word and we haven't run out
+            if (secretLetterCounts[letter] > 0) {
+                guessStatuses[i] = 'present';
+                secretLetterCounts[letter]--;
+            }
+        }
+    }
+
+    for (let i = 0; i < 5; i++) {
+        tiles[i].classList.add(guessStatuses[i]);
+    }
+
+    // Win check
     if (currentGuess === secretWord) {
         document.getElementById('win-modal').classList.remove('hidden');
         isGameOver = true;
         return;
     }
+    
     currentRow++;
     currentTile = 0;
     currentGuess = "";
 
-    //Lose check
+    // Lose check
     if (currentRow === 6) {
         document.getElementById('lose-modal').classList.remove('hidden');
         isGameOver = true;
         
         //TODO: Add 1 to Fish Eaten on leaderboard
-        console.log("Shark gets a point!");
+        console.log("Shark gets a fish eaten");
+        return;
     }
 
-    //Reveal next row of bubbles
+    // Reveal next row of bubbles
     rows[currentRow].classList.remove('row-collapsed');
 }
 
