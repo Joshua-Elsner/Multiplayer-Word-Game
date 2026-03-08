@@ -25,16 +25,6 @@ updateSharkDisplay();
 const rows = document.querySelectorAll('.board-row');
 const keys = document.querySelectorAll('.key');
 
-const playerSelect = document.getElementById('player-select');
-playerSelect.innerHTML = '';
-
-dummyPlayers.forEach(player => {
-    const option = document.createElement('option');
-    option.value = player.name;
-    option.textContent = player.name;
-    playerSelect.appendChild(option);
-});
-
 function setupBoard() {
     const wager = parseInt(document.getElementById('stake-select').value);
     currentRow = isDaredevil ? wager : 0; 
@@ -75,14 +65,6 @@ keys.forEach(key => {
             addLetter(letter);
         }
     });
-});
-
-// Choose player modal escapes
-document.getElementById('close-player-x').addEventListener('click', () => {
-    document.getElementById('choose-player-modal').classList.add('hidden');
-});
-document.getElementById('cancel-player-btn').addEventListener('click', () => {
-    document.getElementById('choose-player-modal').classList.add('hidden');
 });
 
 // Challenge stake modal escape
@@ -338,17 +320,33 @@ startGameBtn.addEventListener('click', () => {
 });
 
 const chooseNameBtn = document.getElementById('choose-name-btn');
-const choosePlayerModal = document.getElementById('choose-player-modal');
-const confirmPlayerBtn = document.getElementById('confirm-player-btn');
+const playerDropdownList = document.getElementById('player-dropdown-list');
 
-chooseNameBtn.addEventListener('click', () => {
-    choosePlayerModal.classList.remove('hidden');
+dummyPlayers.forEach(player => {
+    const li = document.createElement('li');
+    li.textContent = player.name;
+    
+    li.addEventListener('click', () => {
+        currentPlayer = player.name;
+        
+        chooseNameBtn.textContent = `Player: ${currentPlayer} ▼`;
+        startGameBtn.textContent = `Play as ${currentPlayer}`;
+        
+        playerDropdownList.classList.add('hidden');
+    });
+    
+    playerDropdownList.appendChild(li);
 });
 
-confirmPlayerBtn.addEventListener('click', () => {
-    currentPlayer = playerSelect.value;
-    startGameBtn.textContent = `Play as ${currentPlayer}`;
-    choosePlayerModal.classList.add('hidden');
+chooseNameBtn.addEventListener('click', (event) => {
+    event.stopPropagation();
+    playerDropdownList.classList.toggle('hidden');
+});
+
+document.addEventListener('click', (event) => {
+    if (!playerDropdownList.contains(event.target) && event.target !== chooseNameBtn) {
+        playerDropdownList.classList.add('hidden');
+    }
 });
 
 const challengeBtn = document.getElementById('challenge-btn');
@@ -464,7 +462,6 @@ function awardSharkFish() {
 
 // List of modals that are safe to close by clicking outside
 const closableModalIds = [
-    'choose-player-modal', 
     'challenge-stake-modal', 
     'challenge-info-modal', 
     'how-to-play-modal'

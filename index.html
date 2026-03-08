@@ -28,22 +28,6 @@
         </div>
     </div>
 
-<div id="choose-player-modal" class="hidden">
-    <div class="modal-content">
-        <span class="close-modal-x" id="close-player-x">&times;</span>
-        <h2>Choose Your Player</h2>
-        <select id="player-select">
-            <option value="Player 1">Player 1</option>
-            <option value="Player 2">Player 2</option>
-            <option value="Player 3">Player 3</option>
-            <option value="Player 4">Player 4</option>
-        </select>
-        <button id="confirm-player-btn">This is Me!</button>
-        <button id="cancel-player-btn"
-            style="background-color: transparent; border: 2px solid #888; color: #888; margin-top: -5px;">Cancel</button>
-    </div>
-</div>
-
     <div id="challenge-stake-modal" class="hidden">
         <div class="modal-content">
             <span class="close-modal-x" id="close-stake-x">&times;</span>
@@ -91,22 +75,26 @@
         <h2>Try to guess the secret word in 6 attempts max!</h2>
 
         <h3 id="home-shark-display" class="shark-display">Current Shark: Loading...</h3>
-
+        
         <div class="menu-buttons">
             <button id="start-game-btn">Play as Guest</button>
-
-            <button id="choose-name-btn">Choose Your Player</button>
-
+        
+            <div class="custom-dropdown">
+                <button id="choose-name-btn" class="dropdown-toggle">Player: Elijah ▼</button>
+                <ul id="player-dropdown-list" class="dropdown-menu hidden">
+                </ul>
+            </div>
+        
             <div class="challenge-row">
                 <button id="challenge-btn">Daredevil? NO</button>
                 <button id="challenge-info-btn">?</button>
             </div>
-
+        
             <button id="leaderboard-btn">Leaderboard</button>
-
+        
             <button id="how-to-play-btn">How to Play</button>
         </div>
-    </div>
+        </div>
 
 
     <div id="game-screen" class="hidden">
