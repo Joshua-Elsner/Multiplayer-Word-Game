@@ -77,6 +77,29 @@ keys.forEach(key => {
     });
 });
 
+// Choose player modal escapes
+document.getElementById('close-player-x').addEventListener('click', () => {
+    document.getElementById('choose-player-modal').classList.add('hidden');
+});
+document.getElementById('cancel-player-btn').addEventListener('click', () => {
+    document.getElementById('choose-player-modal').classList.add('hidden');
+});
+
+// Challenge stake modal escape
+document.getElementById('close-stake-x').addEventListener('click', () => {
+    document.getElementById('challenge-stake-modal').classList.add('hidden');
+});
+
+// Challenge info modal escape
+document.getElementById('close-info-x').addEventListener('click', () => {
+    document.getElementById('challenge-info-modal').classList.add('hidden');
+});
+
+// How to play modal escape
+document.getElementById('close-how-to-x').addEventListener('click', () => {
+    document.getElementById('how-to-play-modal').classList.add('hidden');
+});
+
 //Physical keyboard strokes
 document.addEventListener('keydown', (e) => {
     if (isGameOver) return;

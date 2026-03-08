@@ -26,21 +26,25 @@
         </div>
     </div>
 
-    <div id="choose-player-modal" class="hidden">
-        <div class="modal-content">
-            <h2>Choose Your Player</h2>
-            <select id="player-select">
-                <option value="Player 1">Player 1</option>
-                <option value="Player 2">Player 2</option>
-                <option value="Player 3">Player 3</option>
-                <option value="Player 4">Player 4</option>
-            </select>
-            <button id="confirm-player-btn">This is Me!</button>
-        </div>
+<div id="choose-player-modal" class="hidden">
+    <div class="modal-content">
+        <span class="close-modal-x" id="close-player-x">&times;</span>
+        <h2>Choose Your Player</h2>
+        <select id="player-select">
+            <option value="Player 1">Player 1</option>
+            <option value="Player 2">Player 2</option>
+            <option value="Player 3">Player 3</option>
+            <option value="Player 4">Player 4</option>
+        </select>
+        <button id="confirm-player-btn">This is Me!</button>
+        <button id="cancel-player-btn"
+            style="background-color: transparent; border: 2px solid #888; color: #888; margin-top: -5px;">Cancel</button>
     </div>
+</div>
 
     <div id="challenge-stake-modal" class="hidden">
         <div class="modal-content">
+            <span class="close-modal-x" id="close-stake-x">&times;</span>
             <h2>Stake how Many?</h2>
             <select id="stake-select">
                 <option value="1">1 Point</option>
@@ -56,16 +60,25 @@
 
     <div id="challenge-info-modal" class="hidden">
         <div class="modal-content">
+            <span class="close-modal-x" id="close-info-x">&times;</span>
             <h2>What is Daredevil Challenge?</h2>
-            <p>Wager up to 5 of your points for a bonus payout if you guess the word. HOWEVER! For every point you wager, you sacrifice one of your six guesses. For example, betting five points means you get only one single guess at the shark's secret word!</p>
+            <p>Wager up to 5 of your points for a bonus payout if you guess the word. HOWEVER! For every point you
+                wager, you sacrifice one of your six guesses. For example, betting five points means you get only one
+                single guess at the shark's secret word!</p>
             <button id="close-challenge-info-btn">Got it</button>
         </div>
     </div>
 
     <div id="how-to-play-modal" class="hidden">
         <div class="modal-content">
+            <span class="close-modal-x" id="close-how-to-x">&times;</span>
             <h2>How to Play</h2>
-            <p>Welcome to JAWRGON! Your goal is to guess the shark's secret 5-letter word in six tries or less. After each guess, the bubbles will change color: Green means the letter is correctly placed, yellow means it's in the word but the wrong spot, and gray means it isn't in the word at all. If you guess correctly, you become the shark and get to set the next word for everyone to guess. You will earn points for every incorrect guess your opponents make, and earn a Fish Eaten leaderboard bonus if you completely stump them.</p>
+            <p>Welcome to JAWRGON! Your goal is to guess the shark's secret 5-letter word in six tries or less. After
+                each guess, the bubbles will change color: Green means the letter is correctly placed, yellow means it's
+                in the word but the wrong spot, and gray means it isn't in the word at all. If you guess correctly, you
+                become the shark and get to set the next word for everyone to guess. You will earn points for every
+                incorrect guess your opponents make, and earn a Fish Eaten leaderboard bonus if you completely stump
+                them.</p>
             <button id="close-how-to-play-btn">Let's Go!</button>
         </div>
     </div>
@@ -183,7 +196,7 @@
     <div id="leaderboard-screen" class="hidden">
         <h1>Leaderboard</h1>
 
-<h3 id="leaderboard-shark-display" class="shark-display"></h3>
+        <h3 id="leaderboard-shark-display" class="shark-display"></h3>
 
 
         <div class="leaderboard-container">
