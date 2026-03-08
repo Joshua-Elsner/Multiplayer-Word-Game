@@ -18,29 +18,15 @@
         </div>
     </div>
 
-<div id="lose-modal" class="hidden">
+    <div id="lose-modal" class="hidden">
         <div class="modal-content lose-content">
             <h2>Shark Bait!</h2>
             <p>You lost.</p>
             <button id="try-again-btn">Try Again</button>
-            <button id="lose-menu-btn" style="background-color: transparent; border: 2px solid #888; color: #888;">Back to Menu</button>
-            <button id="lose-leaderboard-btn" style="background-color: transparent; border: 2px solid #888; color: #888;">Leaderboard</button>
-        </div>
-    </div>
-
-    <div id="challenge-stake-modal" class="hidden">
-        <div class="modal-content">
-            <span class="close-modal-x" id="close-stake-x">&times;</span>
-            <h2>Stake how Many?</h2>
-            <select id="stake-select">
-                <option value="1">1 Point</option>
-                <option value="2">2 Points</option>
-                <option value="3">3 Points</option>
-                <option value="4">4 Points</option>
-                <option value="5">5 Points</option>
-            </select>
-            <button id="confirm-stake-btn">Confirm</button>
-            <button id="cancel-stake-btn">Nevermind!</button>
+            <button id="lose-menu-btn" style="background-color: transparent; border: 2px solid #888; color: #888;">Back
+                to Menu</button>
+            <button id="lose-leaderboard-btn"
+                style="background-color: transparent; border: 2px solid #888; color: #888;">Leaderboard</button>
         </div>
     </div>
 
@@ -75,26 +61,30 @@
         <h2>Try to guess the secret word in 6 attempts max!</h2>
 
         <h3 id="home-shark-display" class="shark-display">Current Shark: Loading...</h3>
-        
+
         <div class="menu-buttons">
             <button id="start-game-btn">Play as Guest</button>
-        
+
             <div class="custom-dropdown">
                 <button id="choose-name-btn" class="dropdown-toggle">Player: Elijah ▼</button>
                 <ul id="player-dropdown-list" class="dropdown-menu hidden">
                 </ul>
             </div>
-        
+
             <div class="challenge-row">
-                <button id="challenge-btn">Daredevil? NO</button>
+                <div class="daredevil-stepper">
+                    <button id="dd-down-btn" class="stepper-btn">◀</button>
+                    <div id="dd-display" class="stepper-display">Daredevil: OFF</div>
+                    <button id="dd-up-btn" class="stepper-btn">▶</button>
+                </div>
+
                 <button id="challenge-info-btn">?</button>
             </div>
-        
             <button id="leaderboard-btn">Leaderboard</button>
-        
+
             <button id="how-to-play-btn">How to Play</button>
         </div>
-        </div>
+    </div>
 
 
     <div id="game-screen" class="hidden">

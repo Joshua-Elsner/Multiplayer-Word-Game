@@ -25,9 +25,31 @@ updateSharkDisplay();
 const rows = document.querySelectorAll('.board-row');
 const keys = document.querySelectorAll('.key');
 
+let isDaredevil = false;
+let currentWager = 0;
+const ddDisplay = document.getElementById('dd-display');
+
+function updateDaredevilUI() {
+    isDaredevil = currentWager > 0;
+    
+    if (ddDisplay) {
+        if (isDaredevil) {
+            ddDisplay.textContent = `Daredevil: ${currentWager} Pt${currentWager > 1 ? 's' : ''}`;
+            ddDisplay.classList.add('daredevil-active-text');
+        } else {
+            ddDisplay.textContent = "Daredevil: OFF";
+            ddDisplay.classList.remove('daredevil-active-text');
+        }
+    }
+}
+
+function resetDaredevil() {
+    currentWager = 0;
+    updateDaredevilUI();
+}
+
 function setupBoard() {
-    const wager = parseInt(document.getElementById('stake-select').value);
-    currentRow = isDaredevil ? wager : 0; 
+    currentRow = isDaredevil ? currentWager : 0; 
     
     currentTile = 0;
     currentGuess = "";
@@ -65,21 +87,6 @@ keys.forEach(key => {
             addLetter(letter);
         }
     });
-});
-
-// Challenge stake modal escape
-document.getElementById('close-stake-x').addEventListener('click', () => {
-    document.getElementById('challenge-stake-modal').classList.add('hidden');
-});
-
-// Challenge info modal escape
-document.getElementById('close-info-x').addEventListener('click', () => {
-    document.getElementById('challenge-info-modal').classList.add('hidden');
-});
-
-// How to play modal escape
-document.getElementById('close-how-to-x').addEventListener('click', () => {
-    document.getElementById('how-to-play-modal').classList.add('hidden');
 });
 
 //Physical keyboard strokes
@@ -191,19 +198,14 @@ function checkGuess() {
         isGameOver = true;
 
         if (isDaredevil) {
-            const wager = parseInt(document.getElementById('stake-select').value);
-
-            const bonus = wager * 2;
+            const bonus = currentWager * 2;
 
             console.log(`[API] DAREDEVIL SUCCESS! Awarding ${bonus} points to ${currentPlayer}`);
             const winner = dummyPlayers.find(p => p.name === currentPlayer);
             if (winner) {
                 winner.points += bonus;
             }
-
-            // Turn Daredevil off for the next game
-            isDaredevil = false;
-            document.getElementById('challenge-btn').textContent = "Daredevil? NO";
+            resetDaredevil();
         }
 
         console.log(`[API] ${currentPlayer} guessed correctly and is the new Shark!`);
@@ -232,16 +234,13 @@ function checkGuess() {
     rows[currentRow].classList.remove('row-collapsed');
 }
 
-//UI and event listenestr
+//  UI and event listeners============
 
 const tryAgainBtn = document.getElementById('try-again-btn');
 
 tryAgainBtn.addEventListener('click', () => {
     document.getElementById('lose-modal').classList.add('hidden');
-
-    isDaredevil = false;
-    document.getElementById('challenge-btn').textContent = "Daredevil? NO";
-
+    resetDaredevil();
     setupBoard();
 });
 
@@ -253,22 +252,17 @@ loseMenuBtn.addEventListener('click', () => {
     document.getElementById('game-screen').classList.add('hidden');
     
     document.getElementById('home-screen').classList.remove('hidden');
-
-    isDaredevil = false;
-    document.getElementById('challenge-btn').textContent = "Daredevil? NO";
+    resetDaredevil();
     setupBoard();
 });
 
 loseLeaderboardBtn.addEventListener('click', () => {
-    // Hide the modal and game screen
     document.getElementById('lose-modal').classList.add('hidden');
     document.getElementById('game-screen').classList.add('hidden');
     
     renderLeaderboard(dummyPlayers);
     document.getElementById('leaderboard-screen').classList.remove('hidden');
-
-    isDaredevil = false;
-    document.getElementById('challenge-btn').textContent = "Daredevil? NO";
+    resetDaredevil();
     setupBoard();
 });
 
@@ -307,12 +301,10 @@ startGameBtn.addEventListener('click', () => {
     
     // Deduct wager from player
     if (isDaredevil) {
-        const wager = parseInt(document.getElementById('stake-select').value);
         const player = dummyPlayers.find(p => p.name === currentPlayer);
-        
         if (player) {
-            player.points -= wager; 
-            console.log(`[API] Deducted ${wager} points from ${currentPlayer}. Current balance: ${player.points}`);
+            player.points -= currentWager; 
+            console.log(`[API] Deducted ${currentWager} points from ${currentPlayer}. Current balance: ${player.points}`);
         }
     }
 
@@ -322,60 +314,64 @@ startGameBtn.addEventListener('click', () => {
 const chooseNameBtn = document.getElementById('choose-name-btn');
 const playerDropdownList = document.getElementById('player-dropdown-list');
 
-dummyPlayers.forEach(player => {
-    const li = document.createElement('li');
-    li.textContent = player.name;
-    
-    li.addEventListener('click', () => {
-        currentPlayer = player.name;
+if (chooseNameBtn && playerDropdownList) {
+    dummyPlayers.forEach(player => {
+        const li = document.createElement('li');
+        li.textContent = player.name;
         
-        chooseNameBtn.textContent = `Player: ${currentPlayer} ▼`;
-        startGameBtn.textContent = `Play as ${currentPlayer}`;
+        li.addEventListener('click', () => {
+            currentPlayer = player.name;
+            
+            chooseNameBtn.textContent = `Player: ${currentPlayer} ▼`;
+            startGameBtn.textContent = `Play as ${currentPlayer}`;
+            
+            playerDropdownList.classList.add('hidden');
+        });
         
-        playerDropdownList.classList.add('hidden');
+        playerDropdownList.appendChild(li);
     });
-    
-    playerDropdownList.appendChild(li);
-});
 
-chooseNameBtn.addEventListener('click', (event) => {
-    event.stopPropagation();
-    playerDropdownList.classList.toggle('hidden');
-});
+    chooseNameBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        playerDropdownList.classList.toggle('hidden');
+    });
 
-document.addEventListener('click', (event) => {
-    if (!playerDropdownList.contains(event.target) && event.target !== chooseNameBtn) {
-        playerDropdownList.classList.add('hidden');
-    }
-});
+    document.addEventListener('click', (event) => {
+        if (!playerDropdownList.contains(event.target) && event.target !== chooseNameBtn) {
+            playerDropdownList.classList.add('hidden');
+        }
+    });
+}
 
-const challengeBtn = document.getElementById('challenge-btn');
-const challengeStakeModal = document.getElementById('challenge-stake-modal');
-const confirmStakeBtn = document.getElementById('confirm-stake-btn');
-const cancelStakeBtn = document.getElementById('cancel-stake-btn');
-const stakeSelect = document.getElementById('stake-select');
-let isDaredevil = false;
+//Daredevil stepper
+const ddDownBtn = document.getElementById('dd-down-btn');
+const ddUpBtn = document.getElementById('dd-up-btn');
 
-challengeBtn.addEventListener('click', () => {
-    if (isDaredevil) {
-        isDaredevil = false;
-        challengeBtn.textContent = "Daredevil? NO";
-    } else {
-        challengeStakeModal.classList.remove('hidden');
-    }
-});
+if (ddUpBtn) {
+    ddUpBtn.addEventListener('click', () => {
+        currentWager++;
+        
+        if (currentWager > 5) {
+            currentWager = 0;
+        }
+        
+        updateDaredevilUI();
+    });
+}
 
-confirmStakeBtn.addEventListener('click', () => {
-    const points = stakeSelect.value;
-    isDaredevil = true;
-    challengeBtn.textContent = `Daredevil? YES (${points} pts)`;
-    challengeStakeModal.classList.add('hidden');
-});
+if (ddDownBtn) {
+    ddDownBtn.addEventListener('click', () => {
+        currentWager--;
+        
+        if (currentWager < 0) {
+            currentWager = 5;
+        }
+        
+        updateDaredevilUI();
+    });
+}
 
-cancelStakeBtn.addEventListener('click', () => {
-    challengeStakeModal.classList.add('hidden');
-});
-
+//Leaderboard
 const leaderboardBtn = document.getElementById('leaderboard-btn');
 const backToMenuBtn = document.getElementById('back-to-menu-btn');
 
@@ -421,9 +417,11 @@ function renderLeaderboard(players) {
     });
 }
 
+//Info modals
 const challengeInfoBtn = document.getElementById('challenge-info-btn');
 const challengeInfoModal = document.getElementById('challenge-info-modal');
 const closeChallengeInfoBtn = document.getElementById('close-challenge-info-btn');
+const closeInfoX = document.getElementById('close-info-x');
 
 challengeInfoBtn.addEventListener('click', () => {
     challengeInfoModal.classList.remove('hidden');
@@ -431,10 +429,14 @@ challengeInfoBtn.addEventListener('click', () => {
 closeChallengeInfoBtn.addEventListener('click', () => {
     challengeInfoModal.classList.add('hidden');
 });
+if (closeInfoX) {
+    closeInfoX.addEventListener('click', () => challengeInfoModal.classList.add('hidden'));
+}
 
 const howToPlayBtn = document.getElementById('how-to-play-btn');
 const howToPlayModal = document.getElementById('how-to-play-modal');
 const closeHowToPlayBtn = document.getElementById('close-how-to-play-btn');
+const closeHowToX = document.getElementById('close-how-to-x');
 
 howToPlayBtn.addEventListener('click', () => {
     howToPlayModal.classList.remove('hidden');
@@ -442,6 +444,9 @@ howToPlayBtn.addEventListener('click', () => {
 closeHowToPlayBtn.addEventListener('click', () => {
     howToPlayModal.classList.add('hidden');
 });
+if (closeHowToX) {
+    closeHowToX.addEventListener('click', () => howToPlayModal.classList.add('hidden'));
+}
 
 //Dummy backend
 function awardSharkPoints(points) {
@@ -462,7 +467,6 @@ function awardSharkFish() {
 
 // List of modals that are safe to close by clicking outside
 const closableModalIds = [
-    'challenge-stake-modal', 
     'challenge-info-modal', 
     'how-to-play-modal'
 ];
