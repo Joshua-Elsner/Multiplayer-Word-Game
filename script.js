@@ -434,3 +434,24 @@ function awardSharkFish() {
         shark.fishEaten += 1;
     }
 }
+
+// List of modals that are safe to close by clicking outside
+const closableModalIds = [
+    'choose-player-modal', 
+    'challenge-stake-modal', 
+    'challenge-info-modal', 
+    'how-to-play-modal'
+];
+
+closableModalIds.forEach(id => {
+    const modal = document.getElementById(id);
+    
+    if (modal) {
+        modal.addEventListener('click', (event) => {
+            // If it matches the dark background wrapper, hide it.
+            if (event.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+    }
+});
