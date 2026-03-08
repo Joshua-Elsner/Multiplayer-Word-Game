@@ -263,6 +263,33 @@ tryAgainBtn.addEventListener('click', () => {
     setupBoard();
 });
 
+const loseMenuBtn = document.getElementById('lose-menu-btn');
+const loseLeaderboardBtn = document.getElementById('lose-leaderboard-btn');
+
+loseMenuBtn.addEventListener('click', () => {
+    document.getElementById('lose-modal').classList.add('hidden');
+    document.getElementById('game-screen').classList.add('hidden');
+    
+    document.getElementById('home-screen').classList.remove('hidden');
+
+    isDaredevil = false;
+    document.getElementById('challenge-btn').textContent = "Daredevil? NO";
+    setupBoard();
+});
+
+loseLeaderboardBtn.addEventListener('click', () => {
+    // Hide the modal and game screen
+    document.getElementById('lose-modal').classList.add('hidden');
+    document.getElementById('game-screen').classList.add('hidden');
+    
+    renderLeaderboard(dummyPlayers);
+    document.getElementById('leaderboard-screen').classList.remove('hidden');
+
+    isDaredevil = false;
+    document.getElementById('challenge-btn').textContent = "Daredevil? NO";
+    setupBoard();
+});
+
 const submitNewWordBtn = document.getElementById('submit-new-word');
 const newWordInput = document.getElementById('new-word-input');
 
