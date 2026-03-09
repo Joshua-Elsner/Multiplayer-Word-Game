@@ -12,7 +12,7 @@ let currentTile = 0;
 let currentGuess = "";
 let isGameOver = false;
 
-let currentPlayer = dummyPlayers[0].name; // Elijah
+let currentPlayer = "Guest";
 let currentShark = dummyPlayers[1].name;  // Samantha
 
 function updateSharkDisplay() {
