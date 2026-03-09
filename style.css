@@ -329,6 +329,8 @@ background-color: var(--color-absent) !important;
     width: 90%;
     max-width: 800px;
     margin-bottom: 30px;
+    overflow-x: auto; 
+    -webkit-overflow-scrolling: touch;
 }
 
 #leaderboard-table {
@@ -445,4 +447,22 @@ background-color: var(--color-absent) !important;
 
 .dropdown-menu li:last-child {
     border-bottom: none;
+}
+
+/* Mobile table adjustments */
+@media (max-width: 500px) {
+    .leaderboard-container {
+        padding: 10px 5px; 
+    }
+
+    #leaderboard-table th, 
+    #leaderboard-table td {
+        padding: 8px 5px; 
+        font-size: 0.9rem;
+        white-space: nowrap; 
+    }
+
+    #leaderboard-table th {
+        font-size: 0.75rem;
+    }
 }
