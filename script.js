@@ -20,6 +20,19 @@ function updateSharkDisplay() {
     document.getElementById('leaderboard-shark-display').textContent = `Current Shark: ${currentShark}`;
 }
 
+function updateStartButton() {
+    if (currentPlayer === "Guest") {
+        startGameBtn.innerHTML = `Play as Guest<br><span style="font-size: 0.85rem; font-weight: normal;">(Cannot set new word)</span>`;
+        startGameBtn.disabled = false;
+    } else if (currentPlayer === currentShark) {
+        startGameBtn.innerHTML = `${currentPlayer} is already shark!`;
+        startGameBtn.disabled = true;
+    } else {
+        startGameBtn.innerHTML = `Play as ${currentPlayer}`;
+        startGameBtn.disabled = false;
+    }
+}
+
 updateSharkDisplay();
 
 const rows = document.querySelectorAll('.board-row');
@@ -208,6 +221,7 @@ function checkGuess() {
             currentShark = currentPlayer;
             updateSharkDisplay();
             awardSharkEvaded();
+            updateStartButton();
             console.log(`[API] Placeholder: Stop DB timer for ${currentShark}, start DB timer for ${currentPlayer}`);
         }
         return;
@@ -319,7 +333,7 @@ if (chooseNameBtn && playerDropdownList) {
         li.addEventListener('click', () => {
             currentPlayer = player.name;
             
-            startGameBtn.textContent = `Play as ${currentPlayer}`;
+            updateStartButton();
             
             playerDropdownList.classList.add('hidden');
         });
@@ -445,3 +459,5 @@ closableModalIds.forEach(id => {
         });
     }
 });
+
+updateStartButton();

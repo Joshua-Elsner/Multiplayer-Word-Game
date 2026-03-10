@@ -517,3 +517,16 @@ background-color: var(--color-absent) !important;
     border-color: var(--color-text);
     background-color: rgba(125, 211, 252, 0.1); 
 }
+
+/* Disabled Button State */
+button:disabled {
+    background-color: #1e293b !important;
+    color: #475569 !important;
+    border-color: #1e293b !important;
+    cursor: not-allowed !important;
+}
+
+button:disabled:hover {
+    background-color: #1e293b !important;
+    color: #475569 !important;
+}
