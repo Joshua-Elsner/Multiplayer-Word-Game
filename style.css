@@ -32,6 +32,10 @@ body {
     overflow: hidden;
 }
 
+button, .key {
+    transition: all 0.2s ease;
+}
+
 h1 {
     font-size: 2.5rem;
     letter-spacing: 2px;
