@@ -25,7 +25,7 @@ function updateStartButton() {
         startGameBtn.innerHTML = `Play as Guest<br><span style="font-size: 0.85rem; font-weight: normal;">(Cannot set new word)</span>`;
         startGameBtn.disabled = false;
     } else if (currentPlayer === currentShark) {
-        startGameBtn.innerHTML = `${currentPlayer} is already shark!`;
+        startGameBtn.innerHTML = `${currentPlayer} Is Already Shark!`;
         startGameBtn.disabled = true;
     } else {
         startGameBtn.innerHTML = `Play as ${currentPlayer}`;
