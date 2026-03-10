@@ -213,9 +213,11 @@ function checkGuess() {
         } else {
             // Registered player UI and logic
             winModalTitle.textContent = "Winner!";
-            winModalDesc.textContent = "5 letter secret word for next player:";
+            winModalDesc.textContent = "Enter new 5 letter secret word!";
             newWordInput.classList.remove('hidden');
-            submitBtn.textContent = "Go To Leaderboard";
+            submitBtn.textContent = "Confirm";
+
+            newWordInput.focus();
 
             console.log(`[API] ${currentPlayer} guessed correctly and is the new Shark!`);
             currentShark = currentPlayer;
@@ -305,6 +307,13 @@ submitNewWordBtn.addEventListener('click', () => {
     } else {
         renderLeaderboard(dummyPlayers);
         document.getElementById('leaderboard-screen').classList.remove('hidden');
+    }
+});
+
+newWordInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        submitNewWordBtn.click();
     }
 });
 
