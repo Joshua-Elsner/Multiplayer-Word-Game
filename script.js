@@ -391,7 +391,6 @@ function renderLeaderboard(players) {
     const tbody = document.getElementById('leaderboard-body');
     tbody.innerHTML = '';
 
-    // Sort by timeAsShark descending
     const sortedPlayers = [...players].sort((a, b) => b.timeAsShark - a.timeAsShark);
 
     sortedPlayers.forEach((player, index) => {
@@ -403,16 +402,20 @@ function renderLeaderboard(players) {
         if (rank === 3) rankClass = 'rank-3';
 
         const formattedTime = formatSharkTime(player.timeAsShark);
+        
+        // Check if this player is the active shark
+        const isShark = player.name === currentShark;
+        const sharkStyle = isShark ? 'style="color: var(--color-present);"' : '';
 
         const rowHTML = `
         <tr>
             <td class="${rankClass}">${rank}</td>
-            <td>${player.name}</td>
-            <td>${formattedTime}</td>
+            <td ${sharkStyle}>${player.name}</td>
+            <td ${sharkStyle}>${formattedTime}</td>
             <td>${player.fishEaten}</td>
             <td>${player.sharksEvaded}</td>
         </tr>
-    `;
+        `;
 
         tbody.insertAdjacentHTML('beforeend', rowHTML);
     });

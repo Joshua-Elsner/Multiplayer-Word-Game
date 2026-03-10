@@ -530,3 +530,13 @@ button:disabled:hover {
     background-color: #1e293b !important;
     color: #475569 !important;
 }
+
+/* Leaderboard Current Shark Highlight */
+.current-shark-row {
+    background-color: rgba(0, 180, 216, 0.15); /* A subtle oceanic blue wash */
+}
+
+/* Ensure the background color fills the cells nicely */
+.current-shark-row td {
+    border-bottom: 1px solid var(--color-accent) !important; /* Stronger bottom border */
+}
