@@ -531,12 +531,22 @@ button:disabled:hover {
     color: #475569 !important;
 }
 
-/* Leaderboard Current Shark Highlight */
-.current-shark-row {
-    background-color: rgba(0, 180, 216, 0.15); /* A subtle oceanic blue wash */
+#close-how-to-play-btn {
+    padding: 15px 25px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--color-background);
+    background: linear-gradient(45deg, var(--color-accent), #6caef0);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    animation: pulse-attention 2s infinite;
 }
 
-/* Ensure the background color fills the cells nicely */
-.current-shark-row td {
-    border-bottom: 1px solid var(--color-accent) !important; /* Stronger bottom border */
+#close-how-to-play-btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 10px rgba(0, 180, 216, 0.3);
 }
