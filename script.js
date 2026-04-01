@@ -1,4 +1,3 @@
-
 // Import Supabase directly from the CDN
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -7,14 +6,19 @@ const supabaseUrl = 'https://okbynkairmznzcriuknd.supabase.co';
 const supabaseKey = 'sb_publishable_ZJGYQbdtUaABBX1lhOw8qw_Ksiw-S54';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// --- DOM Elements ---
+// (Moved to top so they are ready before functions try to use them!)
+const startGameBtn = document.getElementById('start-game-btn');
+const rows = document.querySelectorAll('.board-row');
+const keys = document.querySelectorAll('.key');
+
 // --- Game State Variables ---
-let secretWord = ""; // We will fetch this from the database now!
+let secretWord = ""; 
 let currentShark = "Loading..."; 
 let currentPlayer = "Guest";
 let currentPlayerId = null;
 let currentSharkId = null;
 
-// ADD THESE 4 LINES BACK IN:
 let currentRow = 0;
 let currentTile = 0;
 let currentGuess = "";
@@ -26,6 +30,8 @@ function updateSharkDisplay() {
 }
 
 function updateStartButton() {
+    if (!startGameBtn) return;
+    
     if (currentPlayer === "Guest") {
         startGameBtn.innerHTML = `Play as Guest<br><span style="font-size: 0.85rem; font-weight: normal;">(Cannot set new word)</span>`;
         startGameBtn.disabled = false;
@@ -40,18 +46,13 @@ function updateStartButton() {
 
 updateSharkDisplay();
 
-const rows = document.querySelectorAll('.board-row');
-const keys = document.querySelectorAll('.key');
-
 function setupBoard() {
     currentRow = 0; 
-    
     currentTile = 0;
     currentGuess = "";
     isGameOver = false;
 
     for (let r = 0; r < 6; r++) {
-        
         if (r <= currentRow) {
             rows[r].classList.remove('row-collapsed');
         } else {
@@ -228,7 +229,6 @@ async function checkGuess() {
             currentShark = currentPlayer;
             updateSharkDisplay();
             updateStartButton();
-            console.log(`[API] Placeholder: Stop DB timer for ${currentShark}, start DB timer for ${currentPlayer}`);
         }
         return;
     }
@@ -245,7 +245,7 @@ async function checkGuess() {
         // --- NEW LOGIC: Reward the Shark for defending their word! ---
         if (currentSharkId) {
             console.log(`[API] Updating DB: ${currentShark} ate a fish!`);
-            
+
             const { error } = await supabase.rpc('record_shark_meal', {
                 active_shark_id: currentSharkId
             });
@@ -257,8 +257,13 @@ async function checkGuess() {
 
         return;
     }
-    
-//  UI and event listeners============
+
+    // --- FIX: THIS WAS MISSING! ---
+    // Reveal next row of bubbles
+    rows[currentRow].classList.remove('row-collapsed');
+}
+
+// ============ UI and event listeners ============
 
 const tryAgainBtn = document.getElementById('try-again-btn');
 
@@ -290,7 +295,6 @@ loseLeaderboardBtn.addEventListener('click', () => {
 const submitNewWordBtn = document.getElementById('submit-new-word');
 const newWordInput = document.getElementById('new-word-input');
 
-// Note the 'async' keyword added here!
 submitNewWordBtn.addEventListener('click', async () => {
     // Only validate and set a new word if they are a registered player
     if (currentPlayer !== "Guest") {
@@ -307,30 +311,28 @@ submitNewWordBtn.addEventListener('click', async () => {
         }
 
         submitNewWordBtn.textContent = "Updating Database...";
-    submitNewWordBtn.disabled = true;
+        submitNewWordBtn.disabled = true;
 
-    const { error } = await supabase.rpc('claim_shark_title', {
-        winner_id: currentPlayerId,
-        outgoing_shark_id: currentSharkId,
-        new_secret_word: newWord
-    });
+        const { error } = await supabase.rpc('claim_shark_title', {
+            winner_id: currentPlayerId,
+            outgoing_shark_id: currentSharkId,
+            new_secret_word: newWord
+        });
 
-    if (error) {
-        console.error("Error claiming shark title:", error);
-        alert("Failed to update the database. Check console.");
-        submitNewWordBtn.textContent = "Confirm";
-        submitNewWordBtn.disabled = false;
-        return;
+        if (error) {
+            console.error("Error claiming shark title:", error);
+            alert("Failed to update the database. Check console.");
+            submitNewWordBtn.textContent = "Confirm";
+            submitNewWordBtn.disabled = false;
+            return;
+        }
+
+        // Update the front-end Shark ID to the winner
+        currentSharkId = currentPlayerId;
+        // If successful, update the local secret word
+        secretWord = newWord;
     }
-
-    //  Update the front‑end Shark ID to the winner
-    currentSharkId = currentPlayerId;
-
-    // If successful, update the local secret word
-    secretWord = newWord;
-}
       
-
     // Reset UI and close out the modal
     newWordInput.value = "";
     submitNewWordBtn.textContent = "Confirm";
@@ -360,8 +362,6 @@ const homeScreen = document.getElementById('home-screen');
 const gameScreen = document.getElementById('game-screen');
 const leaderboardScreen = document.getElementById('leaderboard-screen');
 
-const startGameBtn = document.getElementById('start-game-btn');
-
 // Starting the game from the main menu
 startGameBtn.addEventListener('click', () => {
     homeScreen.classList.add('hidden');
@@ -383,15 +383,14 @@ async function populatePlayerDropdown() {
     }
 
     if (chooseNameBtn && playerDropdownList) {
-        playerDropdownList.innerHTML = ''; // Clear out any old HTML
+        playerDropdownList.innerHTML = ''; 
         
         players.forEach(player => {
             const li = document.createElement('li');
-            li.textContent = player.username; // Our DB uses 'username', not 'name'
+            li.textContent = player.username; 
             
             li.addEventListener('click', () => {
                 currentPlayer = player.username;
-                // Note: We need to store their ID for the database update later!
                 currentPlayerId = player.id; 
                 
                 updateStartButton();
@@ -415,7 +414,7 @@ async function populatePlayerDropdown() {
 }
 
 
-//Leaderboard
+// ============== Leaderboard =================
 
 function formatSharkTime(totalSeconds) {
     const days = Math.floor(totalSeconds / 86400);
@@ -444,7 +443,6 @@ function renderLeaderboard(players) {
     const tbody = document.getElementById('leaderboard-body');
     tbody.innerHTML = '';
 
-    // Change .timeAsShark to .total_time_as_shark
     const sortedPlayers = [...players].sort((a, b) => b.total_time_as_shark - a.total_time_as_shark);
 
     sortedPlayers.forEach((player, index) => {
@@ -455,14 +453,11 @@ function renderLeaderboard(players) {
         if (rank === 2) rankClass = 'rank-2';
         if (rank === 3) rankClass = 'rank-3';
 
-        // Change .timeAsShark
         const formattedTime = formatSharkTime(player.total_time_as_shark);
         
-        // Change .name to .username
         const isShark = player.username === currentShark;
         const sharkStyle = isShark ? 'style="color: var(--color-present);"' : '';
 
-        // Update the variables in the HTML template
         const rowHTML = `
         <tr>
             <td class="${rankClass}">${rank}</td>
@@ -477,7 +472,8 @@ function renderLeaderboard(players) {
     });
 }
 
-//Info modals
+// ========== Info modals ============
+
 const howToPlayBtn = document.getElementById('how-to-play-btn');
 const howToPlayModal = document.getElementById('how-to-play-modal');
 const closeHowToPlayBtn = document.getElementById('close-how-to-play-btn');
@@ -493,7 +489,6 @@ if (closeHowToX) {
     closeHowToX.addEventListener('click', () => howToPlayModal.classList.add('hidden'));
 }
 
-// List of modals that are safe to close by clicking outside
 const closableModalIds = [
     'how-to-play-modal'
 ];
@@ -503,13 +498,14 @@ closableModalIds.forEach(id => {
     
     if (modal) {
         modal.addEventListener('click', (event) => {
-            // If it matches the dark background wrapper, hide it.
             if (event.target === modal) {
                 modal.classList.add('hidden');
             }
         });
     }
 });
+
+// ========== API Fetching ============
 
 async function fetchGameState() {
     const { data, error } = await supabase
@@ -550,10 +546,8 @@ async function fetchAndRenderLeaderboard() {
         return;
     }
 
-    renderLeaderboard(players); // Re-use your existing render function!
+    renderLeaderboard(players);
 }
-
-updateStartButton();
 
 // Initialize the game with live data
 fetchGameState();
