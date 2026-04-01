@@ -1,7 +1,7 @@
 CREATE OR REPLACE FUNCTION claim_shark_title(
-    winner_id UUID,          -- Who is claiming the title
-    guessed_word TEXT,       -- The word they just guessed to win
-    new_secret_word TEXT     -- The new word they are setting
+    winner_id UUID,          
+    guessed_word TEXT,       
+    new_secret_word TEXT     
 ) RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -12,35 +12,33 @@ DECLARE
     shark_duration_seconds INTEGER;
 BEGIN
     -- 1. STRICT INPUT VALIDATION
-    -- Force uppercase and ensure it is exactly 5 alphabetical letters
     IF upper(new_secret_word) !~ '^[A-Z]{5}$' THEN
         RAISE EXCEPTION 'Invalid secret word. Must be exactly 5 letters.';
     END IF;
 
+    -- NEW: Check if the word has been used before!
+    IF EXISTS (SELECT 1 FROM used_words WHERE word = upper(new_secret_word)) THEN
+        RAISE EXCEPTION 'Word already used! You must pick a word that has never been played.';
+    END IF;
+
     -- 2. FETCH AND LOCK CURRENT STATE
-    -- "FOR UPDATE" locks the game_state row. If Player A and Player B 
-    -- both guess correctly at the exact same millisecond, the database 
-    -- forces Player B to wait until Player A's transaction finishes.
     SELECT current_shark_id, secret_word, EXTRACT(EPOCH FROM (NOW() - shark_start_time))::INTEGER
     INTO db_current_shark_id, db_secret_word, shark_duration_seconds
     FROM game_state
     WHERE id = 1
-    FOR UPDATE; 
+    FOR UPDATE;
 
     -- 3. VERIFY THE GUESS AGAINST THE DATABASE
-    -- If Player A already won and changed the word, Player B's guess will 
-    -- fail this check, preventing them from overwriting Player A's victory.
     IF upper(guessed_word) != db_secret_word THEN
         RAISE EXCEPTION 'Incorrect word. The Shark may have already been defeated by someone else!';
     END IF;
 
-    -- Prevent a player from beating themselves if they are already the shark
     IF winner_id = db_current_shark_id THEN
         RAISE EXCEPTION 'You are already the Shark!';
     END IF;
 
     -- 4. EXECUTE SECURE UPDATES
-    -- Update outgoing Shark (using the DB's ID, not the client's)
+    -- Update outgoing Shark
     IF db_current_shark_id IS NOT NULL THEN
         UPDATE players
         SET total_time_as_shark = total_time_as_shark + COALESCE(shark_duration_seconds, 0)
@@ -59,5 +57,10 @@ BEGIN
         secret_word = upper(new_secret_word),
         shark_start_time = NOW()
     WHERE id = 1;
+
+    -- NEW: Record the new word in the history table!
+    INSERT INTO used_words (word, shark_id) 
+    VALUES (upper(new_secret_word), winner_id);
+
 END;
 $$;

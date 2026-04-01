@@ -325,10 +325,17 @@ submitNewWordBtn.addEventListener('click', async () => {
 
         if (error) {
             console.error("Error claiming shark title:", error);
-            alert("Failed to update the database. Check console.");
+            
+            // --- NEW: Show the actual database error to the user ---
+            if (error.message.includes('Word already used')) {
+                alert("That word has already been used in a past game! Please choose a new one.");
+            } else {
+                alert(error.message || "Failed to update the database.");
+            }
+            
             submitNewWordBtn.textContent = "Confirm";
             submitNewWordBtn.disabled = false;
-            return;
+            return; // Stops the function here so the modal doesn't close!
         }
 
         // Update the front-end Shark ID to the winner
