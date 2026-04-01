@@ -1,0 +1,145 @@
+// Import Supabase directly from the CDN
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+// Initialize the connection
+const supabaseUrl = 'https://okbynkairmznzcriuknd.supabase.co';
+const supabaseKey = 'sb_publishable_ZJGYQbdtUaABBX1lhOw8qw_Ksiw-S54';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+/**
+ * Fetches the current game state (Secret word, current shark, start time)
+ * @returns {Promise<Object>} The game state data
+ */
+export async function fetchGameState() {
+    const { data, error } = await supabase
+        .from('game_state')
+        .select(`
+            secret_word,
+            current_shark_id,
+            shark_start_time,
+            players ( username )
+        `)
+        .eq('id', 1)
+        .single();
+
+    if (error) {
+        console.error("Error fetching game state:", error);
+        throw error; // Throw the error so main.js can handle it (e.g., show a toast)
+    }
+
+    return data;
+}
+
+/**
+ * Fetches the top 10 players for the leaderboard
+ * @returns {Promise<Array>} Array of player objects
+ */
+export async function fetchLeaderboard() {
+    const { data: players, error } = await supabase
+        .from('players')
+        .select('*')
+        .order('total_time_as_shark', { ascending: false })
+        .limit(10);
+
+    if (error) {
+        console.error("Error fetching leaderboard:", error);
+        throw error;
+    }
+
+    return players;
+}
+
+/**
+ * Fetches all players for the name selection dropdown
+ * @returns {Promise<Array>} Array of player objects (id and username)
+ */
+export async function fetchPlayers() {
+    const { data: players, error } = await supabase
+        .from('players')
+        .select('id, username');
+    
+    if (error) {
+        console.error("Error fetching players for dropdown:", error);
+        throw error;
+    }
+
+    return players;
+}
+
+/**
+ * Calls the database RPC to record a loss (Current shark eats a fish)
+ */
+export async function recordSharkMeal() {
+    const { error } = await supabase.rpc('record_shark_meal');
+
+    if (error) {
+        console.error("Error recording shark meal:", error);
+        throw error;
+    }
+}
+
+/**
+ * Calls the database RPC to claim the shark title and set a new word
+ * @param {string} winnerId - UUID of the winning player
+ * @param {string} guessedWord - The word they guessed correctly
+ * @param {string} newSecretWord - The new 5-letter word they are setting
+ */
+export async function claimSharkTitle(winnerId, guessedWord, newSecretWord) {
+    const { error } = await supabase.rpc('claim_shark_title', {
+        winner_id: winnerId,
+        guessed_word: guessedWord,
+        new_secret_word: newSecretWord
+    });
+
+    if (error) {
+        console.error("Error claiming shark title:", error);
+        throw error; 
+    }
+}
+
+/**
+ * Fetches the list of words that have already been used in previous games
+ * @returns {Promise<Array>} Array of string words
+ */
+export async function fetchUsedWords() {
+    const { data, error } = await supabase.from('used_words').select('word');
+    
+    if (error) {
+        console.error("Error fetching used words:", error);
+        throw error;
+    }
+
+    // Return just a clean array of strings, converted to uppercase
+    return data ? data.map(row => row.word.toUpperCase()) : [];
+}
+
+/**
+ * Sets up real-time listeners for the database.
+ * @param {Function} onLeaderboardChange - Callback fired when a player's stats change
+ * @param {Function} onGameStateChange - Callback fired when a new shark takes over
+ */
+export function setupRealtimeSubscriptions(onLeaderboardChange, onGameStateChange) {
+    // 1. Listen for changes to the Leaderboard (players table)
+    supabase
+        .channel('players-channel')
+        .on(
+            'postgres_changes',
+            { event: 'UPDATE', schema: 'public', table: 'players' },
+            (payload) => {
+                if (onLeaderboardChange) onLeaderboardChange(payload);
+            }
+        )
+        .subscribe();
+
+    // 2. Listen for changes to the Game State (New Shark / New Word!)
+    supabase
+        .channel('game-state-channel')
+        .on(
+            'postgres_changes',
+            { event: 'UPDATE', schema: 'public', table: 'game_state' },
+            (payload) => {
+                if (onGameStateChange) onGameStateChange(payload);
+            }
+        )
+        .subscribe();
+}
