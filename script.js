@@ -303,28 +303,30 @@ submitNewWordBtn.addEventListener('click', async () => {
             return;
         }
 
-        // --- NEW SUPABASE RPC CALL ---
-        // Change the button text so the user knows it's loading
         submitNewWordBtn.textContent = "Updating Database...";
-        submitNewWordBtn.disabled = true;
+    submitNewWordBtn.disabled = true;
 
-        const { error } = await supabase.rpc('claim_shark_title', {
-            winner_id: currentPlayerId,
-            outgoing_shark_id: currentSharkId,
-            new_secret_word: newWord
-        });
+    const { error } = await supabase.rpc('claim_shark_title', {
+        winner_id: currentPlayerId,
+        outgoing_shark_id: currentSharkId,
+        new_secret_word: newWord
+    });
 
-        if (error) {
-            console.error("Error claiming shark title:", error);
-            alert("Failed to update the database. Check console.");
-            submitNewWordBtn.textContent = "Confirm";
-            submitNewWordBtn.disabled = false;
-            return;
-        }
-
-        // If successful, update the local variable just to be safe
-        secretWord = newWord;
+    if (error) {
+        console.error("Error claiming shark title:", error);
+        alert("Failed to update the database. Check console.");
+        submitNewWordBtn.textContent = "Confirm";
+        submitNewWordBtn.disabled = false;
+        return;
     }
+
+    //  Update the front‑end Shark ID to the winner
+    currentSharkId = currentPlayerId;
+
+    // If successful, update the local secret word
+    secretWord = newWord;
+}
+      
 
     // Reset UI and close out the modal
     newWordInput.value = "";
