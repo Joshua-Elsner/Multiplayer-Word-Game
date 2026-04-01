@@ -1,19 +1,18 @@
-const dummyPlayers = [
-    { name: "Elijah", timeAsShark: 125000, fishEaten: 2, sharksEvaded: 4 }, // Time in seconds
-    { name: "Samantha", timeAsShark: 450000, fishEaten: 0, sharksEvaded: 10 },
-    { name: "Clayton", timeAsShark: 86400, fishEaten: 3, sharksEvaded: 2 },
-    { name: "Amelia", timeAsShark: 9000, fishEaten: 2, sharksEvaded: 5 },
-    { name: "John", timeAsShark: 0, fishEaten: 0, sharksEvaded: 1 }
-];
 
-let secretWord = "SHARK";
-let currentRow = 0;
-let currentTile = 0;
-let currentGuess = "";
-let isGameOver = false;
+// Import Supabase directly from the CDN
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
+// Initialize the connection
+const supabaseUrl = 'https://okbynkairmznzcriuknd.supabase.co';
+const supabaseKey = 'sb_publishable_ZJGYQbdtUaABBX1lhOw8qw_Ksiw-S54';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// --- Game State Variables ---
+let secretWord = ""; // We will fetch this from the database now!
+let currentShark = "Loading..."; 
 let currentPlayer = "Guest";
-let currentShark = dummyPlayers[1].name;  // Samantha
+let currentPlayerId = null;
+let currentSharkId = null;
 
 function updateSharkDisplay() {
     document.getElementById('home-shark-display').textContent = `Current Shark: ${currentShark}`;
@@ -222,7 +221,6 @@ function checkGuess() {
             console.log(`[API] ${currentPlayer} guessed correctly and is the new Shark!`);
             currentShark = currentPlayer;
             updateSharkDisplay();
-            awardSharkEvaded();
             updateStartButton();
             console.log(`[API] Placeholder: Stop DB timer for ${currentShark}, start DB timer for ${currentPlayer}`);
         }
@@ -238,7 +236,6 @@ function checkGuess() {
         document.getElementById('lose-modal').classList.remove('hidden');
         isGameOver = true;
 
-        awardSharkFish();
         return;
     }
 
@@ -270,7 +267,7 @@ loseLeaderboardBtn.addEventListener('click', () => {
     document.getElementById('lose-modal').classList.add('hidden');
     document.getElementById('game-screen').classList.add('hidden');
     
-    renderLeaderboard(dummyPlayers);
+    fetchAndRenderLeaderboard();
     document.getElementById('leaderboard-screen').classList.remove('hidden');
     setupBoard();
 });
@@ -278,7 +275,8 @@ loseLeaderboardBtn.addEventListener('click', () => {
 const submitNewWordBtn = document.getElementById('submit-new-word');
 const newWordInput = document.getElementById('new-word-input');
 
-submitNewWordBtn.addEventListener('click', () => {
+// Note the 'async' keyword added here!
+submitNewWordBtn.addEventListener('click', async () => {
     // Only validate and set a new word if they are a registered player
     if (currentPlayer !== "Guest") {
         const newWord = newWordInput.value.toUpperCase().trim();
@@ -293,10 +291,33 @@ submitNewWordBtn.addEventListener('click', () => {
             return;
         }
 
+        // --- NEW SUPABASE RPC CALL ---
+        // Change the button text so the user knows it's loading
+        submitNewWordBtn.textContent = "Updating Database...";
+        submitNewWordBtn.disabled = true;
+
+        const { error } = await supabase.rpc('claim_shark_title', {
+            winner_id: currentPlayerId,
+            outgoing_shark_id: currentSharkId,
+            new_secret_word: newWord
+        });
+
+        if (error) {
+            console.error("Error claiming shark title:", error);
+            alert("Failed to update the database. Check console.");
+            submitNewWordBtn.textContent = "Confirm";
+            submitNewWordBtn.disabled = false;
+            return;
+        }
+
+        // If successful, update the local variable just to be safe
         secretWord = newWord;
     }
 
+    // Reset UI and close out the modal
     newWordInput.value = "";
+    submitNewWordBtn.textContent = "Confirm";
+    submitNewWordBtn.disabled = false;
     setupBoard();
 
     document.getElementById('win-modal').classList.add('hidden');
@@ -305,7 +326,8 @@ submitNewWordBtn.addEventListener('click', () => {
     if (currentPlayer === "Guest") {
         document.getElementById('home-screen').classList.remove('hidden');
     } else {
-        renderLeaderboard(dummyPlayers);
+        // Fetch the fresh leaderboard from the database to show their updated score!
+        fetchAndRenderLeaderboard();
         document.getElementById('leaderboard-screen').classList.remove('hidden');
     }
 });
@@ -334,33 +356,47 @@ startGameBtn.addEventListener('click', () => {
 const chooseNameBtn = document.getElementById('choose-name-btn');
 const playerDropdownList = document.getElementById('player-dropdown-list');
 
-if (chooseNameBtn && playerDropdownList) {
-    dummyPlayers.forEach(player => {
-        const li = document.createElement('li');
-        li.textContent = player.name;
+// Fetch players for the dropdown menu
+async function populatePlayerDropdown() {
+    const { data: players, error } = await supabase.from('players').select('id, username');
+    
+    if (error) {
+        console.error("Error fetching players for dropdown:", error);
+        return;
+    }
+
+    if (chooseNameBtn && playerDropdownList) {
+        playerDropdownList.innerHTML = ''; // Clear out any old HTML
         
-        li.addEventListener('click', () => {
-            currentPlayer = player.name;
+        players.forEach(player => {
+            const li = document.createElement('li');
+            li.textContent = player.username; // Our DB uses 'username', not 'name'
             
-            updateStartButton();
+            li.addEventListener('click', () => {
+                currentPlayer = player.username;
+                // Note: We need to store their ID for the database update later!
+                currentPlayerId = player.id; 
+                
+                updateStartButton();
+                playerDropdownList.classList.add('hidden');
+            });
             
-            playerDropdownList.classList.add('hidden');
+            playerDropdownList.appendChild(li);
         });
-        
-        playerDropdownList.appendChild(li);
-    });
 
-    chooseNameBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        playerDropdownList.classList.toggle('hidden');
-    });
+        chooseNameBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            playerDropdownList.classList.toggle('hidden');
+        });
 
-    document.addEventListener('click', (event) => {
-        if (!playerDropdownList.contains(event.target) && event.target !== chooseNameBtn) {
-            playerDropdownList.classList.add('hidden');
-        }
-    });
+        document.addEventListener('click', (event) => {
+            if (!playerDropdownList.contains(event.target) && event.target !== chooseNameBtn) {
+                playerDropdownList.classList.add('hidden');
+            }
+        });
+    }
 }
+
 
 //Leaderboard
 
@@ -377,7 +413,7 @@ const leaderboardBtn = document.getElementById('leaderboard-btn');
 const backToMenuBtn = document.getElementById('back-to-menu-btn');
 
 leaderboardBtn.addEventListener('click', () => {
-    renderLeaderboard(dummyPlayers);
+    fetchAndRenderLeaderboard();
     homeScreen.classList.add('hidden');
     leaderboardScreen.classList.remove('hidden');
 });
@@ -391,7 +427,8 @@ function renderLeaderboard(players) {
     const tbody = document.getElementById('leaderboard-body');
     tbody.innerHTML = '';
 
-    const sortedPlayers = [...players].sort((a, b) => b.timeAsShark - a.timeAsShark);
+    // Change .timeAsShark to .total_time_as_shark
+    const sortedPlayers = [...players].sort((a, b) => b.total_time_as_shark - a.total_time_as_shark);
 
     sortedPlayers.forEach((player, index) => {
         const rank = index + 1;
@@ -401,19 +438,21 @@ function renderLeaderboard(players) {
         if (rank === 2) rankClass = 'rank-2';
         if (rank === 3) rankClass = 'rank-3';
 
-        const formattedTime = formatSharkTime(player.timeAsShark);
+        // Change .timeAsShark
+        const formattedTime = formatSharkTime(player.total_time_as_shark);
         
-        // Check if this player is the active shark
-        const isShark = player.name === currentShark;
+        // Change .name to .username
+        const isShark = player.username === currentShark;
         const sharkStyle = isShark ? 'style="color: var(--color-present);"' : '';
 
+        // Update the variables in the HTML template
         const rowHTML = `
         <tr>
             <td class="${rankClass}">${rank}</td>
-            <td ${sharkStyle}>${player.name}</td>
+            <td ${sharkStyle}>${player.username}</td>
             <td ${sharkStyle}>${formattedTime}</td>
-            <td>${player.fishEaten}</td>
-            <td>${player.sharksEvaded}</td>
+            <td>${player.fish_eaten}</td>
+            <td>${player.sharks_evaded}</td>
         </tr>
         `;
 
@@ -437,23 +476,6 @@ if (closeHowToX) {
     closeHowToX.addEventListener('click', () => howToPlayModal.classList.add('hidden'));
 }
 
-//Dummy backend
-function awardSharkEvaded() {
-    console.log(`[API] Placeholder: Awarding 1 Shark Evaded to ${currentPlayer}`);
-    const player = dummyPlayers.find(p => p.name === currentPlayer);
-    if (player) {
-        player.sharksEvaded += 1;
-    }
-}
-
-function awardSharkFish() {
-    console.log(`[API] Awarding 1 Fish Eaten to Shark (${currentShark})`);
-    const shark = dummyPlayers.find(p => p.name === currentShark);
-    if (shark) {
-        shark.fishEaten += 1;
-    }
-}
-
 // List of modals that are safe to close by clicking outside
 const closableModalIds = [
     'how-to-play-modal'
@@ -472,4 +494,51 @@ closableModalIds.forEach(id => {
     }
 });
 
+async function fetchGameState() {
+    const { data, error } = await supabase
+        .from('game_state')
+        .select(`
+            secret_word,
+            current_shark_id,
+            players ( username )
+        `)
+        .eq('id', 1)
+        .single();
+
+    if (error) {
+        console.error("Error fetching game state:", error);
+        return;
+    }
+
+    // Set the global variables
+    secretWord = data.secret_word;
+    currentSharkId = data.current_shark_id;
+    
+    // If there is a shark, get their name. Otherwise, default to "No Shark Yet"
+    currentShark = data.players ? data.players.username : "No Shark Yet";
+    
+    updateSharkDisplay();
+    updateStartButton();
+}
+
+async function fetchAndRenderLeaderboard() {
+    const { data: players, error } = await supabase
+        .from('players')
+        .select('*')
+        .order('total_time_as_shark', { ascending: false })
+        .limit(10);
+
+    if (error) {
+        console.error("Error fetching leaderboard:", error);
+        return;
+    }
+
+    renderLeaderboard(players); // Re-use your existing render function!
+}
+
 updateStartButton();
+
+// Initialize the game with live data
+fetchGameState();
+fetchAndRenderLeaderboard();
+populatePlayerDropdown();
