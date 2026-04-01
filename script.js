@@ -14,8 +14,10 @@ const keys = document.querySelectorAll('.key');
 // --- Game State Variables ---
 let secretWord = ""; 
 let currentShark = "Loading..."; 
-let currentPlayer = "Guest";
-let currentPlayerId = null;
+
+let currentPlayer = localStorage.getItem('jawrgon_username') || "Guest";
+let currentPlayerId = localStorage.getItem('jawrgon_userid') || null;
+
 let currentSharkId = null;
 let sharkStartTime = null; 
 let timerInterval = null;  
@@ -390,12 +392,15 @@ async function populatePlayerDropdown() {
         
         players.forEach(player => {
             const li = document.createElement('li');
-            li.textContent = player.username; 
-            
+            li.textContent = player.username;
+
             li.addEventListener('click', () => {
                 currentPlayer = player.username;
-                currentPlayerId = player.id; 
-                
+                currentPlayerId = player.id;
+
+                localStorage.setItem('jawrgon_username', currentPlayer);
+                localStorage.setItem('jawrgon_userid', currentPlayerId);
+
                 updateStartButton();
                 playerDropdownList.classList.add('hidden');
             });
