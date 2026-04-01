@@ -535,7 +535,7 @@ async function fetchGameState() {
         .select(`
             secret_word,
             current_shark_id,
-            shark_start_time, /* NEW: Fetch the start time */
+            shark_start_time,
             players ( username )
         `)
         .eq('id', 1)
@@ -555,7 +555,7 @@ async function fetchGameState() {
     
     updateSharkDisplay();
     updateStartButton();
-    startSharkTimer(); // NEW: Start the ticking clock!
+    startSharkTimer(); // Start the ticking clock!
 }
 
 async function fetchAndRenderLeaderboard() {
