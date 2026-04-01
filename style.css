@@ -550,3 +550,22 @@ button:disabled:hover {
     transform: scale(0.95);
     box-shadow: 0 2px 10px rgba(0, 180, 216, 0.3);
 }
+
+/* Word Suggestions */
+.suggestion-btn {
+    padding: 8px 15px;
+    font-size: 1rem;
+    background-color: var(--color-background);
+    color: var(--color-present);
+    border: 1px solid var(--color-present);
+    border-radius: 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.suggestion-btn:hover {
+    background-color: var(--color-present);
+    color: var(--color-background);
+}

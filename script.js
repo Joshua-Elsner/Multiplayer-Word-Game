@@ -216,12 +216,14 @@ async function checkGuess() {
         const winModalDesc = document.querySelector('#win-modal p');
         const newWordInput = document.getElementById('new-word-input');
         const submitBtn = document.getElementById('submit-new-word');
+        const wordSuggestions = document.getElementById('word-suggestions'); // Grab the new container
 
         if (currentPlayer === "Guest") {
             // Guest UI
             winModalTitle.textContent = "You Survived!";
             winModalDesc.textContent = "Great guessing! However, Guests cannot become the Shark or set new words.";
             newWordInput.classList.add('hidden');
+            wordSuggestions.classList.add('hidden'); // Ensure hidden for guests
             submitBtn.textContent = "Back to Menu";
         } else {
             // Registered player UI and logic
@@ -229,6 +231,9 @@ async function checkGuess() {
             winModalDesc.textContent = "Enter new 5 letter secret word!";
             newWordInput.classList.remove('hidden');
             submitBtn.textContent = "Confirm";
+
+            // --- CALL THE NEW FUNCTION HERE ---
+            displayWordSuggestions();
 
             newWordInput.focus();
 
@@ -650,6 +655,56 @@ function setupRealtimeSubscriptions() {
             }
         )
         .subscribe();
+}
+
+async function displayWordSuggestions() {
+    const suggestionsContainer = document.getElementById('word-suggestions');
+    const sug1Btn = document.getElementById('suggestion-1');
+    const sug2Btn = document.getElementById('suggestion-2');
+    const newWordInput = document.getElementById('new-word-input');
+
+    // Hide initially while loading
+    suggestionsContainer.classList.add('hidden');
+
+    // 1. Fetch used words from the database
+    const { data, error } = await supabase.from('used_words').select('word');
+    
+    let usedWordsList = [];
+    if (!error && data) {
+        usedWordsList = data.map(row => row.word.toUpperCase());
+    }
+
+    // 2. Filter out used words from the global VALID_WORDS array
+    const unusedWords = VALID_WORDS.filter(word => !usedWordsList.includes(word.toUpperCase()));
+
+    // 3. Pick 2 random words
+    if (unusedWords.length >= 2) {
+        // Pick two unique random indices
+        const randomIndices = [];
+        while(randomIndices.length < 2){
+            let r = Math.floor(Math.random() * unusedWords.length);
+            if(randomIndices.indexOf(r) === -1) randomIndices.push(r);
+        }
+        
+        const word1 = unusedWords[randomIndices[0]].toUpperCase();
+        const word2 = unusedWords[randomIndices[1]].toUpperCase();
+
+        // 4. Update UI
+        sug1Btn.textContent = word1;
+        sug2Btn.textContent = word2;
+
+        // Make them clickable to auto-fill the input
+        sug1Btn.onclick = () => {
+            newWordInput.value = word1;
+            newWordInput.focus();
+        };
+        sug2Btn.onclick = () => {
+            newWordInput.value = word2;
+            newWordInput.focus();
+        };
+
+        suggestionsContainer.classList.remove('hidden');
+    }
 }
 
 // Call the new function alongside your other initialization functions at the very bottom

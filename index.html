@@ -13,8 +13,17 @@
         <div class="modal-content">
             <h2>Winner!</h2>
             <p>Enter new 5 letter secret word:</p>
+            
+            <div id="word-suggestions" class="hidden" style="margin-bottom: 10px;">
+                <p style="font-size: 0.85rem; margin-bottom: 8px; color: #888;">Stuck? Try one of these:</p>
+                <div style="display: flex; justify-content: center; gap: 10px;">
+                    <button id="suggestion-1" class="suggestion-btn"></button>
+                    <button id="suggestion-2" class="suggestion-btn"></button>
+                </div>
+            </div>
+            
             <input type="text" id="new-word-input" maxlength="5" autocomplete="off">
-            <button id="submit-new-word">Go To Leaderboard</button>
+            <button id="submit-new-word">Confirm</button>
         </div>
     </div>
 
