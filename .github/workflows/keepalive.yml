@@ -1,0 +1,19 @@
+name: Supabase Keep Alive
+
+on:
+  schedule:
+    # Runs at 00:00 every 5 days
+    - cron: '0 0 */5 * *'
+  # Allows you to trigger it manually from the Actions tab
+  workflow_dispatch: 
+
+jobs:
+  ping-database:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase API
+       run: |
+          curl --request GET 'https://okbynkairmznzcriuknd.supabase.co/rest/v1/game_state?select=id&limit=1' \
+          --header 'apikey: ${{ secrets.SUPABASE_ANON_KEY }}' \
+          --header 'Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}' \
+          --silent --show-error --fail
