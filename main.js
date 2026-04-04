@@ -82,6 +82,7 @@ async function loadPlayers() {
         renderPlayerList(players, (selectedPlayer) => {
             setPlayer(selectedPlayer.username, selectedPlayer.id);
             updateStartButton(gameState.currentPlayer, gameState.currentShark);
+            updateSharkDisplay(gameState.currentShark, gameState.currentPlayer);
             toggleScreen('player-modal', false);
         });
     } catch (e) {
@@ -96,7 +97,7 @@ async function loadGameState() {
     gameState.sharkStartTime = data.shark_start_time;
     gameState.currentShark = data.players ? data.players.username : "No Shark Yet";
 
-    updateSharkDisplay(gameState.currentShark);
+    updateSharkDisplay(gameState.currentShark, gameState.currentPlayer);
     updateStartButton(gameState.currentPlayer, gameState.currentShark);
     startSharkTimer();
 }
@@ -308,6 +309,7 @@ document.getElementById('create-player-btn')?.addEventListener('click', async ()
         // 3. Update State & UI
         setPlayer(newPlayer.username, newPlayer.id);
         updateStartButton(gameState.currentPlayer, gameState.currentShark);
+        updateSharkDisplay(gameState.currentShark, gameState.currentPlayer);
         
         input.value = ""; // Clear input
         toggleScreen('player-modal', false);

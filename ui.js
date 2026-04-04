@@ -127,12 +127,16 @@ export function revealNextRow(rowIndex) {
 /**
  * Updates the "Current Shark" text on both the home screen and leaderboard.
  */
-export function updateSharkDisplay(currentSharkName) {
+export function updateSharkDisplay(currentSharkName, currentPlayerName) {
     const homeDisplay = document.getElementById('home-shark-display');
     const boardDisplay = document.getElementById('leaderboard-shark-display');
 
-    if (homeDisplay) homeDisplay.textContent = `Current Shark: ${currentSharkName}`;
-    if (boardDisplay) boardDisplay.textContent = `Current Shark: ${currentSharkName}`;
+    const displayName = (currentSharkName === currentPlayerName && currentPlayerName !== "Guest") 
+        ? "You" 
+        : currentSharkName;
+
+    if (homeDisplay) homeDisplay.textContent = `Current Shark: ${displayName}`;
+    if (boardDisplay) boardDisplay.textContent = `Current Shark: ${displayName}`;
 }
 
 /**
