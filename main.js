@@ -275,8 +275,8 @@ document.getElementById('create-player-btn')?.addEventListener('click', async ()
     const newUsername = input ? input.value.trim() : "";
 
     // 1. Local Validation
-    if (!/^[a-zA-Z0-9]{1,12}$/.test(newUsername)) {
-        showToast("Name must be 1-12 letters/numbers only.");
+    if (!/^[a-zA-Z0-9 ']{1,13}$/.test(newUsername)) {
+        showToast("Name must be 1-13 letters/numbers only.");
         return;
     }
 
