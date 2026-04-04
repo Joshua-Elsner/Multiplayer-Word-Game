@@ -17,7 +17,8 @@ import {
     showToast, resetBoardUI, updateTileText, paintRowStatuses, 
     shakeRow, revealNextRow, updateSharkDisplay, updateStartButton, 
     renderPlayerList, toggleScreen, setupWinModal, 
-    renderWordSuggestions, setSubmitButtonLoading, renderLeaderboardTable 
+    renderWordSuggestions, setSubmitButtonLoading, renderLeaderboardTable,
+    updateGuessCounter
 } from './ui.js';
 
 // ==========================================
@@ -174,6 +175,7 @@ async function submitGuess() {
             handleLoss();
         } else {
             advanceRow();
+            updateGuessCounter(gameState.currentRow);
             revealNextRow(gameState.currentRow);
         }
     }

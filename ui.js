@@ -58,6 +58,7 @@ export function resetBoardUI() {
 
     // Clear all colors from the virtual keyboard
     keys.forEach(key => key.classList.remove('correct', 'present', 'absent'));
+    updateGuessCounter(0);
 }
 
 /**
@@ -307,4 +308,12 @@ export function renderLeaderboardTable(sortedPlayers) {
 
         tbody.insertAdjacentHTML('beforeend', rowHTML);
     });
+}
+
+export function updateGuessCounter(currentRow) {
+    const counter = document.getElementById('guess-counter');
+    if (counter) {
+        // We add 1 because rows are 0-indexed in the code!
+        counter.textContent = `Guess ${currentRow + 1}/6`;
+    }
 }
