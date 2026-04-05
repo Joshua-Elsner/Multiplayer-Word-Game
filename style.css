@@ -640,8 +640,8 @@ button:disabled:hover {
     height: 50px;
     border-radius: 50%;
     background-color: transparent;
-    color: #888;
-    border: 2px solid #888;
+    color: var(--color-accent); 
+    border: 2px solid var(--color-accent);
     cursor: pointer;
     
     display: flex;
@@ -652,8 +652,7 @@ button:disabled:hover {
 }
 
 .circle-btn:hover {
-    color: var(--color-text);
-    border-color: var(--color-text);
-    background-color: rgba(125, 211, 252, 0.1); 
+    background-color: var(--color-accent);
+    color: var(--color-background);
     transform: scale(1.05);
 }
