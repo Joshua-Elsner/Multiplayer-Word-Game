@@ -14,6 +14,10 @@
     --color-text: #7DD3FC; 
     --color-tile-border: #334155;
     --color-accent: #00b4d8;
+
+    --tile-size: min(16vw, 60px); /* Huge on mobile, maxes out at 60px on desktop */
+    --row-gap: 5px;
+    --row-height: calc(var(--tile-size) + var(--row-gap));
 }
 
 body {
@@ -59,10 +63,10 @@ h2 {
 .board-row {
     display: flex;
     justify-content: center; 
-    gap: 3px;
+    gap: var(--row-gap);
 
-    /*Animated reveal*/
-    max-height: 60px;
+    /* Use the variable so the animation height scales perfectly */
+    max-height: var(--tile-size); 
     opacity: 1;
     transition: max-height 0.5s ease-out, opacity 0.6s ease-out, margin 0.5s ease-out;
 }
@@ -70,16 +74,17 @@ h2 {
 .row-collapsed {
     max-height: 0;
     opacity: 0;
-    margin-bottom: -5px; /*Negates the 5px gap so it sits flat */
-    overflow: hidden; /*Hides the bubbles while the row is squished */
+    /* Use the variable to perfectly negate the gap */
+    margin-bottom: calc(var(--row-gap) * -1); 
+    overflow: hidden;
 }
 
 .tile {
-    width: 55px;
-    height: 55px;
+    width: var(--tile-size);
+    height: var(--tile-size);
     border: none;
     border-radius: 50%;
-
+    
     background-color: #6caef0;
     
     display: flex;
@@ -90,8 +95,6 @@ h2 {
     font-weight: bold;
     text-transform: uppercase;
     color: black;
-
-    /*For shine depth depth*/
     position: relative; 
     box-shadow: inset -4px -4px 10px rgba(0, 0, 0, 0.15);
 }
@@ -617,11 +620,14 @@ button:disabled:hover {
 
 #top-shark {
     position: absolute;
-    top: -30px; /* Locks it to the top of the game screen */
-    width: 180px; /* Adjust based on your image size */
-    z-index: 10; /* Ensures it stays on top of the bubbles/fish */
-    
-    /* Reuses your existing bubble animation to make it float menacingly! */
+    /* 190px (Keyboard + gaps) 
+      + 4.2 multiplied by our dynamic row height 
+    */
+    bottom: calc(190px + (var(--row-height) * 4.2));
+    left: 50%;
+    transform: translateX(-50%);
+    width: 180px;
+    z-index: 10;
     animation: idleBob 4s ease-in-out infinite alternate;
 }
 
