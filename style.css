@@ -648,8 +648,8 @@ button:disabled:hover {
     align-items: center;
     font-size: 2rem;   
     line-height: 0;    
-    padding-bottom: 5px;
-    padding-right: 8px;  
+    padding-bottom: 3px;
+    padding-right: 6px;  
     font-weight: bold;
     transition: all 0.2s ease;
 }
