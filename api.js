@@ -39,7 +39,7 @@ export async function fetchLeaderboard() {
         .from('players')
         .select('*')
         .order('total_time_as_shark', { ascending: false })
-        .limit(10);
+        .limit(30);
 
     if (error) {
         console.error("Error fetching leaderboard:", error);
