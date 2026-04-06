@@ -126,17 +126,26 @@ export function revealNextRow(rowIndex) {
 
 /**
  * Updates the "Current Shark" text on both the home screen and leaderboard.
+ * Also displays the secret word if the viewer is the active Shark
  */
-export function updateSharkDisplay(currentSharkName, currentPlayerName) {
+export function updateSharkDisplay(currentSharkName, currentPlayerName, secretWord) {
     const homeDisplay = document.getElementById('home-shark-display');
     const boardDisplay = document.getElementById('leaderboard-shark-display');
 
-    const displayName = (currentSharkName === currentPlayerName && currentPlayerName !== "Guest") 
-        ? "You" 
-        : currentSharkName;
+    const isCurrentShark = (currentSharkName === currentPlayerName && currentPlayerName !== "Guest");
+    const displayName = isCurrentShark ? "You" : currentSharkName;
 
-    if (homeDisplay) homeDisplay.textContent = `Current Shark: ${displayName}`;
-    if (boardDisplay) boardDisplay.textContent = `Current Shark: ${displayName}`;
+    // Build the base display text
+    let displayText = `Current Shark: ${displayName}`;
+
+    // If the local player is the shark, append their secret word on a new line
+    if (isCurrentShark && secretWord) {
+        displayText += `<br><span style="font-size: 0.9rem; color: #888; text-transform: uppercase; letter-spacing: 2px;">(Your Word: <span style="color: var(--color-text);">${secretWord}</span>)</span>`;
+    }
+
+    // Use innerHTML instead of textContent so the <br> and <span> tags render correctly
+    if (homeDisplay) homeDisplay.innerHTML = displayText;
+    if (boardDisplay) boardDisplay.innerHTML = displayText;
 }
 
 /**
