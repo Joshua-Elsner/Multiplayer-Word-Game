@@ -4,7 +4,8 @@
 import { 
     fetchGameState, fetchLeaderboard, fetchPlayers, 
     claimSharkTitle, recordSharkMeal, fetchUsedWords, 
-    setupRealtimeSubscriptions, createNewPlayer
+    setupRealtimeSubscriptions, createNewPlayer,
+    recordYoink, sendYoinkBroadcast
 } from './api.js';
 
 import { 
@@ -33,10 +34,11 @@ async function init() {
         await loadLeaderboard();
         await loadPlayers();
 
-        // Setup real-time listeners for multiplayer updates
         setupRealtimeSubscriptions(
             () => { loadLeaderboard(); loadPlayers(); },
-            async () => {             // Callback for when game state changes
+            
+            // Callback for game state change
+            async () => {             
                 const oldSecretWord = gameState.secretWord;
                 await loadGameState();
 
@@ -44,9 +46,7 @@ async function init() {
                 const isCurrentlyPlaying = gameState.currentRow > 0 || gameState.currentTile > 0;
                 const isSettingWord = !document.getElementById('win-modal').classList.contains('hidden');
 
-                // If they are on the game screen, and the word changed...
                 if (isGameVisible && oldSecretWord !== gameState.secretWord) {
-                    // Yoink if they are actively guessing OR if they are in the winner modal
                     if ((isCurrentlyPlaying && !gameState.isGameOver) || isSettingWord) {
                         showToast(`YOINK!!!\n${gameState.currentShark} just guessed it!\nThe word was: ${oldSecretWord}`, 4000);
                         
@@ -54,8 +54,22 @@ async function init() {
                             toggleScreen('win-modal', false);
                         }
                         
+                        // NEW: Trust the client to report that it got yoinked
+                        if (gameState.currentPlayer !== "Guest") {
+                            recordYoink(gameState.currentSharkId);
+                            sendYoinkBroadcast(gameState.currentSharkId, gameState.currentPlayer);
+                        }
+                        
                         startNewGame(); 
                     }
+                }
+            },
+            
+            // NEW 3rd Callback for Yoink Broadcasts
+            (payload) => {
+                // If I am the new Shark, and someone sent a broadcast meant for me...
+                if (gameState.currentPlayerId === payload.sharkId) {
+                    showToast(`${payload.yoinkedName} got yoinked! Gottem!`, 3500);
                 }
             }
         );
