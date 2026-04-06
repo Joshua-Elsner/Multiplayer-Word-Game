@@ -6,6 +6,8 @@ const supabaseUrl = 'https://fwizxuvhitnnnxoyulun.supabase.co';
 const supabaseKey = 'sb_publishable_c9nfqIrxrqzGtrku1IS-dg_7AtSPP_A';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+let gameEventsChannel;
+
 /**
  * Fetches the current game state (Secret word, current shark, start time)
  * @returns {Promise<Object>} The game state data
@@ -118,7 +120,7 @@ export async function fetchUsedWords() {
  * @param {Function} onLeaderboardChange - Callback fired when a player's stats change
  * @param {Function} onGameStateChange - Callback fired when a new shark takes over
  */
-export function setupRealtimeSubscriptions(onLeaderboardChange, onGameStateChange) {
+export function setupRealtimeSubscriptions(onLeaderboardChange, onGameStateChange, onYoinkBroadcast) {
     // 1. Listen for changes to the Leaderboard (players table)
     supabase
         .channel('players-channel')
@@ -142,6 +144,14 @@ export function setupRealtimeSubscriptions(onLeaderboardChange, onGameStateChang
             }
         )
         .subscribe();
+
+         // Set up broadcast channel for player-to-player transient messages
+    gameEventsChannel = supabase.channel('game-events');
+    gameEventsChannel
+        .on('broadcast', { event: 'yoink' }, (payload) => {
+            if (onYoinkBroadcast) onYoinkBroadcast(payload.payload);
+        })
+        .subscribe();
 }
 
 export async function createNewPlayer(username) {
@@ -154,4 +164,19 @@ export async function createNewPlayer(username) {
         throw error;
     }
     return data;
+}
+
+export async function recordYoink(targetSharkId) {
+    const { error } = await supabase.rpc('record_yoink', { target_shark_id: targetSharkId });
+    if (error) console.error("Error recording yoink:", error);
+}
+
+export function sendYoinkBroadcast(sharkId, yoinkedName) {
+    if (gameEventsChannel) {
+        gameEventsChannel.send({
+            type: 'broadcast',
+            event: 'yoink',
+            payload: { sharkId, yoinkedName }
+        });
+    }
 }
