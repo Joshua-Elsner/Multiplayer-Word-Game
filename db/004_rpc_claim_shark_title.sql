@@ -30,7 +30,7 @@ BEGIN
 
     -- 3. VERIFY THE GUESS AGAINST THE DATABASE
     IF upper(guessed_word) != db_secret_word THEN
-        RAISE EXCEPTION 'Incorrect word. The Shark may have already been defeated by someone else!';
+        RAISE EXCEPTION 'TOO SLOW!!! The Shark may have already been defeated by someone else!';
     END IF;
 
     IF winner_id = db_current_shark_id THEN
