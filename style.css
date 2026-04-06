@@ -658,19 +658,19 @@ button:disabled:hover {
 }
 
 /* Discord Menu Button Styles */
-.discord-btn {
+#discord-menu-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px; /* Space between logo and text */
-    background-color: #5865F2; /* Official Discord Blurple */
-    color: white;
+    background-color: #5865F2 !important; /* !important forces it to ignore the default button color */
+    color: white !important;
     border: none;
-    margin-top: 15px; /* Adds space above the button */
+    margin-top: 0; 
 }
 
-.discord-btn:hover {
-    background-color: #4752C4; /* Darker Blurple for hover state */
+#discord-menu-btn:hover {
+    background-color: #4752C4 !important; /* Darker Blurple for hover state */
 }
 
 .discord-btn:active {
