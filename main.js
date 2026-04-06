@@ -54,11 +54,9 @@ async function init() {
                             toggleScreen('win-modal', false);
                         }
                         
-                        // NEW: Trust the client to report that it got yoinked
-                        if (gameState.currentPlayer !== "Guest") {
+                        // Trust the client to report that it got yoinked
                             recordYoink(gameState.currentSharkId);
                             sendYoinkBroadcast(gameState.currentSharkId, gameState.currentPlayer);
-                        }
                         
                         startNewGame(); 
                     }
