@@ -676,3 +676,18 @@ button:disabled:hover {
 .discord-btn:active {
     transform: translateY(0px); /* Pushes down when clicked */
 }
+
+/* Align the text and the badge image side-by-side */
+.icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px; /* Adds space between the text and the image */
+}
+
+/* Size the badge image so it fits nicely inside the button */
+.btn-badge {
+    width: 59px; /* Adjust this number to make the image bigger or smaller */
+    height: auto;
+    pointer-events: none; /* Prevents the image from messing with button clicks */
+}
