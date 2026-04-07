@@ -17,7 +17,7 @@ BEGIN
     END IF;
     
     -- Validate characters (ADDED SPACE ALLOWANCE)
-    IF clean_username !~ '^[a-zA-Z0-9 '']+$' THEN
+    IF clean_username !~ '^[a-zA-Z0-9 ''!]+$' THEN
         RAISE EXCEPTION 'Username must be alphanumeric and spaces only.';
     END IF;
     
