@@ -17,7 +17,7 @@ serve(async (req) => {
 
     // Did fish eaten increase?
     if (newRecord.fish_eaten > oldRecord.fish_eaten) {
-      let message = `🐟 **${newRecord.username}** just ate a fish! Nom nom.`;
+      let message = `🐟 ${newRecord.username} just ate a fish! Nom nom.`;
       
       await fetch(Deno.env.get("DISCORD_WEBHOOK_FISH")!, {
         method: "POST",
@@ -28,7 +28,7 @@ serve(async (req) => {
     
     // Did yoinks increase? (This player stole a word out from under someone else!)
     if (newRecord.yoinks > oldRecord.yoinks) {
-      let tag = `**${newRecord.username}**`;
+      let tag = `${newRecord.username}`;
       if (newRecord.discord_id && newRecord.wants_mentions) {
         tag = `<@${newRecord.discord_id}>`; // Discord syntax to ping!
       }
@@ -75,12 +75,12 @@ serve(async (req) => {
          }
          
          if (newShark) {
-             newSharkName = `**${newShark.username}**`;
+             newSharkName = `${newShark.username}`;
          }
        }
 
        // Build the ultimate combo message!
-       let message = `🦈 ${newSharkName} just guessed ${oldSharkName}'s word! The word was **${oldState.secret_word}**.`;
+       let message = `${newSharkName} guessed ${oldSharkName}'s word! The word was ${oldState.secret_word}.`;
        
        await fetch(Deno.env.get("DISCORD_WEBHOOK_WORDS")!, {
         method: "POST",
