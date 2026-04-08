@@ -325,6 +325,7 @@ background-color: var(--color-absent) !important;
     width: 100%;
     height: 100%;
     text-align: center;
+    padding-top: 60px;
 }
 
 .leaderboard-container {
