@@ -57,7 +57,7 @@ async function init() {
 
                 if (isGameVisible && oldSecretWord !== gameState.secretWord) {
                     if ((isCurrentlyPlaying && !gameState.isGameOver) || isSettingWord) {
-                        showToast(`YOINK!!!\n${gameState.currentShark} just guessed it!\nThe word was: ${oldSecretWord}`, 4000);
+                        showToast(`YOINK!!!\n${gameState.currentShark} guessed it!\nWord was: ${oldSecretWord}`, 4000);
                         
                         if (isSettingWord) {
                             toggleScreen('win-modal', false);
