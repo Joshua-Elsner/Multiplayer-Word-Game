@@ -734,6 +734,6 @@ button:disabled:hover {
 }
 
 .toast-highlight {
-    color: var(--color-present); /* Makes it yellow */
+    color: #ff4444;
     font-weight: 900;
 }
