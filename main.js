@@ -322,12 +322,13 @@ document.getElementById('start-game-btn').addEventListener('click', async () => 
 document.getElementById('board-return-menu-btn')?.addEventListener('click', async () => {
     console.log("1. Back button clicked. Telling Supabase I am no longer guessing...");
     
-    // Await this to guarantee Supabase sends the message before the screen changes
-    await updatePresence(false); 
-    
+    // 1. Instantly update the UI so there is zero lag
     toggleScreen('game-screen', false);
     toggleScreen('home-screen', true);
-    startNewGame(); // Clears their current progress
+    startNewGame(); 
+
+    // 2. Tell Supabase in the background
+    await updatePresence(false); 
 });
 
 document.getElementById('leaderboard-btn').addEventListener('click', () => {
