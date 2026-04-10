@@ -1,4 +1,15 @@
+# Dependencies
 node_modules/
+
+# Environment Variables
 .env
-playwright-report/
-test-results/
+
+# Supabase Local Testing
+supabase/snippets/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
