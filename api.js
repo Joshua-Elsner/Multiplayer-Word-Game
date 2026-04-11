@@ -102,23 +102,6 @@ export async function claimSharkTitle(winnerId, guessedWord, newSecretWord) {
 }
 
 /**
- * Checks if a word exists in the remote dictionary
- */
-export async function checkWordValidity(word) {
-    const { data, error } = await supabase
-        .from('dictionary')
-        .select('word')
-        .eq('word', word.toUpperCase())
-        .single();
-    
-    // If we find a row, it's valid. If not, it's invalid.
-    if (error && error.code === 'PGRST116') return false; // Not found
-    if (error) throw error;
-    
-    return !!data;
-}
-
-/**
  * Asks the database to run the RPC and return 2 valid, unused words
  */
 export async function fetchWordSuggestions() {
