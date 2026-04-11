@@ -173,6 +173,7 @@ color: black !important;
 background-color: var(--color-absent) !important;
 }
 
+#announcement-modal,
 #win-modal, 
 #lose-modal, 
 #choose-player-modal, 

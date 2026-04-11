@@ -572,3 +572,20 @@ document.getElementById('new-word-input')?.addEventListener('keydown', (e) => {
 // START APP
 // ==========================================
 init();
+
+// ==========================================
+// TEMPORARY ANNOUNCEMENT (DELETE LATER)
+// ==========================================
+
+setTimeout(() => {
+    // Check if they've seen it before
+    if (!localStorage.getItem('saw_reset_announcement')) {
+        toggleScreen('announcement-modal', true);
+    }
+}, 500); // Slight delay so it pops up smoothly after the game loads
+
+document.getElementById('dismiss-announcement-btn')?.addEventListener('click', () => {
+    // Drop the cookie so they never see it again
+    localStorage.setItem('saw_reset_announcement', 'true');
+    toggleScreen('announcement-modal', false);
+});
