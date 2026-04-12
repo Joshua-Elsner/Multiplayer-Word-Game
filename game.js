@@ -170,6 +170,34 @@ export function processLeaderboardData(players) {
 }
 
 /**
+ * Analyzes the player list to format it for the Player Stats screen
+ * @param {Array} players - Array of player objects from the database
+ * @returns {Array} Alphabetically sorted and formatted array of players
+ */
+export function processPlayerStatsData(players) {
+    const playersWithLiveTime = players.map(player => {
+        let displayAllTimeSeconds = player.all_time_time_as_shark || 0;
+        const isShark = player.username === gameState.currentShark;
+
+        // If this player is the current shark, add their live running time to their ALL-TIME score
+        if (isShark && gameState.sharkStartTime) {
+            const liveSeconds = Math.floor((new Date() - new Date(gameState.sharkStartTime)) / 1000);
+            displayAllTimeSeconds += liveSeconds;
+        }
+
+        return { 
+            ...player, 
+            displayAllTimeSeconds
+        };
+    });
+
+    // Sort alphabetically by username (case-insensitive)
+    return playersWithLiveTime.sort((a, b) => 
+        a.username.localeCompare(b.username, undefined, { sensitivity: 'base' })
+    );
+}
+
+/**
  * Saves the current board state to the browser's local storage
  */
 export function saveBoardState() {
