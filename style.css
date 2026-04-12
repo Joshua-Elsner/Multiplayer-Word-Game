@@ -790,7 +790,7 @@ tr.has-crown td {
 #player-stats-table {
     width: 100%;
     border-collapse: collapse;
-    color: var(--color-text);
+    color: var(--color-stats-theme);
 }
 
 #player-stats-table th {

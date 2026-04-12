@@ -13,7 +13,7 @@ import {
 import {
     gameState, setPlayer, resetGameState, addLetterToState,
     deleteLetterFromState, advanceRow, isValidWord,
-    evaluateGuess, processLeaderboardData,
+    evaluateGuess, processLeaderboardData, processPlayerStatsData,
     saveBoardState, loadBoardState, clearBoardState
 } from './game.js';
 
@@ -22,7 +22,7 @@ import {
     shakeRow, revealNextRow, updateSharkDisplay, updateStartButton,
     renderPlayerList, toggleScreen, setupWinModal,
     renderWordSuggestions, setSubmitButtonLoading, renderLeaderboardTable,
-    updateGuessCounter, updatePresenceUI
+    renderPlayerStatsTable, updateGuessCounter, updatePresenceUI
 } from './ui.js';
 
 // ==========================================
@@ -190,15 +190,26 @@ function updateLeaderboardUI() {
     renderLeaderboardTable(sortedPlayers);
 }
 
+function updatePlayerStatsUI() {
+    if (gameState.cachedPlayers.length === 0) return;
+    const sortedStats = processPlayerStatsData(gameState.cachedPlayers);
+    renderPlayerStatsTable(sortedStats);
+}
+
 function startSharkTimer() {
     if (timerInterval) clearInterval(timerInterval);
     if (!gameState.sharkStartTime || gameState.currentShark === "No Shark Yet") return;
 
     timerInterval = setInterval(() => {
         const leaderboardScreen = document.getElementById('leaderboard-screen');
-        // Only run the heavy sorting/rendering if they are actually looking at the leaderboard
+        const statsScreen = document.getElementById('player-stats-screen');
+        
+        // Only run heavy sorting/rendering if they are actually looking at the screen
         if (leaderboardScreen && !leaderboardScreen.classList.contains('hidden')) {
             updateLeaderboardUI();
+        }
+        if (statsScreen && !statsScreen.classList.contains('hidden')) {
+            updatePlayerStatsUI();
         }
     }, 1000);
 }
@@ -380,6 +391,18 @@ document.getElementById('leaderboard-btn').addEventListener('click', () => {
     loadLeaderboard();
     toggleScreen('home-screen', false);
     toggleScreen('leaderboard-screen', true);
+});
+
+document.getElementById('player-stats-btn')?.addEventListener('click', () => {
+    loadLeaderboard(); // Refreshes the cachedPlayers array from the DB
+    updatePlayerStatsUI();
+    toggleScreen('home-screen', false);
+    toggleScreen('player-stats-screen', true);
+});
+
+document.getElementById('stats-back-to-menu-btn')?.addEventListener('click', () => {
+    toggleScreen('player-stats-screen', false);
+    toggleScreen('home-screen', true);
 });
 
 document.getElementById('how-to-play-btn').addEventListener('click', () => {
