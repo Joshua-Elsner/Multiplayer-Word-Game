@@ -122,7 +122,7 @@
             </button>
 
             <button id="leaderboard-btn">Leaderboard</button>
-
+            <button id="player-stats-btn">Player Stats</button>
             <button id="how-to-play-btn">How to Play</button>
             <button id="discord-menu-btn" class="discord-btn"
                 onclick="window.open('https://discord.gg/zJV74JVG', '_blank')">
@@ -248,7 +248,6 @@
                         <th>Fish<br>Eaten</th>
                         <th>Words<br>Guessed</th>
                         <th>Yoinks</th>
-                        <th>Shark of<br>the Week<br>Awards</th>
                     </tr>
                 </thead>
                 <tbody id="leaderboard-body">
@@ -258,6 +257,28 @@
 
         <button id="back-to-menu-btn" class="menu-return-btn">Back to Menu</button>
   </div>
+  <div id="player-stats-screen" class="hidden">
+        <h1>Player Stats</h1>
+
+        <div class="stats-container">
+            <table id="player-stats-table">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Time as Shark</th>
+                        <th>Fish<br>Eaten</th>
+                        <th>Words<br>Guessed</th>
+                        <th>Yoinks</th>
+                        <th>Shark of<br>the Week<br>Awards</th>
+                    </tr>
+                </thead>
+                <tbody id="player-stats-body">
+                </tbody>
+            </table>
+        </div>
+
+        <button id="stats-back-to-menu-btn" class="stats-return-btn">Back to Menu</button>
+    </div>
     <script type="module" src="main.js"></script>
 </body>
 
