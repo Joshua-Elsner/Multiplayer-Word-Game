@@ -128,12 +128,15 @@ export function revealNextRow(rowIndex) {
 // ==========================================
 
 /**
- * Updates the "Current Shark" text on both the home screen and leaderboard.
+ * Updates the "Current Shark" text on both the home screen and leaderboard and all time stats
  * Also displays the secret word if the viewer is the active Shark
  */
 export function updateSharkDisplay(currentSharkName, currentPlayerName, secretWord) {
     const homeDisplay = document.getElementById('home-shark-display');
     const boardDisplay = document.getElementById('leaderboard-shark-display');
+    
+    // 1. Grab the new stats display element
+    const statsDisplay = document.getElementById('player-stats-shark-display');
 
     const isCurrentShark = (currentSharkName === currentPlayerName && currentPlayerName !== "Guest");
     const displayName = isCurrentShark ? "You" : currentSharkName;
@@ -149,6 +152,9 @@ export function updateSharkDisplay(currentSharkName, currentPlayerName, secretWo
     // Use innerHTML instead of textContent so the <br> and <span> tags render correctly
     if (homeDisplay) homeDisplay.innerHTML = displayText;
     if (boardDisplay) boardDisplay.innerHTML = displayText;
+    
+    // 2. Inject the text into the new stats screen element
+    if (statsDisplay) statsDisplay.innerHTML = displayText;
 }
 
 /**
