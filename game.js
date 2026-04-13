@@ -166,7 +166,9 @@ export function processLeaderboardData(players) {
     });
 
     // Sort by the highest score first
-    return playersWithLiveTime.sort((a, b) => b.displayTimeSeconds - a.displayTimeSeconds);
+    return playersWithLiveTime
+        .filter(player => player.displayTimeSeconds > 0) // Only render if they've played this week
+        .sort((a, b) => b.displayTimeSeconds - a.displayTimeSeconds);
 }
 
 /**
