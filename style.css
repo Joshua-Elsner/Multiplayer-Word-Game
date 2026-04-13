@@ -14,6 +14,7 @@
     --color-text: #7DD3FC; 
     --color-tile-border: #334155;
     --color-accent: #00b4d8;
+    --color-stats-theme: #c084fc;
 }
 
 body {
@@ -467,19 +468,25 @@ background-color: var(--color-absent) !important;
 
 /* Mobile table adjustments */
 @media (max-width: 500px) {
-    .leaderboard-container {
-        padding: 10px 5px; 
+    .leaderboard-container, .stats-container {
+        padding: 10px 2px; /* Pull it closer to the edges of the screen */
+        width: 98%; /* Maximize available screen width */
     }
 
     #leaderboard-table th, 
-    #leaderboard-table td {
-        padding: 8px 5px; 
-        font-size: 0.9rem;
-        white-space: nowrap; 
+    #leaderboard-table td,
+    #player-stats-table th,
+    #player-stats-table td {
+        padding: 6px 3px; /* Tighter padding between columns */
+        font-size: 0.85rem; /* Slightly smaller data text */
+        /* REMOVED: white-space: nowrap; so your HTML <br> tags actually work! */
+        word-wrap: break-word; /* Allows long player names to wrap instead of pushing columns off-screen */
     }
 
-    #leaderboard-table th {
-        font-size: 0.75rem;
+    #leaderboard-table th,
+    #player-stats-table th {
+        font-size: 0.7rem; /* Shrink headers just a bit more */
+        line-height: 1.1; /* Keeps the stacked header text (Fish/Eaten) close together */
     }
 }
 
@@ -754,4 +761,87 @@ button:disabled:hover {
 /* Gives extra headroom specifically for the row with the crown */
 tr.has-crown td {
     padding-top: 30px !important; /* Normal is 12px, giving the crown 18px of space */
+}
+
+#player-stats-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    padding-top: 60px;
+}
+
+#player-stats-screen h1 {
+    color: var(--color-stats-theme);
+}
+
+.stats-container {
+    background-color: var(--color-tile-border);
+    border: 2px solid var(--color-stats-theme);
+    border-radius: 12px;
+    padding: 20px;
+    width: 90%;
+    max-width: 800px;
+    margin-bottom: 30px;
+    overflow-x: auto; 
+    -webkit-overflow-scrolling: touch;
+}
+
+#player-stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--color-stats-theme);
+}
+
+#player-stats-table th {
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--color-stats-theme);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-stats-theme);
+}
+
+#player-stats-table td {
+    padding: 12px 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stats-return-btn {
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    background-color: transparent;
+    color: var(--color-stats-theme);
+    border: 2px solid var(--color-stats-theme);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.stats-return-btn:hover {
+    background-color: var(--color-stats-theme);
+    color: var(--color-background);
+}
+
+#stats-sort-select {
+    background-color: var(--color-background);
+    color: var(--color-stats-theme);
+    border: 2px solid var(--color-stats-theme);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    outline: none;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+#stats-sort-select option {
+    background-color: var(--color-background);
+    color: var(--color-stats-theme);
 }

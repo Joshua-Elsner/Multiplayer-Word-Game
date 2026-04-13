@@ -128,12 +128,15 @@ export function revealNextRow(rowIndex) {
 // ==========================================
 
 /**
- * Updates the "Current Shark" text on both the home screen and leaderboard.
+ * Updates the "Current Shark" text on both the home screen and leaderboard and all time stats
  * Also displays the secret word if the viewer is the active Shark
  */
 export function updateSharkDisplay(currentSharkName, currentPlayerName, secretWord) {
     const homeDisplay = document.getElementById('home-shark-display');
     const boardDisplay = document.getElementById('leaderboard-shark-display');
+    
+    // 1. Grab the new stats display element
+    const statsDisplay = document.getElementById('player-stats-shark-display');
 
     const isCurrentShark = (currentSharkName === currentPlayerName && currentPlayerName !== "Guest");
     const displayName = isCurrentShark ? "You" : currentSharkName;
@@ -149,6 +152,9 @@ export function updateSharkDisplay(currentSharkName, currentPlayerName, secretWo
     // Use innerHTML instead of textContent so the <br> and <span> tags render correctly
     if (homeDisplay) homeDisplay.innerHTML = displayText;
     if (boardDisplay) boardDisplay.innerHTML = displayText;
+    
+    // 2. Inject the text into the new stats screen element
+    if (statsDisplay) statsDisplay.innerHTML = displayText;
 }
 
 /**
@@ -283,15 +289,18 @@ export function setSubmitButtonLoading(isLoading) {
 // ==========================================
 
 /**
- * Helper: Formats total seconds into a clean ddd:hh:mm:ss string
+ * Helper: Formats total seconds into a clean d:hh:mm:ss or ddd:hh:mm:ss string
  */
-function formatSharkTime(totalSeconds) {
+function formatSharkTime(totalSeconds, isAllTime = false) {
     const days = Math.floor(totalSeconds / 86400);
     const hours = Math.floor((totalSeconds % 86400) / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
 
-    return `${days.toString().padStart(3, '0')}:${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    // Use 3 zeros for all-time stats, and 1 zero for the weekly leaderboard
+    const daysFormat = isAllTime ? days.toString().padStart(3, '0') : days.toString();
+
+    return `${daysFormat}:${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
 /**
@@ -312,42 +321,73 @@ export function renderLeaderboardTable(sortedPlayers) {
         if (rank === 2) rankClass = 'rank-2';
         if (rank === 3) rankClass = 'rank-3';
 
-        const formattedTime = formatSharkTime(player.displayTimeSeconds);
+        // 1. Calculate the correct ordinal suffix (st, nd, rd, th)
+        let ordinal = 'th';
+        if (rank % 10 === 1 && rank % 100 !== 11) ordinal = 'st';
+        else if (rank % 10 === 2 && rank % 100 !== 12) ordinal = 'nd';
+        else if (rank % 10 === 3 && rank % 100 !== 13) ordinal = 'rd';
+
+        // 2. Build the styled rank string (using vertical-align: super for the tiny text)
+        const rankString = `<span class="${rankClass}" style="margin-right: 8px;">${rank}<span style="font-size: 0.6em; vertical-align: super;">${ordinal}</span></span>`;
+
+        const formattedTime = formatSharkTime(player.displayTimeSeconds, false);
         const sharkStyle = player.isShark ? 'style="color: var(--color-present);"' : '';
-        
         const timeCellId = player.isShark ? 'id="active-shark-live-time"' : '';
         const baseTimeAttr = player.isShark ? `data-basetime="${player.baseTime}"` : '';
 
         // 1. Setup variables for our icons
-        let prefix = "";
         let suffix = "";
         let crownHTML = "";
         let rowClass = "";
 
-        // 2. Determine placements (Crown for 1st, double medals for 2nd and 3rd)
+        // 2. Determine placements (Crown for 1st, trailing medals for 2nd and 3rd)
         if (gameState.lastWeekWinners.length > 0 && player.id === gameState.lastWeekWinners[0]) {
             crownHTML = `<span class="prev-winner-crown" title="Last Week's Winner!">👑</span>`;
             rowClass = "has-crown";
         } else if (gameState.lastWeekWinners.length > 1 && player.id === gameState.lastWeekWinners[1]) {
-            prefix = `<span title="2nd Place Last Week">🥈</span> `;
             suffix = ` <span title="2nd Place Last Week">🥈</span>`;
         } else if (gameState.lastWeekWinners.length > 2 && player.id === gameState.lastWeekWinners[2]) {
-            prefix = `<span title="3rd Place Last Week">🥉</span> `;
             suffix = ` <span title="3rd Place Last Week">🥉</span>`;
         }
 
-        // 3. Build the final HTML string
-        // The medals go OUTSIDE the div so they don't mess up the crown centering
-        let nameHTML = `${prefix}<div style="position: relative; display: inline-block;">${crownHTML}${player.username}</div>${suffix}`;
+        // 3. Prepend the rankString to the name HTML
+        let nameHTML = `${rankString}<div style="position: relative; display: inline-block;">${crownHTML}${player.username}</div>${suffix}`;
 
-        // 4. Build the row
+        // 4. Remove the Rank <td> and left-align the Player <td>
         const rowHTML = `
         <tr class="${rowClass}">
-            <td class="${rankClass}">${rank}</td>
-            <td ${sharkStyle}>${nameHTML}</td>
+            <td style="text-align: left; padding-left: 20px;" ${sharkStyle}>${nameHTML}</td>
             <td ${sharkStyle} ${timeCellId} ${baseTimeAttr}>${formattedTime}</td>
-            <td>${player.fish_eaten}</td>
-            <td>${player.sharks_evaded}</td>
+            <td>${player.weekly_fish_eaten || 0}</td>
+            <td>${player.weekly_sharks_evaded || 0}</td>
+            <td>${player.weekly_yoinks || 0}</td>
+        </tr>
+        `;
+
+        tbody.insertAdjacentHTML('beforeend', rowHTML);
+    });
+}
+
+/**
+ * Generates the HTML table rows for the Player Stats screen.
+ * @param {Array} sortedPlayers - Must be pre-sorted alphabetically by game.js
+ */
+export function renderPlayerStatsTable(sortedPlayers) {
+    const tbody = document.getElementById('player-stats-body');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+
+    sortedPlayers.forEach(player => {
+        const formattedTime = formatSharkTime(player.displayAllTimeSeconds, true);
+
+        // Build the row (No rank, no green text, all-time stats)
+        const rowHTML = `
+        <tr>
+            <td>${player.username}</td>
+            <td>${formattedTime}</td>
+            <td>${player.fish_eaten || 0}</td>
+            <td>${player.sharks_evaded || 0}</td>
             <td>${player.yoinks || 0}</td>
             <td>${player.shark_of_the_week_wins || 0}</td>
         </tr>
@@ -363,6 +403,28 @@ export function updateGuessCounter(currentRow) {
         // We add 1 because rows are 0-indexed in the code!
         counter.textContent = `Guess ${currentRow + 1}/6`;
     }
+}
+
+/**
+ * Calculates the date of the upcoming Sunday and updates the Leaderboard header
+ */
+export function setWeekEndingDate() {
+    const display = document.getElementById('week-ending-display');
+    if (!display) return;
+
+    const now = new Date();
+    
+    // getDay() returns 0 for Sunday, 1 for Monday, etc.
+    // If today is Sunday (0), 7 - 0 = 7. It will correctly target NEXT Sunday!
+    let daysUntilSunday = 7 - now.getDay();
+    
+    const nextSunday = new Date(now);
+    nextSunday.setDate(now.getDate() + daysUntilSunday);
+
+    const month = nextSunday.getMonth() + 1;
+    const day = nextSunday.getDate();
+
+    display.textContent = `Week ending ${month}/${day}`;
 }
 
 // ==========================================

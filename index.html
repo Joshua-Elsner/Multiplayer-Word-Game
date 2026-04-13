@@ -94,17 +94,17 @@
             <span class="close-modal-x" id="close-how-to-x">&times;</span>
             <h2>How to Play</h2>
             <p>
-            <p>Welcome to JAWRGON! Your goal is to guess the Shark's secret 5-letter word in six tries or less. After
+            <p><strong>Welcome to JAWRGON!</strong><br>Your goal is to guess the Shark's secret 5-letter word in six tries or less. After
                 each guess, the bubbles change color: Green is correct, yellow means wrong spot, and gray means not in
                 the word.</p>
 
-            <p style="margin-top: 10px;"><strong>Yoink!</strong> Everyone guesses at the same time! If you guess
+            <p style="margin-top: 10px;"><strong>Yoink!</strong><br>Everyone guesses at the same time! If you guess
                 correctly, you survive, become the Shark, and set the next word. But don't be a pokey fish! If someone
-                else guesses it before you, you get <em>yoinked</em> and your board resets!</p>
+                else guesses it before you, they yoink the win, and your board resets!</p>
 
-            <p style="margin-top: 10px;"><strong>Leaderboard & Shark of the Week:</strong> Your rank is based on how
-                long you maintain your reign as the Shark. "Time as Shark" on the leaderboard resets every Sunday at
-                midnight, and the 1st place winner is crowned the <em>Shark of the Week!</em></p>
+            <p style="margin-top: 10px;"><strong>Leaderboard & Shark of the Week:</strong><br>Your rank is based on how
+                long you maintain your reign as the Shark. The leaderboard resets every Sunday at
+                midnight, and the player with the most Time as Shark is crowned the <em>Shark of the Week!</em></p>
             <button id="close-how-to-play-btn">Let's Go!</button>
         </div>
     </div>
@@ -122,7 +122,7 @@
             </button>
 
             <button id="leaderboard-btn">Leaderboard</button>
-
+            <button id="player-stats-btn">All-Time Stats</button>
             <button id="how-to-play-btn">How to Play</button>
             <button id="discord-menu-btn" class="discord-btn"
                 onclick="window.open('https://discord.gg/zJV74JVG', '_blank')">
@@ -192,8 +192,24 @@
                 <div class="tile"></div>
             </div>
         </section>
+        <section id="keyboard" style="position: relative;">
 
-        <section id="keyboard">
+            <div class="keyboard-row" style="position: absolute; top: -56px; left: 10px; right: 10px; height: 58px; pointer-events: none;">
+                <div style="flex: 1; visibility: hidden;"></div>
+                <div style="flex: 1; visibility: hidden;"></div>
+                <div style="flex: 1; visibility: hidden;"></div>
+                <div style="flex: 1; visibility: hidden;"></div>
+                <div style="flex: 1; visibility: hidden;"></div>
+                <div style="flex: 1; visibility: hidden;"></div>
+                <div style="flex: 1; visibility: hidden;"></div>
+                <div style="flex: 1; visibility: hidden;"></div>
+                <div style="flex: 1; visibility: hidden;"></div>
+                
+                <div class="key" id="key-clear" style="flex: 1; pointer-events: auto;">
+                    <span style="transform: rotate(-45deg); display: block; font-size: 0.7rem; letter-spacing: 1px;">CLEAR</span>
+                </div>
+            </div>
+
             <div class="keyboard-row">
                 <div class="key" id="key-q">Q</div>
                 <div class="key" id="key-w">W</div>
@@ -235,14 +251,56 @@
 
     <div id="leaderboard-screen" class="hidden">
         <h1>Leaderboard</h1>
+        
+        <div id="week-ending-display" style="font-size: 1rem; color: #888; margin-top: -5px; margin-bottom: 15px;">
+            Week ending --/--
+        </div>
 
         <h3 id="leaderboard-shark-display" class="shark-display"></h3>
 
         <div class="leaderboard-container">
             <table id="leaderboard-table">
+    <thead>
+        <tr>
+            <th style="text-align: left; padding-left: 20px;">Player</th>
+            <th>Time as<br>Shark</th>
+            <th>Fish<br>Eaten</th>
+            <th>Words<br>Guessed</th>
+            <th>Yoinks</th>
+        </tr>
+    </thead>
+    <tbody id="leaderboard-body">
+    </tbody>
+</table>
+        </div>
+
+        <p style="color: #888; font-style: italic; margin-bottom: 20px; font-size: 0.95rem;">
+            Don't see your name? Play a game!
+        </p>
+
+        <button id="back-to-menu-btn" class="menu-return-btn">Back to Menu</button>
+  </div>
+  <div id="player-stats-screen" class="hidden">
+        <h1>All-Time Stats</h1>
+
+        <h3 id="player-stats-shark-display" class="shark-display"></h3>
+
+        <div class="stats-controls" style="margin-bottom: 15px;">
+            <label for="stats-sort-select" style="color: var(--color-stats-theme); font-weight: bold;">Sort By: </label>
+            <select id="stats-sort-select">
+                <option value="alpha">Alphabetical</option>
+                <option value="time">Time as Shark</option>
+                <option value="fish">Fish Eaten</option>
+                <option value="words">Words Guessed</option>
+                <option value="yoinks">Yoinks</option>
+                <option value="sotw">Shark of the Week Awards</option>
+            </select>
+        </div>
+
+        <div class="stats-container">
+            <table id="player-stats-table">
                 <thead>
                     <tr>
-                        <th>Rank</th>
                         <th>Player</th>
                         <th>Time as Shark</th>
                         <th>Fish<br>Eaten</th>
@@ -251,13 +309,13 @@
                         <th>Shark of<br>the Week<br>Awards</th>
                     </tr>
                 </thead>
-                <tbody id="leaderboard-body">
+                <tbody id="player-stats-body">
                 </tbody>
             </table>
         </div>
 
-        <button id="back-to-menu-btn" class="menu-return-btn">Back to Menu</button>
-  </div>
+        <button id="stats-back-to-menu-btn" class="stats-return-btn">Back to Menu</button>
+    </div>
     <script type="module" src="main.js"></script>
 </body>
 

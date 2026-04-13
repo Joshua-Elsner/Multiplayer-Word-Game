@@ -166,8 +166,46 @@ export function processLeaderboardData(players) {
     });
 
     // Sort by the highest score first
-    return playersWithLiveTime.sort((a, b) => b.displayTimeSeconds - a.displayTimeSeconds);
+    return playersWithLiveTime
+        .filter(player => player.displayTimeSeconds > 0) // Only render if they've played this week
+        .sort((a, b) => b.displayTimeSeconds - a.displayTimeSeconds);
 }
+
+/**
+ * Analyzes the player list to format it for the Player Stats screen
+ * @param {Array} players - Array of player objects from the database
+ * @returns {Array} Alphabetically sorted and formatted array of players
+ */
+export function processPlayerStatsData(players, sortBy = 'alpha') { 
+    const playersWithLiveTime = players.map(player => {
+        let displayAllTimeSeconds = player.all_time_time_as_shark || 0;
+        const isShark = player.username === gameState.currentShark;
+
+        // If this player is the current shark, add their live running time to their ALL-TIME score
+        if (isShark && gameState.sharkStartTime) {
+            const liveSeconds = Math.floor((new Date() - new Date(gameState.sharkStartTime)) / 1000);
+            displayAllTimeSeconds += liveSeconds;
+        }
+
+        return { 
+            ...player, 
+            displayAllTimeSeconds
+        };
+    });
+
+    // 2. Dynamically sort based on the requested metric
+    return playersWithLiveTime.sort((a, b) => {
+        if (sortBy === 'time') return b.displayAllTimeSeconds - a.displayAllTimeSeconds;
+        if (sortBy === 'fish') return (b.fish_eaten || 0) - (a.fish_eaten || 0);
+        if (sortBy === 'words') return (b.sharks_evaded || 0) - (a.sharks_evaded || 0);
+        if (sortBy === 'yoinks') return (b.yoinks || 0) - (a.yoinks || 0);
+        if (sortBy === 'sotw') return (b.shark_of_the_week_wins || 0) - (a.shark_of_the_week_wins || 0);
+        
+        // Default: Alphabetical
+        return a.username.localeCompare(b.username, undefined, { sensitivity: 'base' });
+    });
+}
+    
 
 /**
  * Saves the current board state to the browser's local storage

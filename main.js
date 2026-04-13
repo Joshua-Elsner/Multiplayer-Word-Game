@@ -13,7 +13,7 @@ import {
 import {
     gameState, setPlayer, resetGameState, addLetterToState,
     deleteLetterFromState, advanceRow, isValidWord,
-    evaluateGuess, processLeaderboardData,
+    evaluateGuess, processLeaderboardData, processPlayerStatsData,
     saveBoardState, loadBoardState, clearBoardState
 } from './game.js';
 
@@ -22,7 +22,8 @@ import {
     shakeRow, revealNextRow, updateSharkDisplay, updateStartButton,
     renderPlayerList, toggleScreen, setupWinModal,
     renderWordSuggestions, setSubmitButtonLoading, renderLeaderboardTable,
-    updateGuessCounter, updatePresenceUI
+    renderPlayerStatsTable, updateGuessCounter, updatePresenceUI,
+    setWeekEndingDate
 } from './ui.js';
 
 // ==========================================
@@ -39,6 +40,8 @@ async function init() {
             // Clean up the URL so the parameter disappears
             window.history.replaceState({}, document.title, window.location.pathname);
         }
+
+         setWeekEndingDate();
 
         await loadGameState();
         await loadLeaderboard();
@@ -190,15 +193,32 @@ function updateLeaderboardUI() {
     renderLeaderboardTable(sortedPlayers);
 }
 
+function updatePlayerStatsUI() {
+    if (gameState.cachedPlayers.length === 0) return;
+    
+    // Read whatever the dropdown is currently set to
+    const sortSelect = document.getElementById('stats-sort-select');
+    const currentSort = sortSelect ? sortSelect.value : 'alpha';
+    
+    // Pass the sort setting into the processor
+    const sortedStats = processPlayerStatsData(gameState.cachedPlayers, currentSort);
+    renderPlayerStatsTable(sortedStats);
+}
+
 function startSharkTimer() {
     if (timerInterval) clearInterval(timerInterval);
     if (!gameState.sharkStartTime || gameState.currentShark === "No Shark Yet") return;
 
     timerInterval = setInterval(() => {
         const leaderboardScreen = document.getElementById('leaderboard-screen');
-        // Only run the heavy sorting/rendering if they are actually looking at the leaderboard
+        const statsScreen = document.getElementById('player-stats-screen');
+        
+        // Only run heavy sorting/rendering if they are actually looking at the screen
         if (leaderboardScreen && !leaderboardScreen.classList.contains('hidden')) {
             updateLeaderboardUI();
+        }
+        if (statsScreen && !statsScreen.classList.contains('hidden')) {
+            updatePlayerStatsUI();
         }
     }, 1000);
 }
@@ -253,6 +273,13 @@ function handleKeyInput(letter) {
     } else if (letter === "BACK" || letter === "BACKSPACE") {
         if (deleteLetterFromState()) {
             updateTileText(gameState.currentRow, gameState.currentTile, "");
+        }
+    } else if (letter === "CLEAR") {
+        // Loop backwards and delete until the row is empty
+        while (gameState.currentTile > 0) {
+            if (deleteLetterFromState()) {
+                updateTileText(gameState.currentRow, gameState.currentTile, "");
+            }
         }
     } else {
         if (addLetterToState(letter)) {
@@ -377,9 +404,22 @@ document.getElementById('board-return-menu-btn')?.addEventListener('click', asyn
 });
 
 document.getElementById('leaderboard-btn').addEventListener('click', () => {
+    updateLeaderboardUI();
     loadLeaderboard();
     toggleScreen('home-screen', false);
     toggleScreen('leaderboard-screen', true);
+});
+
+document.getElementById('player-stats-btn')?.addEventListener('click', () => {
+    loadLeaderboard(); // Refreshes the cachedPlayers array from the DB
+    updatePlayerStatsUI();
+    toggleScreen('home-screen', false);
+    toggleScreen('player-stats-screen', true);
+});
+
+document.getElementById('stats-back-to-menu-btn')?.addEventListener('click', () => {
+    toggleScreen('player-stats-screen', false);
+    toggleScreen('home-screen', true);
 });
 
 document.getElementById('how-to-play-btn').addEventListener('click', () => {
@@ -476,10 +516,17 @@ document.getElementById('lose-menu-btn')?.addEventListener('click', () => {
     updatePresence(false);
 });
 
+document.getElementById('stats-sort-select')?.addEventListener('change', () => {
+    updatePlayerStatsUI(); // Instantly re-sorts and re-renders when they click an option
+});
+
 document.getElementById('lose-leaderboard-btn')?.addEventListener('click', () => {
     toggleScreen('lose-modal', false);
     toggleScreen('game-screen', false);
+
+    updateLeaderboardUI();
     loadLeaderboard();
+
     toggleScreen('leaderboard-screen', true);
     clearBoardState();
     startNewGame();
@@ -490,6 +537,24 @@ document.getElementById('back-to-menu-btn')?.addEventListener('click', () => {
     toggleScreen('leaderboard-screen', false);
     toggleScreen('home-screen', true);
 });
+
+// --- NATIVE LIFECYCLE SYNC ---
+// Instantly resync the true game state the moment the user looks at the tab
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        console.log("Tab woke up! Fetching true state...");
+        loadGameState(); 
+        loadLeaderboard(); 
+    }
+});
+
+// --- THE JANITOR CHECK ---
+// A highly scalable fallback that only runs if the screen is actively being looked at
+setInterval(() => {
+    if (document.visibilityState === 'visible') {
+        loadGameState();
+    }
+}, 45000); // 45 seconds is plenty fast for a fallback
 
 // Click outside to close modals
 const closableModalIds = ['how-to-play-modal'];
@@ -550,10 +615,23 @@ document.getElementById('submit-new-word')?.addEventListener('click', async () =
         startNewGame();
         updatePresence(false);
 
-    } catch (error) {
+        } catch (error) {
         setSubmitButtonLoading(false);
         if (error.message && error.message.includes('Word already used')) {
             showToast("That word has already been used in a past game!");
+        } else if (error.message && error.message.includes('TOO SLOW!!!')) {
+            // Wipe their board, fetch the new reality, and kick them out of the modal
+            showToast("Oops! Someone else already guessed it! You may have a bad connection.");
+            
+            toggleScreen('win-modal', false);
+            toggleScreen('game-screen', false);
+            
+            clearBoardState();
+            await loadGameState(); 
+            startNewGame();
+            
+            toggleScreen('home-screen', true);
+            updatePresence(false);
         } else {
             showToast(error.message || "Failed to update the database.");
         }
