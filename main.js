@@ -538,6 +538,24 @@ document.getElementById('back-to-menu-btn')?.addEventListener('click', () => {
     toggleScreen('home-screen', true);
 });
 
+// --- NATIVE LIFECYCLE SYNC ---
+// Instantly resync the true game state the moment the user looks at the tab
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        console.log("Tab woke up! Fetching true state...");
+        loadGameState(); 
+        loadLeaderboard(); 
+    }
+});
+
+// --- THE JANITOR CHECK ---
+// A highly scalable fallback that only runs if the screen is actively being looked at
+setInterval(() => {
+    if (document.visibilityState === 'visible') {
+        loadGameState();
+    }
+}, 45000); // 45 seconds is plenty fast for a fallback
+
 // Click outside to close modals
 const closableModalIds = ['how-to-play-modal'];
 closableModalIds.forEach(id => {
