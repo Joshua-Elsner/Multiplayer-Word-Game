@@ -407,16 +407,15 @@ export function setWeekEndingDate() {
     if (!display) return;
 
     const now = new Date();
+    
     // getDay() returns 0 for Sunday, 1 for Monday, etc.
+    // If today is Sunday (0), 7 - 0 = 7. It will correctly target NEXT Sunday!
     let daysUntilSunday = 7 - now.getDay();
     
-    // If today is Sunday, show today's date instead of jumping to next week
-    if (daysUntilSunday === 7) daysUntilSunday = 0; 
-
     const nextSunday = new Date(now);
     nextSunday.setDate(now.getDate() + daysUntilSunday);
 
-    const month = nextSunday.getMonth() + 1; // Months are 0-indexed
+    const month = nextSunday.getMonth() + 1;
     const day = nextSunday.getDate();
 
     display.textContent = `Week ending ${month}/${day}`;
