@@ -469,21 +469,24 @@ background-color: var(--color-absent) !important;
 /* Mobile table adjustments */
 @media (max-width: 500px) {
     .leaderboard-container, .stats-container {
-        padding: 10px 5px; 
+        padding: 10px 2px; /* Pull it closer to the edges of the screen */
+        width: 98%; /* Maximize available screen width */
     }
 
     #leaderboard-table th, 
     #leaderboard-table td,
     #player-stats-table th,
     #player-stats-table td {
-        padding: 8px 5px; 
-        font-size: 0.9rem;
-        white-space: nowrap; 
+        padding: 6px 3px; /* Tighter padding between columns */
+        font-size: 0.85rem; /* Slightly smaller data text */
+        /* REMOVED: white-space: nowrap; so your HTML <br> tags actually work! */
+        word-wrap: break-word; /* Allows long player names to wrap instead of pushing columns off-screen */
     }
 
     #leaderboard-table th,
     #player-stats-table th {
-        font-size: 0.75rem;
+        font-size: 0.7rem; /* Shrink headers just a bit more */
+        line-height: 1.1; /* Keeps the stacked header text (Fish/Eaten) close together */
     }
 }
 
