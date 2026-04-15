@@ -864,3 +864,7 @@ tr.has-crown td {
 #leaderboard-table td:first-child {
     padding-right: 50px; /* Adjust this value up or down to dial in the exact spacing you want */
 }
+
+.sorted-column {
+    background-color: rgba(192, 132, 252, 0.1);
+}
