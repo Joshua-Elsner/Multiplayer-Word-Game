@@ -327,8 +327,12 @@ export function renderLeaderboardTable(sortedPlayers) {
         else if (rank % 10 === 2 && rank % 100 !== 12) ordinal = 'nd';
         else if (rank % 10 === 3 && rank % 100 !== 13) ordinal = 'rd';
 
-        // 2. Build the styled rank string (using vertical-align: super for the tiny text)
-        const rankString = `<span class="${rankClass}" style="margin-right: 8px;">${rank}<span style="font-size: 0.6em; vertical-align: super;">${ordinal}</span></span>`;
+         // 2. Build the styled rank string
+        let spacing = '';
+        if (rank < 10) spacing = '&nbsp;&nbsp;';
+        else if (rank < 100) spacing = '&nbsp;';
+
+        const rankString = `<span class="${rankClass}">${rank}<span style="font-size: 0.6em; vertical-align: super;">${ordinal}</span></span>${spacing}`;
 
         const formattedTime = formatSharkTime(player.displayTimeSeconds, false);
         const sharkStyle = player.isShark ? 'style="color: var(--color-present);"' : '';
@@ -351,12 +355,12 @@ export function renderLeaderboardTable(sortedPlayers) {
         }
 
         // 3. Prepend the rankString to the name HTML
-        let nameHTML = `${rankString}<div style="position: relative; display: inline-block;" ${sharkStyle}>${crownHTML}${player.username}</div>${suffix}`;
+        let nameHTML = `${rankString}<div style="position: relative; display: inline-block;">${crownHTML}<span ${sharkStyle}>${player.username}</span></div>${suffix}`;
 
         // 4. Remove the Rank <td> and left-align the Player <td>
         const rowHTML = `
         <tr class="${rowClass}">
-            <td style="text-align: left; padding-left: 20px;" ${sharkStyle}>${nameHTML}</td>
+            <td style="text-align: left; padding-left: 20px;">${nameHTML}</td>
             <td ${sharkStyle} ${timeCellId} ${baseTimeAttr}>${formattedTime}</td>
             <td>${player.weekly_fish_eaten || 0}</td>
             <td>${player.weekly_sharks_evaded || 0}</td>
