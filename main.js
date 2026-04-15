@@ -23,7 +23,8 @@ import {
     renderPlayerList, toggleScreen, setupWinModal,
     renderWordSuggestions, setSubmitButtonLoading, renderLeaderboardTable,
     renderPlayerStatsTable, updateGuessCounter, updatePresenceUI,
-    setWeekEndingDate, setStartButtonLoading, setPlayerGridLoading
+    setWeekEndingDate, setStartButtonLoading, setPlayerGridLoading,
+    setLeaderboardLoading, setStatsLoading
 } from './ui.js';
 
 // ==========================================
@@ -414,6 +415,7 @@ document.getElementById('board-return-menu-btn')?.addEventListener('click', asyn
 });
 
 document.getElementById('leaderboard-btn').addEventListener('click', () => {
+    if (gameState.cachedPlayers.length === 0) setLeaderboardLoading();
     updateLeaderboardUI();
     loadLeaderboard();
     toggleScreen('home-screen', false);
@@ -421,6 +423,7 @@ document.getElementById('leaderboard-btn').addEventListener('click', () => {
 });
 
 document.getElementById('player-stats-btn')?.addEventListener('click', () => {
+    if (gameState.cachedPlayers.length === 0) setStatsLoading();
     loadLeaderboard(); // Refreshes the cachedPlayers array from the DB
     updatePlayerStatsUI();
     toggleScreen('home-screen', false);

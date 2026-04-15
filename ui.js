@@ -303,6 +303,16 @@ export function setSubmitButtonLoading(isLoading) {
 // LEADERBOARD UI
 // ==========================================
 
+export function setLeaderboardLoading() {
+    const tbody = document.getElementById('leaderboard-body');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #888;">Loading leaderboard...</td></tr>';
+}
+
+export function setStatsLoading() {
+    const table = document.getElementById('player-stats-table');
+    if (table) table.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #888;">Loading stats...</td></tr>';
+}
+
 /**
  * Helper: Formats total seconds into a clean d:hh:mm:ss or ddd:hh:mm:ss string
  */
