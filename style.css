@@ -891,3 +891,24 @@ tr.has-crown td {
     /* Forces the header to stay strictly above the scrolling data */
     z-index: 10; 
 }
+
+/* Make the data cells in the first column sticky on the left */
+#leaderboard-table td:first-child,
+#player-stats-table td:first-child {
+    position: sticky;
+    left: 0;
+    background-color: var(--color-tile-border); /* Solid background prevents text overlap */
+    z-index: 5; /* Keeps it above the horizontally scrolling columns */
+}
+
+/* Make the top-left header cells sticky on BOTH axes with the highest priority */
+#leaderboard-table th:first-child,
+#player-stats-table th:first-child {
+    position: sticky;
+    left: 0;
+    background-color: var(--color-tile-border);
+    z-index: 20; /* Must be higher than your regular top header's z-index (10) */
+    
+    /* If you want a subtle separator line when scrolling, uncomment the line below */
+    /* border-right: 2px solid rgba(0, 0, 0, 0.2); */
+}
