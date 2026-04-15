@@ -357,14 +357,14 @@ export function renderLeaderboardTable(sortedPlayers) {
         // 3. Prepend the rankString to the name HTML
         let nameHTML = `${rankString}<div style="position: relative; display: inline-block;">${crownHTML}<span ${sharkStyle}>${player.username}</span></div>${suffix}`;
 
-        // 4. Remove the Rank <td> and left-align the Player <td>
+          // 4. Remove the Rank <td> and left-align the Player <td>
         const rowHTML = `
         <tr class="${rowClass}">
             <td style="text-align: left; padding-left: 20px;">${nameHTML}</td>
             <td ${sharkStyle} ${timeCellId} ${baseTimeAttr}>${formattedTime}</td>
             <td>${player.weekly_fish_eaten || 0}</td>
-            <td>${player.weekly_sharks_evaded || 0}</td>
             <td>${player.weekly_yoinks || 0}</td>
+            <td>${player.weekly_sharks_evaded || 0}</td>
         </tr>
         `;
 
