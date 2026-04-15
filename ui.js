@@ -262,6 +262,18 @@ export function setupWinModal(currentPlayerName) {
     }
 }
 
+export function setSuggestionsLoading() {
+    const suggestionsContainer = document.getElementById('word-suggestions');
+    const sug1Btn = document.getElementById('suggestion-1');
+    const sug2Btn = document.getElementById('suggestion-2');
+
+    if (suggestionsContainer && sug1Btn && sug2Btn) {
+        sug1Btn.textContent = "Loading...";
+        sug2Btn.textContent = "Loading...";
+        suggestionsContainer.classList.remove('hidden');
+    }
+}
+
 /**
  * Fills the suggestion buttons with the two words provided by main.js.
  */

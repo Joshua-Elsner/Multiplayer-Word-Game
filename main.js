@@ -24,7 +24,7 @@ import {
     renderWordSuggestions, setSubmitButtonLoading, renderLeaderboardTable,
     renderPlayerStatsTable, updateGuessCounter, updatePresenceUI,
     setWeekEndingDate, setStartButtonLoading, setPlayerGridLoading,
-    setLeaderboardLoading, setStatsLoading
+    setLeaderboardLoading, setStatsLoading, setSuggestionsLoading
 } from './ui.js';
 
 // ==========================================
@@ -339,7 +339,8 @@ async function handleWin() {
 
     if (gameState.currentPlayer !== "Guest") {
         try {
-            // Simply ask the database for 2 words! No client filtering needed.
+            setSuggestionsLoading();
+            // Ask the database for 2 words
             const suggestions = await fetchWordSuggestions();
             if (suggestions && suggestions.length === 2) {
                 renderWordSuggestions(suggestions[0], suggestions[1]);
