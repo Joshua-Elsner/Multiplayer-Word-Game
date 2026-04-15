@@ -314,7 +314,7 @@ export function renderLeaderboardTable(sortedPlayers) {
     tbody.innerHTML = '';
 
     sortedPlayers.forEach((player, index) => {
-        const avgGuesses = formatAverageGuesses(player.weekly_total_guesses, player.weekly_games_played);
+        const avgGuesses = formatAverageGuesses(player.weekly_guesses, player.weekly_puzzles_played);
 
         const rank = index + 1;
         let rankClass = '';
@@ -391,7 +391,7 @@ export function renderPlayerStatsTable(sortedPlayers, sortBy = 'alpha') {
         { id: 'yoinks', head: '<th>Yoinks</th>', getVal: p => p.yoinks || 0 },
         { id: 'fish', head: '<th>Fish<br>Eaten</th>', getVal: p => p.fish_eaten || 0 },
         { id: 'sotw', head: '<th>Shark of<br>the Week<br>Awards</th>', getVal: p => p.shark_of_the_week_wins || 0 },
-        { id: 'avg', head: '<th>Average<br>Guesses</th>', getVal: p => formatAverageGuesses(p.all_time_total_guesses, p.all_time_games_played) }
+        { id: 'avg', head: '<th>Average<br>Guesses</th>', getVal: p => formatAverageGuesses(p.all_time_guesses, p.all_time_puzzles_played) }
     ];
 
     // 2. Rearrange the columns based on the current sort

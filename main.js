@@ -604,10 +604,15 @@ document.getElementById('submit-new-word')?.addEventListener('click', async () =
     }
 
     try {
-        await claimSharkTitle(gameState.currentPlayerId, gameState.currentGuess, newWord);
+        const isRetry = localStorage.getItem('jawrgon_last_lost_word') === gameState.secretWord;
+        const guessesUsed = gameState.submittedGuesses.length;
+
+        await claimSharkTitle(gameState.currentPlayerId, gameState.currentGuess, newWord, guessesUsed, isRetry);
 
         // Success!
         clearBoardState();
+
+        localStorage.removeItem('jawrgon_last_lost_word');
 
         gameState.currentSharkId = gameState.currentPlayerId;
         gameState.secretWord = newWord;
