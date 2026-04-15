@@ -209,6 +209,13 @@ export function renderPlayerList(players, onSelectCallback, currentSharkId) {
     });
 }
 
+export function setPlayerGridLoading() {
+    const grid = document.getElementById('player-list-grid');
+    if (grid) {
+        grid.innerHTML = '<span style="font-size: 0.9rem; color: #888;">Loading players...</span>';
+    }
+}
+
 export function setStartButtonLoading() {
     const startGameBtn = document.getElementById('start-game-btn');
     if (startGameBtn) {
