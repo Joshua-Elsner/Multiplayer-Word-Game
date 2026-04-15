@@ -349,10 +349,16 @@ async function handleLoss(isRestore = false) {
     gameState.isGameOver = true;
     toggleScreen('lose-modal', true);
 
-    // Prevent giving the Shark double points if the player refreshed the page!
     if (gameState.currentSharkId && !isRestore) {
         try {
-            await recordSharkMeal();
+            // Check if they are retrying the exact same word
+            const isRetry = localStorage.getItem('jawrgon_last_lost_word') === gameState.secretWord;
+            const guessesUsed = gameState.submittedGuesses.length;
+            
+            await recordSharkMeal(gameState.currentPlayerId, guessesUsed, isRetry);
+            
+            // Flag that they have now recorded a loss for this word
+            localStorage.setItem('jawrgon_last_lost_word', gameState.secretWord);
         } catch (error) {
             console.error("Failed to record meal.", error);
         }
