@@ -405,7 +405,9 @@ export function renderPlayerStatsTable(sortedPlayers, sortBy = 'alpha') {
         <thead>
             <tr>
                 <th>Player</th>
-                ${orderedCols.map(c => c.head).join('')}
+                ${orderedCols.map(c => 
+                    c.id === sortBy ? c.head.replace('<th', '<th class="sorted-column"') : c.head
+                ).join('')}
             </tr>
         </thead>
     `;
@@ -416,7 +418,9 @@ export function renderPlayerStatsTable(sortedPlayers, sortBy = 'alpha') {
             ${sortedPlayers.map(p => `
                 <tr>
                     <td>${p.username}</td>
-                    ${orderedCols.map(c => `<td>${c.getVal(p)}</td>`).join('')}
+                    ${orderedCols.map(c => 
+                        `<td ${c.id === sortBy ? 'class="sorted-column"' : ''}>${c.getVal(p)}</td>`
+                    ).join('')}
                 </tr>
             `).join('')}
         </tbody>
