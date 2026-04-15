@@ -209,6 +209,14 @@ export function renderPlayerList(players, onSelectCallback, currentSharkId) {
     });
 }
 
+export function setStartButtonLoading() {
+    const startGameBtn = document.getElementById('start-game-btn');
+    if (startGameBtn) {
+        startGameBtn.innerHTML = `Connecting to server...`;
+        startGameBtn.disabled = true;
+    }
+}
+
 // ==========================================
 // MODALS & SCREENS
 // ==========================================

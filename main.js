@@ -23,7 +23,7 @@ import {
     renderPlayerList, toggleScreen, setupWinModal,
     renderWordSuggestions, setSubmitButtonLoading, renderLeaderboardTable,
     renderPlayerStatsTable, updateGuessCounter, updatePresenceUI,
-    setWeekEndingDate
+    setWeekEndingDate, setStartButtonLoading
 } from './ui.js';
 
 // ==========================================
@@ -34,6 +34,9 @@ let timerInterval = null;
 
 async function init() {
     try {
+
+        setStartButtonLoading();
+
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('discord_linked') === 'success') {
             showToast("Discord successfully linked!");
