@@ -201,7 +201,18 @@ export function processPlayerStatsData(players, sortBy = 'alpha') {
         if (sortBy === 'yoinks') return (b.yoinks || 0) - (a.yoinks || 0);
         if (sortBy === 'sotw') return (b.shark_of_the_week_wins || 0) - (a.shark_of_the_week_wins || 0);
         
-        // Default: Alphabetical
+        if (sortBy === 'avg') {
+            const playedA = a.all_time_puzzles_played || 0;
+            const playedB = b.all_time_puzzles_played || 0;
+
+            // If they haven't played 10 games, give them Infinity so they drop to the bottom
+            const avgA = playedA >= 10 ? (a.all_time_guesses / playedA) : Infinity;
+            const avgB = playedB >= 10 ? (b.all_time_guesses / playedB) : Infinity;
+
+            // Sort ascending (lowest average wins!)
+            if (avgA !== avgB) return avgA - avgB;
+        }
+        // Default: Alphabetical (Also acts as the tie-breaker if both have Infinity)
         return a.username.localeCompare(b.username, undefined, { sensitivity: 'base' });
     });
 }

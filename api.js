@@ -5,6 +5,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const supabaseUrl = 'https://okbynkairmznzcriuknd.supabase.co';
 const supabaseKey = 'sb_publishable_ZJGYQbdtUaABBX1lhOw8qw_Ksiw-S54';
 
+
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 let gameEventsChannel;
@@ -72,9 +73,12 @@ export async function fetchPlayers() {
 /**
  * Calls the database RPC to record a loss (Current shark eats a fish)
  */
-export async function recordSharkMeal() {
-    const { error } = await supabase.rpc('record_shark_meal');
-
+export async function recordSharkMeal(loserId = null, guessesUsed = 0, isRetry = false) {
+    const { error } = await supabase.rpc('record_shark_meal', {
+        loser_id: loserId,
+        guesses_used: guessesUsed,
+        is_retry: isRetry
+    });
     if (error) {
         console.error("Error recording shark meal:", error);
         throw error;
@@ -86,17 +90,21 @@ export async function recordSharkMeal() {
  * @param {string} winnerId - UUID of the winning player
  * @param {string} guessedWord - The word they guessed correctly
  * @param {string} newSecretWord - The new 5-letter word they are setting
+ * @param {number} guessesUsed - The number of guesses it took to win
+ * @param {boolean} isRetry - Whether the player was retrying the same word
  */
-export async function claimSharkTitle(winnerId, guessedWord, newSecretWord) {
+
+export async function claimSharkTitle(winnerId, guessedWord, newSecretWord, guessesUsed = 0, isRetry = false) {
     const { error } = await supabase.rpc('claim_shark_title', {
         winner_id: winnerId,
         guessed_word: guessedWord,
-        new_secret_word: newSecretWord
+        new_secret_word: newSecretWord,
+        guesses_used: guessesUsed,
+        is_retry: isRetry
     });
-
     if (error) {
         console.error("Error claiming shark title:", error);
-        throw error; 
+        throw error;
     }
 }
 
