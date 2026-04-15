@@ -334,7 +334,7 @@ background-color: var(--color-absent) !important;
     background-color: var(--color-tile-border);
     border: 2px solid var(--color-accent);
     border-radius: 12px;
-    padding: 0 20px 20px 20px;
+    padding: 0 20px 20px 0;
     width: 90%;
     max-width: 800px;
     margin-bottom: 30px;
@@ -763,7 +763,7 @@ tr.has-crown td {
     background-color: var(--color-tile-border);
     border: 2px solid var(--color-stats-theme);
     border-radius: 12px;
-    padding: 0 20px 20px 20px;
+    padding: 0 20px 20px 0;
     width: 90%;
     max-width: 800px;
     margin-bottom: 30px;
@@ -841,7 +841,7 @@ tr.has-crown td {
     }
 
     .leaderboard-container, .stats-container {
-        padding: 0 2px 10px 2px;
+        padding: 0 2px 10px 0;
         width: 98%; /* Maximize available screen width */
     }
 
@@ -890,4 +890,21 @@ tr.has-crown td {
     
     /* Forces the header to stay strictly above the scrolling data */
     z-index: 10; 
+}
+
+/* Make ONLY the player names sticky on the left */
+#leaderboard-table td:first-child,
+#player-stats-table td:first-child {
+    position: sticky;
+    left: 0;
+    background-color: var(--color-tile-border);
+    z-index: 5; 
+}
+
+/* Absorbs the 20px of left padding removed from the container */
+#leaderboard-table th:first-child,
+#leaderboard-table td:first-child,
+#player-stats-table th:first-child,
+#player-stats-table td:first-child {
+    padding-left: 17px !important;
 }
