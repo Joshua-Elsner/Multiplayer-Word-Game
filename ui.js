@@ -427,8 +427,8 @@ export function renderPlayerStatsTable(sortedPlayers, sortBy = 'alpha') {
         { id: 'words', head: '<th>Words<br>Solved</th>', getVal: p => p.sharks_evaded || 0 },
         { id: 'yoinks', head: '<th>Yoinks</th>', getVal: p => p.yoinks || 0 },
         { id: 'fish', head: '<th>Fish<br>Eaten</th>', getVal: p => p.fish_eaten || 0 },
-        { id: 'sotw', head: '<th>Shark of<br>the Week<br>Awards</th>', getVal: p => p.shark_of_the_week_wins || 0 },
-        { id: 'avg', head: '<th>Average<br>Guesses</th>', getVal: p => formatAverageGuesses(p.all_time_guesses, p.all_time_puzzles_played) }
+        { id: 'avg', head: '<th>Average<br>Guesses</th>', getVal: p => formatAverageGuesses(p.all_time_guesses, p.all_time_puzzles_played) },
+        { id: 'sotw', head: '<th>Shark of<br>the Week<br>Awards</th>', getVal: p => p.shark_of_the_week_wins || 0 }
     ];
 
     // 2. Rearrange the columns based on the current sort
