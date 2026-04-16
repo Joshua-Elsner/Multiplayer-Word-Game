@@ -7,7 +7,7 @@ import {
     setupRealtimeSubscriptions, createNewPlayer,
     recordYoink, sendYoinkBroadcast,
     setupPresence, updatePresence, mySessionId,
-    fetchLastWeekWinners
+    fetchLastWeekWinners, fetchWeeklyRecap
 } from './api.js';
 
 import {
@@ -24,7 +24,8 @@ import {
     renderWordSuggestions, setSubmitButtonLoading, renderLeaderboardTable,
     renderPlayerStatsTable, updateGuessCounter, updatePresenceUI,
     setWeekEndingDate, setStartButtonLoading, setPlayerGridLoading,
-    setLeaderboardLoading, setStatsLoading, setSuggestionsLoading
+    setLeaderboardLoading, setStatsLoading, setSuggestionsLoading,
+    showWeeklyRecap 
 } from './ui.js';
 
 // ==========================================
@@ -142,6 +143,23 @@ async function init() {
         // This instantly drops people who close tabs or lose internet!
         setInterval(evaluatePresence, 3000);
        
+        // --- WEEKLY RECAP CHECK ---
+        const recap = await fetchWeeklyRecap();
+        if (recap) {
+            const lastSeenWeek = localStorage.getItem('jawrgon_last_seen_week');
+            
+            // If they haven't seen this specific week's results yet, show the modal
+            if (lastSeenWeek !== recap.weekEnding) {
+                showWeeklyRecap(recap);
+                
+                // Set up the one-time event listener to close and save
+                document.getElementById('close-recap-btn').onclick = () => {
+                    localStorage.setItem('jawrgon_last_seen_week', recap.weekEnding);
+                    toggleScreen('weekly-recap-modal', false);
+                };
+            }
+        }
+
     } catch (error) {
         showToast("Error connecting to server.");
         console.error(error);

@@ -325,10 +325,48 @@ export function setStatsLoading() {
     if (table) table.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #888;">Loading stats...</td></tr>';
 }
 
+export function showWeeklyRecap(recapData) {
+    const modal = document.getElementById('weekly-recap-modal');
+    const weekText = document.getElementById('recap-week-text');
+    const podium = document.getElementById('podium-container');
+
+    if (!modal || !podium) return;
+
+    // Format the date nicely (e.g., "2024-05-12" -> "5/12")
+    const dateObj = new Date(recapData.weekEnding);
+    // Add timezone offset fix so midnight UTC doesn't roll backwards a day
+    dateObj.setMinutes(dateObj.getMinutes() + dateObj.getTimezoneOffset()); 
+    weekText.textContent = `Week ending ${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
+    
+    podium.innerHTML = '';
+
+    const medals = ['👑 Shark of the Week', '🥈 Silver Medal', '🥉 Bronze Medal'];
+    const colors = ['#ffd700', '#c0c0c0', '#cd7f32'];
+
+    recapData.winners.forEach((winner, index) => {
+        const name = winner.players ? winner.players.username : 'Unknown Fish';
+        const time = formatSharkTime(winner.time_as_shark, false); // Reusing your existing time formatter
+        
+        podium.innerHTML += `
+            <div style="background-color: var(--color-background); padding: 15px; border-radius: 8px; border-left: 5px solid ${colors[index]}; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="color: ${colors[index]}; font-weight: bold; font-size: 0.85rem; text-transform: uppercase;">${medals[index]}</div>
+                    <div style="font-size: 1.3rem; margin-top: 4px;">${name}</div>
+                </div>
+                <div style="color: var(--color-text); font-family: monospace; font-size: 1.1rem;">
+                    ${time}
+                </div>
+            </div>
+        `;
+    });
+
+    modal.classList.remove('hidden');
+}
+
 /**
  * Helper: Formats total seconds into a clean d:hh:mm:ss or ddd:hh:mm:ss string
  */
-function formatSharkTime(totalSeconds, isAllTime = false) {
+export function formatSharkTime(totalSeconds, isAllTime = false) {
     const days = Math.floor(totalSeconds / 86400);
     const hours = Math.floor((totalSeconds % 86400) / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
