@@ -904,4 +904,14 @@ tr.has-crown td {
 #player-stats-table th:first-child,
 #player-stats-table td:first-child {
     padding-left: 17px !important;
+    /* Adds a 2px vertical border ONLY to the data rows */
+}
+
+/* Adds a permanent, colorful vertical line ONLY to the data rows */
+#leaderboard-table td:first-child {
+    box-shadow: inset -2px 0 0 var(--color-accent);
+}
+
+#player-stats-table td:first-child {
+    box-shadow: inset -2px 0 0 var(--color-stats-theme);
 }
