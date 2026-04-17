@@ -462,7 +462,7 @@ background-color: var(--color-absent) !important;
     width: 100%;
     padding: 12px;
     font-size: 1.1rem;
-    background-color: var(--color-correct);
+    background-color: var(--color-accent);
     color: var(--color-background);
     border: none;
     border-radius: 6px;
