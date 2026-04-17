@@ -557,6 +557,12 @@ document.getElementById('lose-menu-btn')?.addEventListener('click', () => {
 
 document.getElementById('stats-sort-select')?.addEventListener('change', () => {
     updatePlayerStatsUI(); // Instantly re-sorts and re-renders when they click an option
+    
+    // Snap the table back to the left side
+    const statsContainer = document.querySelector('.stats-container');
+    if (statsContainer) {
+        statsContainer.scrollLeft = 0;
+    }
 });
 
 document.getElementById('lose-leaderboard-btn')?.addEventListener('click', () => {
