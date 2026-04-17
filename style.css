@@ -496,11 +496,6 @@ background-color: var(--color-absent) !important;
     color: #ff4d4d; 
 }
 
-/*Default UI blue*/
-#how-to-play-modal h2 {
-    color: var(--color-text);
-}
-
 .secondary-modal-btn {
     padding: 12px;
     font-size: 1.1rem; 
