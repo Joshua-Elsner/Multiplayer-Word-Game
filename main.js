@@ -6,7 +6,6 @@ import {
     claimSharkTitle, recordSharkMeal, fetchWordSuggestions,
     setupRealtimeSubscriptions, createNewPlayer,
     recordYoink, sendYoinkBroadcast,
-    setupPresence, updatePresence, mySessionId,
     fetchLastWeekWinners, fetchWeeklyRecap
 } from './api.js';
 
@@ -22,7 +21,7 @@ import {
     shakeRow, revealNextRow, updateSharkDisplay, updateStartButton,
     renderPlayerList, toggleScreen, setupWinModal,
     renderWordSuggestions, setSubmitButtonLoading, renderLeaderboardTable,
-    renderPlayerStatsTable, updateGuessCounter, updatePresenceUI,
+    renderPlayerStatsTable, updateGuessCounter,
     setWeekEndingDate, setStartButtonLoading, setPlayerGridLoading,
     setLeaderboardLoading, setStatsLoading, setSuggestionsLoading,
     showWeeklyRecap 
@@ -90,58 +89,6 @@ async function init() {
                 }
             }
         );
-
-        // 2. Setup the live Presence tracker with Auto-Culling
-        let latestPresenceState = {};
-        
-        // NEW: Store the local time we received their last message to defeat Clock Drift
-        let localPresenceData = {}; 
-
-        function evaluatePresence() {
-            let othersGuessingCount = 0;
-            const now = Date.now();
-
-            for (const key in latestPresenceState) {
-                if (key === mySessionId) continue; 
-                
-                // Get this user's most recent sync data
-                const latestObj = latestPresenceState[key].reduce((newest, current) => {
-                    return (current.updatedAt || 0) > (newest.updatedAt || 0) ? current : newest;
-                }, { isGuessing: false, updatedAt: 0 });
-                
-                let localData = localPresenceData[key];
-
-                // NEW FIX: Accept the update if the timestamp is newer OR if their true/false state flipped!
-                if (!localData || 
-                    localData.foreignUpdatedAt !== latestObj.updatedAt || 
-                    localData.isGuessing !== latestObj.isGuessing) {
-                    
-                    localData = {
-                        isGuessing: latestObj.isGuessing,
-                        foreignUpdatedAt: latestObj.updatedAt,
-                        localReceivedAt: now 
-                    };
-                    localPresenceData[key] = localData;
-                }
-
-                // Evaluate using ONLY our local clock to prevent "Ghost Yoink" time drift
-                if (localData.isGuessing && (now - localData.localReceivedAt < 25000)) {
-                    othersGuessingCount++;
-                }
-            }
-            
-            updatePresenceUI(othersGuessingCount);
-        }
-
-        // Whenever the server sends data, save it and evaluate
-        setupPresence((state) => {
-            latestPresenceState = state;
-            evaluatePresence();
-        });
-
-        // Even if the server is quiet, check the data locally every 3 seconds.
-        // This instantly drops people who close tabs or lose internet!
-        setInterval(evaluatePresence, 3000);
        
         // --- WEEKLY RECAP CHECK ---
         const recap = await fetchWeeklyRecap();
@@ -425,7 +372,6 @@ document.getElementById('start-game-btn').addEventListener('click', async () => 
     startNewGame();
     toggleScreen('home-screen', false);
     toggleScreen('game-screen', true);
-    updatePresence(true);
 });
 
 document.getElementById('board-return-menu-btn')?.addEventListener('click', async () => {
@@ -435,9 +381,6 @@ document.getElementById('board-return-menu-btn')?.addEventListener('click', asyn
     toggleScreen('game-screen', false);
     toggleScreen('home-screen', true);
     startNewGame();
-
-    // 2. Tell Supabase in the background
-    await updatePresence(false);
 });
 
 document.getElementById('leaderboard-btn').addEventListener('click', () => {
@@ -559,7 +502,6 @@ document.getElementById('lose-menu-btn')?.addEventListener('click', () => {
     toggleScreen('home-screen', true);
     clearBoardState();
     startNewGame();
-    updatePresence(false);
 });
 
 document.getElementById('stats-sort-select')?.addEventListener('change', () => {
@@ -599,7 +541,6 @@ document.getElementById('lose-leaderboard-btn')?.addEventListener('click', () =>
     toggleScreen('leaderboard-screen', true);
     clearBoardState();
     startNewGame();
-    updatePresence(false);
 });
 
 document.getElementById('back-to-menu-btn')?.addEventListener('click', () => {
@@ -644,7 +585,6 @@ document.getElementById('submit-new-word')?.addEventListener('click', async () =
         toggleScreen('home-screen', true);
         clearBoardState();
         startNewGame();
-        updatePresence(false);
         return;
     }
 
@@ -687,7 +627,6 @@ document.getElementById('submit-new-word')?.addEventListener('click', async () =
         await loadLeaderboard();
         toggleScreen('leaderboard-screen', true);
         startNewGame();
-        updatePresence(false);
 
     } catch (error) {
         setSubmitButtonLoading(false);
@@ -705,7 +644,6 @@ document.getElementById('submit-new-word')?.addEventListener('click', async () =
             startNewGame();
 
             toggleScreen('home-screen', true);
-            updatePresence(false);
         } else {
             showToast(error.message || "Failed to update the database.");
         }
