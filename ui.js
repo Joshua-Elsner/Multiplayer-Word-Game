@@ -2,7 +2,6 @@
 // ui.js - The View Layer
 // ==========================================
 
-import { updatePresence } from './api.js';
 import { gameState } from './game.js';
 
 // --- CACHED DOM ELEMENTS ---
@@ -539,28 +538,6 @@ export function setWeekEndingDate() {
     const day = nextSunday.getDate();
 
     display.textContent = `Week ending ${month}/${day}`;
-}
-
-// ==========================================
-// PRESENCE UI
-// ==========================================
-
-export function updatePresenceUI(count) {
-    const dot = document.getElementById('presence-dot');
-    const text = document.getElementById('presence-count');
-    
-    if (!dot || !text) return;
-    
-    if (count > 0) {
-        dot.classList.remove('inactive');
-        dot.classList.add('active');
-        // Pluralize properly (1 Other Guessing vs 2 Others Guessing)
-        text.textContent = `${count} Other${count === 1 ? '' : 's'} Guessing`;
-    } else {
-        dot.classList.remove('active');
-        dot.classList.add('inactive');
-        text.textContent = `0 Others Guessing`;
-    }
 }
 
 /**
