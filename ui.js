@@ -286,20 +286,27 @@ export function renderWordSuggestions(word1, word2) {
     const sug1Btn = document.getElementById('suggestion-1');
     const sug2Btn = document.getElementById('suggestion-2');
     const newWordInput = document.getElementById('new-word-input');
+    const submitBtn = document.getElementById('submit-new-word'); // Grab the submit button
 
-    if (!suggestionsContainer || !sug1Btn || !sug2Btn) return;
+    if (!suggestionsContainer || !sug1Btn || !sug2Btn || !submitBtn) return;
 
     // Apply the new words
     sug1Btn.textContent = word1;
     sug2Btn.textContent = word2;
     
-    // Restore the buttons to their active, visible states
+    // Restore the buttons to their active, visible states (from previous loading update)
     sug1Btn.disabled = false;
     sug2Btn.classList.remove('hidden');
 
-    // Reattach the click events
-    sug1Btn.onclick = () => { newWordInput.value = word1; newWordInput.focus(); };
-    sug2Btn.onclick = () => { newWordInput.value = word2; newWordInput.focus(); };
+    // Auto-fill the input AND instantly submit it
+    sug1Btn.onclick = () => { 
+        newWordInput.value = word1; 
+        submitBtn.click(); 
+    };
+    sug2Btn.onclick = () => { 
+        newWordInput.value = word2; 
+        submitBtn.click(); 
+    };
 
     suggestionsContainer.classList.remove('hidden');
 }
