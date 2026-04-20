@@ -488,25 +488,22 @@ export function renderLeaderboardTable(sortedPlayers) {
 
         // 1. Setup variables for our icons
         let suffix = "";
-        let crownHTML = "";
-        let rowClass = "";
 
-        // 2. Determine placements (Crown for 1st, trailing medals for 2nd and 3rd)
+        // 2. Determine placements (Assign all medals directly to the suffix)
         if (gameState.lastWeekWinners.length > 0 && player.id === gameState.lastWeekWinners[0]) {
-            crownHTML = `<span class="prev-winner-crown" title="Last Week's Winner!">👑</span>`;
-            rowClass = "has-crown";
+            suffix = ` <span title="Last Week's Winner!">👑</span>`;
         } else if (gameState.lastWeekWinners.length > 1 && player.id === gameState.lastWeekWinners[1]) {
             suffix = ` <span title="2nd Place Last Week">🥈</span>`;
         } else if (gameState.lastWeekWinners.length > 2 && player.id === gameState.lastWeekWinners[2]) {
             suffix = ` <span title="3rd Place Last Week">🥉</span>`;
         }
 
-        // 3. Prepend the rankString to the name HTML
-        let nameHTML = `${rankString}<div style="position: relative; display: inline-block;">${crownHTML}<span ${sharkStyle}>${player.username}</span></div>${suffix}`;
+        // 3. Prepend the rankString to the name HTML (Removed the relative div wrapper)
+        let nameHTML = `${rankString}<span ${sharkStyle}>${escapeHTML(player.username)}</span>${suffix}`;
 
-          // 4. Remove the Rank <td> and left-align the Player <td>
+        // 4. Remove the Rank <td> and left-align the Player <td>
         const rowHTML = `
-        <tr class="${rowClass}">
+        <tr>
             <td style="text-align: left; padding-left: 20px;">${nameHTML}</td>
             <td ${sharkStyle} ${timeCellId} ${baseTimeAttr}>${formattedTime}</td>
             <td>${player.weekly_sharks_evaded || 0}</td>
