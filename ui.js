@@ -4,6 +4,22 @@
 
 import { gameState } from './game.js';
 
+const FIRST_RESET_DATE = new Date('2026-04-12T00:00:00'); 
+
+/**
+ * Calculates the exact Week Number based on a given date.
+ */
+function calculateWeekNumber(targetDate) {
+    // Normalize both dates to UTC midnight to completely bypass daylight savings/timezone bugs
+    const start = Date.UTC(FIRST_RESET_DATE.getFullYear(), FIRST_RESET_DATE.getMonth(), FIRST_RESET_DATE.getDate());
+    const target = Date.UTC(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+
+    const diffInDays = Math.floor((target - start) / (1000 * 60 * 60 * 24));
+
+    // Week 1 = 0 days difference. Week 2 = 7 days. Week 3 = 14 days.
+    return Math.floor(diffInDays / 7) + 1;
+}
+
 // --- CACHED DOM ELEMENTS ---
 // Caching these prevents the browser from having to search the entire document every time a key is pressed.
 const rows = document.querySelectorAll('.board-row');
@@ -358,7 +374,9 @@ export function showWeeklyRecap(recapData) {
 
     const dateObj = new Date(recapData.weekEnding);
     dateObj.setMinutes(dateObj.getMinutes() + dateObj.getTimezoneOffset());
-    weekText.textContent = `Week ending ${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
+
+    const weekNum = calculateWeekNumber(dateObj);
+    weekText.textContent = `Week ${weekNum}`;
 
     // Initialize two separate wrapper divs for pagination
     let page1HTML = `<div id="recap-page-1" style="display: flex; flex-direction: column; gap: 12px;">`;
