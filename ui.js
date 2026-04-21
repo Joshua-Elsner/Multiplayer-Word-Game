@@ -478,6 +478,20 @@ export function renderLeaderboardTable(sortedPlayers) {
     const tbody = document.getElementById('leaderboard-body');
     if (!tbody) return;
     
+    const weekDisplay = document.getElementById('leaderboard-week-display');
+    if (weekDisplay) {
+        const now = new Date();
+        
+        // If today is Sunday (0), the reset just happened, so the next one is in 7 days.
+        // Otherwise, subtract today's day from 7 to find the upcoming Sunday.
+        const daysUntilSunday = now.getDay() === 0 ? 7 : 7 - now.getDay();
+        
+        const nextSunday = new Date(now);
+        nextSunday.setDate(now.getDate() + daysUntilSunday);
+        
+        weekDisplay.textContent = `Week ${calculateWeekNumber(nextSunday)}`;
+    }
+
     tbody.innerHTML = '';
 
     sortedPlayers.forEach((player, index) => {
