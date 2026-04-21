@@ -35,6 +35,7 @@ body {
 
 button, .key {
     transition: all 0.2s ease;
+    touch-action: manipulation;
 }
 
 h1 {
