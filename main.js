@@ -340,9 +340,12 @@ async function handleLoss(isRestore = false) {
 // EVENT LISTENERS
 // ==========================================
 
-// --- Keyboard Input ---
+// --- Virtual Keyboard Input ---
 document.querySelectorAll('.key').forEach(key => {
-    key.addEventListener('click', () => {
+    key.addEventListener('pointerdown', (e) => {
+        // Prevent the browser from firing a delayed 'click' or trying to drag the element
+        e.preventDefault(); 
+        
         handleKeyInput(key.textContent.trim());
     });
 });
