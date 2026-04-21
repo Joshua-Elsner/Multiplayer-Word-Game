@@ -340,9 +340,12 @@ async function handleLoss(isRestore = false) {
 // EVENT LISTENERS
 // ==========================================
 
-// --- Keyboard Input ---
+// --- Virtual Keyboard Input ---
 document.querySelectorAll('.key').forEach(key => {
-    key.addEventListener('click', () => {
+    key.addEventListener('pointerdown', (e) => {
+        // Prevent the browser from firing a delayed 'click' or trying to drag the element
+        e.preventDefault(); 
+        
         handleKeyInput(key.textContent.trim());
     });
 });
@@ -457,15 +460,30 @@ document.getElementById('create-player-btn')?.addEventListener('click', async ()
 });
 
 // --- Modal Controls ---
-document.getElementById('close-how-to-play-btn')?.addEventListener('click', () => toggleScreen('how-to-play-modal', false));
-document.getElementById('close-how-to-x')?.addEventListener('click', () => toggleScreen('how-to-play-modal', false));
-document.getElementById('try-again-btn')?.addEventListener('click', () => {
+// --- Modal Controls ---
+document.getElementById('close-how-to-play-btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleScreen('how-to-play-modal', false);
+});
+
+document.getElementById('close-how-to-x')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleScreen('how-to-play-modal', false);
+});
+
+document.getElementById('try-again-btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     toggleScreen('lose-modal', false);
     clearBoardState();
     startNewGame();
 });
 
-document.getElementById('lose-menu-btn')?.addEventListener('click', () => {
+document.getElementById('lose-menu-btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     toggleScreen('lose-modal', false);
     toggleScreen('game-screen', false);
     toggleScreen('home-screen', true);
@@ -542,7 +560,11 @@ closableModalIds.forEach(id => {
     const modal = document.getElementById(id);
     if (modal) {
         modal.addEventListener('click', (event) => {
-            if (event.target === modal) toggleScreen(id, false);
+            if (event.target === modal) {
+                event.preventDefault();
+                event.stopPropagation();
+                toggleScreen(id, false);
+            }
         });
     }
 });

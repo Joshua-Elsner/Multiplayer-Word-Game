@@ -35,6 +35,7 @@ body {
 
 button, .key {
     transition: all 0.2s ease;
+    touch-action: manipulation;
 }
 
 h1 {
@@ -147,6 +148,7 @@ h2 {
     cursor: pointer; /*Turns mouse into pointing hand when hovering*/
     user-select: none; 
     text-transform: uppercase;
+    touch-action: none;
 }
 
 .wide-key {
@@ -598,27 +600,49 @@ button:disabled:hover {
 }
 
 /* ==========================================
-   SPRITES
+   SPRITES & NAMEPLATES
    ========================================== */
 
-#top-shark {
+.sprite-name {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: var(--color-text);
+    background-color: rgba(15, 23, 42, 0.6); /* Slight background so it doesn't get lost in bubbles */
+    padding: 2px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    pointer-events: none;
+}
+
+#shark-container {
     position: absolute;
-    top: -30px; /* Locks it to the top of the game screen */
-    width: 180px; /* Adjust based on your image size */
-    z-index: 10; /* Ensures it stays on top of the bubbles/fish */
-    
-    /* Reuses your existing bubble animation to make it float menacingly! */
+    top: -30px; 
+    z-index: 10; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
     animation: idleBob 4s ease-in-out infinite alternate;
 }
 
-#board-fish {
-    width: 80px; /* Adjust based on your image size */
-    align-self: center; /* Centers it above the bubbles */
-    margin-bottom: -15px; /* The gap between the fish and the top row */
-    z-index: 5;
-    
-    /* Reuses your animation so the fish swims in place */
+#top-shark {
+    width: 180px; 
+}
+
+#fish-container {
+    align-self: center; 
+    margin-bottom: -15px; 
+    z-index: 5; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
     animation: idleBob 2.5s ease-in-out infinite;
+}
+
+#board-fish {
+    width: 80px; 
 }
 
 .circle-btn {
