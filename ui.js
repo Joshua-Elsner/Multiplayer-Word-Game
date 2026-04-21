@@ -133,9 +133,13 @@ export function revealNextRow(rowIndex) {
 export function updateSharkDisplay(currentSharkName, currentPlayerName, secretWord) {
     const homeDisplay = document.getElementById('home-shark-display');
     const boardDisplay = document.getElementById('leaderboard-shark-display');
-    
-    // 1. Grab the new stats display element
     const statsDisplay = document.getElementById('player-stats-shark-display');
+
+    const onScreenShark = document.getElementById('shark-name-display');
+    const onScreenFish = document.getElementById('fish-name-display');
+    
+    if (onScreenShark) onScreenShark.textContent = currentSharkName;
+    if (onScreenFish) onScreenFish.textContent = currentPlayerName;
 
     const isCurrentShark = (currentSharkName === currentPlayerName && currentPlayerName !== "Guest");
     const displayName = isCurrentShark ? "You" : currentSharkName;

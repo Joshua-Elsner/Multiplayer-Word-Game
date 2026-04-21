@@ -81,13 +81,13 @@
             <p id="recap-week-text" style="color: #888; margin-top: -10px; margin-bottom: 20px;">Week ending ...</p>
 
             <div id="podium-container" style="display: flex; flex-direction: column; gap: 12px; text-align: left;">
-    </div>
+            </div>
 
-<button id="next-recap-btn"
-    style="margin-top: 25px; width: 100%; background-color: var(--color-accent); color: var(--color-background); font-weight: bold; border: none; padding: 12px; border-radius: 6px; cursor: pointer;">NEXT</button>
+            <button id="next-recap-btn"
+                style="margin-top: 25px; width: 100%; background-color: var(--color-accent); color: var(--color-background); font-weight: bold; border: none; padding: 12px; border-radius: 6px; cursor: pointer;">NEXT</button>
 
-<button id="close-recap-btn" class="hidden"
-    style="margin-top: 25px; width: 100%; background-color: var(--color-accent); color: var(--color-background); font-weight: bold; border: none; padding: 12px; border-radius: 6px; cursor: pointer;">WAHOOO!</button>
+            <button id="close-recap-btn" class="hidden"
+                style="margin-top: 25px; width: 100%; background-color: var(--color-accent); color: var(--color-background); font-weight: bold; border: none; padding: 12px; border-radius: 6px; cursor: pointer;">WAHOOO!</button>
         </div>
     </div>
 
@@ -137,12 +137,21 @@
                 <polygon points="18,4 6,12 18,20" />
             </svg>
         </button>
-        <img id="top-shark" src="shark.png" alt="Shark">
+
+        <div id="shark-container">
+            <img id="top-shark" src="shark.png" alt="Shark">
+            <div id="shark-name-display" class="sprite-name">Loading...</div>
+        </div>
 
         <section id="game-board">
-            <img id="board-fish" src="fish.png" alt="Fish">
+            <div id="fish-container">
+                <div id="fish-name-display" class="sprite-name">Guest</div>
+                <img id="board-fish" src="fish.png" alt="Fish">
+            </div>
+
             <div id="guess-counter"
-                style="color: #888; font-size: 0.9rem; letter-spacing: 1px; margin-bottom: 5px; z-index: 5;">Guess 1/6
+                style="color: #888; font-size: 0.9rem; letter-spacing: 1px; margin-bottom: 5px; z-index: 5;">
+                Guess 1/6
             </div>
             <div class="board-row">
                 <div class="tile"></div>
