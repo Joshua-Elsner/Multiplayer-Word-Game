@@ -557,7 +557,11 @@ closableModalIds.forEach(id => {
     const modal = document.getElementById(id);
     if (modal) {
         modal.addEventListener('click', (event) => {
-            if (event.target === modal) toggleScreen(id, false);
+            if (event.target === modal) {
+                event.preventDefault();
+                event.stopPropagation();
+                toggleScreen(id, false);
+            }
         });
     }
 });
