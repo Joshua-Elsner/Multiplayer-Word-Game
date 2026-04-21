@@ -2,7 +2,6 @@
 // ui.js - The View Layer
 // ==========================================
 
-import { updatePresence } from './api.js';
 import { gameState } from './game.js';
 
 // --- CACHED DOM ELEMENTS ---
@@ -268,8 +267,13 @@ export function setSuggestionsLoading() {
     const sug2Btn = document.getElementById('suggestion-2');
 
     if (suggestionsContainer && sug1Btn && sug2Btn) {
+        // Set the first button to loading and disable it
         sug1Btn.textContent = "Loading...";
-        sug2Btn.textContent = "Loading...";
+        sug1Btn.disabled = true; 
+        
+        // Hide the second button completely
+        sug2Btn.classList.add('hidden'); 
+        
         suggestionsContainer.classList.remove('hidden');
     }
 }
@@ -282,15 +286,27 @@ export function renderWordSuggestions(word1, word2) {
     const sug1Btn = document.getElementById('suggestion-1');
     const sug2Btn = document.getElementById('suggestion-2');
     const newWordInput = document.getElementById('new-word-input');
+    const submitBtn = document.getElementById('submit-new-word'); // Grab the submit button
 
-    if (!suggestionsContainer || !sug1Btn || !sug2Btn) return;
+    if (!suggestionsContainer || !sug1Btn || !sug2Btn || !submitBtn) return;
 
+    // Apply the new words
     sug1Btn.textContent = word1;
     sug2Btn.textContent = word2;
+    
+    // Restore the buttons to their active, visible states (from previous loading update)
+    sug1Btn.disabled = false;
+    sug2Btn.classList.remove('hidden');
 
-    // Auto-fill the input when clicked
-    sug1Btn.onclick = () => { newWordInput.value = word1; newWordInput.focus(); };
-    sug2Btn.onclick = () => { newWordInput.value = word2; newWordInput.focus(); };
+    // Auto-fill the input AND instantly submit it
+    sug1Btn.onclick = () => { 
+        newWordInput.value = word1; 
+        submitBtn.click(); 
+    };
+    sug2Btn.onclick = () => { 
+        newWordInput.value = word2; 
+        submitBtn.click(); 
+    };
 
     suggestionsContainer.classList.remove('hidden');
 }
@@ -329,25 +345,32 @@ export function showWeeklyRecap(recapData) {
     const modal = document.getElementById('weekly-recap-modal');
     const weekText = document.getElementById('recap-week-text');
     const podium = document.getElementById('podium-container');
+    
+    // Grab both buttons
+    const nextBtn = document.getElementById('next-recap-btn');
+    const closeBtn = document.getElementById('close-recap-btn');
 
     if (!modal || !podium) return;
 
-    // Format the date nicely (e.g., "2024-05-12" -> "5/12")
     const dateObj = new Date(recapData.weekEnding);
-    // Add timezone offset fix so midnight UTC doesn't roll backwards a day
-    dateObj.setMinutes(dateObj.getMinutes() + dateObj.getTimezoneOffset()); 
+    dateObj.setMinutes(dateObj.getMinutes() + dateObj.getTimezoneOffset());
     weekText.textContent = `Week ending ${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
-    
-    podium.innerHTML = '';
 
+    // Initialize two separate wrapper divs for pagination
+    let page1HTML = `<div id="recap-page-1" style="display: flex; flex-direction: column; gap: 12px;">`;
+    let page2HTML = `<div id="recap-page-2" class="hidden" style="display: flex; flex-direction: column; gap: 12px;">`;
+
+    // ==========================================
+    // PAGE 1: The Podium (Top 3)
+    // ==========================================
     const medals = ['👑 Shark of the Week', '🥈 Silver Medal', '🥉 Bronze Medal'];
     const colors = ['#ffd700', '#c0c0c0', '#cd7f32'];
-
-    recapData.winners.forEach((winner, index) => {
+    
+    recapData.podium.forEach((winner, index) => {
         const name = winner.players ? winner.players.username : 'Unknown Fish';
-        const time = formatSharkTime(winner.time_as_shark, false); // Reusing your existing time formatter
+        const time = formatSharkTime(winner.time_as_shark, false);
         
-        podium.innerHTML += `
+        page1HTML += `
             <div style="background-color: var(--color-background); padding: 15px; border-radius: 8px; border-left: 5px solid ${colors[index]}; display: flex; justify-content: space-between; align-items: center;">
                 <div>
                     <div style="color: ${colors[index]}; font-weight: bold; font-size: 0.85rem; text-transform: uppercase;">${medals[index]}</div>
@@ -359,6 +382,53 @@ export function showWeeklyRecap(recapData) {
             </div>
         `;
     });
+    
+    page1HTML += `</div>`; // Close page 1
+
+    // ==========================================
+    // PAGE 2: Special Awards
+    // ==========================================
+    const awards = [
+        { data: recapData.jawbreaker, title: "🥊 Jawbreaker", desc: "Most Words Solved" },
+        { data: recapData.robster, title: "🦞 Robster", desc: "Most Yoinks" },
+        { data: recapData.apex, title: "🦈 Apex Predator", desc: "Most Fish Eaten" },
+        { data: recapData.efishent, title: "🧠 E-fish-ent", desc: "Lowest Avg Guesses" }
+    ];
+
+    awards.forEach(award => {
+        if (award.data && award.data.players) {
+            page2HTML += `
+                <div style="background-color: rgba(125, 211, 252, 0.1); padding: 10px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                    <div>
+                        <div style="color: var(--color-text); font-weight: bold; font-size: 0.85rem; text-transform: uppercase;">${award.title}</div>
+                        <div style="font-size: 0.75rem; color: #888;">${award.desc}</div>
+                    </div>
+                    <div style="font-size: 1.1rem; color: white;">
+                        ${award.data.players.username}
+                    </div>
+                </div>
+            `;
+        }
+    });
+
+    page2HTML += `</div>`; // Close page 2
+
+    // Inject both pages into the container
+    podium.innerHTML = page1HTML + page2HTML;
+
+    // Reset button visibility (critical for when the modal is opened again)
+    if (nextBtn) nextBtn.classList.remove('hidden');
+    if (closeBtn) closeBtn.classList.add('hidden');
+
+    // Attach pagination logic to the "Next" button
+    if (nextBtn) {
+        nextBtn.onclick = () => {
+            document.getElementById('recap-page-1').classList.add('hidden');
+            document.getElementById('recap-page-2').classList.remove('hidden');
+            nextBtn.classList.add('hidden');
+            closeBtn.classList.remove('hidden');
+        };
+    }
 
     modal.classList.remove('hidden');
 }
@@ -418,25 +488,22 @@ export function renderLeaderboardTable(sortedPlayers) {
 
         // 1. Setup variables for our icons
         let suffix = "";
-        let crownHTML = "";
-        let rowClass = "";
 
-        // 2. Determine placements (Crown for 1st, trailing medals for 2nd and 3rd)
+        // 2. Determine placements (Assign all medals directly to the suffix)
         if (gameState.lastWeekWinners.length > 0 && player.id === gameState.lastWeekWinners[0]) {
-            crownHTML = `<span class="prev-winner-crown" title="Last Week's Winner!">👑</span>`;
-            rowClass = "has-crown";
+            suffix = ` <span title="Last Week's Winner!">👑</span>`;
         } else if (gameState.lastWeekWinners.length > 1 && player.id === gameState.lastWeekWinners[1]) {
             suffix = ` <span title="2nd Place Last Week">🥈</span>`;
         } else if (gameState.lastWeekWinners.length > 2 && player.id === gameState.lastWeekWinners[2]) {
             suffix = ` <span title="3rd Place Last Week">🥉</span>`;
         }
 
-        // 3. Prepend the rankString to the name HTML
-        let nameHTML = `${rankString}<div style="position: relative; display: inline-block;">${crownHTML}<span ${sharkStyle}>${player.username}</span></div>${suffix}`;
+        // 3. Prepend the rankString to the name HTML (Removed the relative div wrapper)
+        let nameHTML = `${rankString}<span ${sharkStyle}>${escapeHTML(player.username)}</span>${suffix}`;
 
-          // 4. Remove the Rank <td> and left-align the Player <td>
+        // 4. Remove the Rank <td> and left-align the Player <td>
         const rowHTML = `
-        <tr class="${rowClass}">
+        <tr>
             <td style="text-align: left; padding-left: 20px;">${nameHTML}</td>
             <td ${sharkStyle} ${timeCellId} ${baseTimeAttr}>${formattedTime}</td>
             <td>${player.weekly_sharks_evaded || 0}</td>
@@ -468,7 +535,11 @@ export function renderPlayerStatsTable(sortedPlayers, sortBy = 'alpha') {
         { id: 'avg', head: '<th>Average<br>Guesses</th>', getVal: p => formatAverageGuesses(p.all_time_guesses, p.all_time_puzzles_played) },
         { id: 'sotw', head: '<th>Shark of<br>the Week<br>Awards</th>', getVal: p => p.shark_of_the_week_wins || 0 },
         { id: 'silver', head: '<th>Silver<br>Medals</th>', getVal: p => p.silver_medals || 0 },
-        { id: 'bronze', head: '<th>Bronze<br>Medals</th>', getVal: p => p.bronze_medals || 0 }
+        { id: 'bronze', head: '<th>Bronze<br>Medals</th>', getVal: p => p.bronze_medals || 0 },
+        { id: 'jawbreaker', head: '<th>Jawbreaker<br>Awards</th>', getVal: p => p.jawbreaker_awards || 0 },
+        { id: 'robster', head: '<th>Robster<br>Awards</th>', getVal: p => p.robster_awards || 0 },
+        { id: 'apex', head: '<th>Apex Predator<br>Awards</th>', getVal: p => p.apex_predator_awards || 0 },
+        { id: 'efishent', head: '<th>E-fish-ent<br>Awards</th>', getVal: p => p.efishent_awards || 0 }
     ];
 
     // 2. Rearrange the columns based on the current sort
@@ -541,28 +612,6 @@ export function setWeekEndingDate() {
     display.textContent = `Week ending ${month}/${day}`;
 }
 
-// ==========================================
-// PRESENCE UI
-// ==========================================
-
-export function updatePresenceUI(count) {
-    const dot = document.getElementById('presence-dot');
-    const text = document.getElementById('presence-count');
-    
-    if (!dot || !text) return;
-    
-    if (count > 0) {
-        dot.classList.remove('inactive');
-        dot.classList.add('active');
-        // Pluralize properly (1 Other Guessing vs 2 Others Guessing)
-        text.textContent = `${count} Other${count === 1 ? '' : 's'} Guessing`;
-    } else {
-        dot.classList.remove('active');
-        dot.classList.add('inactive');
-        text.textContent = `0 Others Guessing`;
-    }
-}
-
 /**
  * Helper to format the Average Guesses metric
  */
@@ -577,4 +626,19 @@ function formatAverageGuesses(totalGuesses, gamesPlayed) {
     }
     
     return (guesses / games).toFixed(1);
+}
+
+/**
+ * Sanitizes untrusted user input to prevent XSS attacks 
+ * when injecting variables into innerHTML strings.
+ */
+export function escapeHTML(str) {
+    if (!str) return "";
+    return String(str).replace(/[&<>'"]/g, tag => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+    }[tag]));
 }

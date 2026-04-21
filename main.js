@@ -6,7 +6,6 @@ import {
     claimSharkTitle, recordSharkMeal, fetchWordSuggestions,
     setupRealtimeSubscriptions, createNewPlayer,
     recordYoink, sendYoinkBroadcast,
-    setupPresence, updatePresence, mySessionId,
     fetchLastWeekWinners, fetchWeeklyRecap
 } from './api.js';
 
@@ -22,10 +21,10 @@ import {
     shakeRow, revealNextRow, updateSharkDisplay, updateStartButton,
     renderPlayerList, toggleScreen, setupWinModal,
     renderWordSuggestions, setSubmitButtonLoading, renderLeaderboardTable,
-    renderPlayerStatsTable, updateGuessCounter, updatePresenceUI,
+    renderPlayerStatsTable, updateGuessCounter,
     setWeekEndingDate, setStartButtonLoading, setPlayerGridLoading,
     setLeaderboardLoading, setStatsLoading, setSuggestionsLoading,
-    showWeeklyRecap 
+    showWeeklyRecap, escapeHTML
 } from './ui.js';
 
 // ==========================================
@@ -39,13 +38,6 @@ async function init() {
 
         setStartButtonLoading();
         setPlayerGridLoading();
-
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('discord_linked') === 'success') {
-            showToast("Discord successfully linked!");
-            // Clean up the URL so the parameter disappears
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
 
          setWeekEndingDate();
 
@@ -69,7 +61,7 @@ async function init() {
 
                 if (isGameVisible && oldSecretWord !== gameState.secretWord) {
                     if ((isCurrentlyPlaying && !gameState.isGameOver) || isSettingWord) {
-                        showToast(`YOINK!!!\n<span class="toast-highlight">${gameState.currentShark}</span> guessed it!\nWord was: <span class="toast-highlight">${oldSecretWord}</span>`, 4000);
+                        showToast(`YOINK!!!\n<span class="toast-highlight">${escapeHTML(gameState.currentShark)}</span> guessed it!\nWord was: <span class="toast-highlight">${escapeHTML(oldSecretWord)}</span>`, 4000);
                         if (isSettingWord) {
                             toggleScreen('win-modal', false);
                         }
@@ -86,70 +78,25 @@ async function init() {
             // Callback for Yoink Broadcasts
             (payload) => {
                 if (gameState.currentPlayerId === payload.sharkId) {
-                    showToast(`<span class="toast-highlight">${payload.yoinkedName}</span> got yoinked! Gottem!`, 3500);
+                    showToast(`<span class="toast-highlight">${escapeHTML(payload.yoinkedName)}</span> got yoinked! Gottem!`, 3500);
                 }
             }
         );
-
-        // 2. Setup the live Presence tracker with Auto-Culling
-        let latestPresenceState = {};
-        
-        // NEW: Store the local time we received their last message to defeat Clock Drift
-        let localPresenceData = {}; 
-
-        function evaluatePresence() {
-            let othersGuessingCount = 0;
-            const now = Date.now();
-
-            for (const key in latestPresenceState) {
-                if (key === mySessionId) continue; 
-                
-                // Get this user's most recent sync data
-                const latestObj = latestPresenceState[key].reduce((newest, current) => {
-                    return (current.updatedAt || 0) > (newest.updatedAt || 0) ? current : newest;
-                }, { isGuessing: false, updatedAt: 0 });
-                
-                let localData = localPresenceData[key];
-
-                // NEW FIX: Accept the update if the timestamp is newer OR if their true/false state flipped!
-                if (!localData || 
-                    localData.foreignUpdatedAt !== latestObj.updatedAt || 
-                    localData.isGuessing !== latestObj.isGuessing) {
-                    
-                    localData = {
-                        isGuessing: latestObj.isGuessing,
-                        foreignUpdatedAt: latestObj.updatedAt,
-                        localReceivedAt: now 
-                    };
-                    localPresenceData[key] = localData;
-                }
-
-                // Evaluate using ONLY our local clock to prevent "Ghost Yoink" time drift
-                if (localData.isGuessing && (now - localData.localReceivedAt < 25000)) {
-                    othersGuessingCount++;
-                }
-            }
-            
-            updatePresenceUI(othersGuessingCount);
-        }
-
-        // Whenever the server sends data, save it and evaluate
-        setupPresence((state) => {
-            latestPresenceState = state;
-            evaluatePresence();
-        });
-
-        // Even if the server is quiet, check the data locally every 3 seconds.
-        // This instantly drops people who close tabs or lose internet!
-        setInterval(evaluatePresence, 3000);
        
         // --- WEEKLY RECAP CHECK ---
         const recap = await fetchWeeklyRecap();
+        
         if (recap) {
             const lastSeenWeek = localStorage.getItem('jawrgon_last_seen_week');
             
-            // If they haven't seen this specific week's results yet, show the modal
-            if (lastSeenWeek !== recap.weekEnding) {
+            if (!lastSeenWeek) {
+                // Scenario 1: First time loading the update OR a brand new player.
+                // Silently stamp their browser with the current week so they are synced, 
+                // but do NOT show them the modal for a week they didn't see.
+                localStorage.setItem('jawrgon_last_seen_week', recap.weekEnding);
+            } 
+            else if (lastSeenWeek !== recap.weekEnding) {
+                // Scenario 2: They have a stamp, but a new Sunday reset has happened!
                 showWeeklyRecap(recap);
                 
                 // Set up the one-time event listener to close and save
@@ -418,7 +365,6 @@ document.getElementById('start-game-btn').addEventListener('click', async () => 
     startNewGame();
     toggleScreen('home-screen', false);
     toggleScreen('game-screen', true);
-    updatePresence(true);
 });
 
 document.getElementById('board-return-menu-btn')?.addEventListener('click', async () => {
@@ -428,9 +374,6 @@ document.getElementById('board-return-menu-btn')?.addEventListener('click', asyn
     toggleScreen('game-screen', false);
     toggleScreen('home-screen', true);
     startNewGame();
-
-    // 2. Tell Supabase in the background
-    await updatePresence(false);
 });
 
 document.getElementById('leaderboard-btn').addEventListener('click', () => {
@@ -462,34 +405,17 @@ document.getElementById('how-to-play-btn').addEventListener('click', () => {
 
 // --- Player Modal Controls ---
 document.getElementById('open-player-modal-btn')?.addEventListener('click', () => {
+    // Wipe the search bar clean every time the modal opens
+    const searchInput = document.getElementById('player-search-input');
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input')); // Forces the grid to un-hide everyone
+    }
+    
     toggleScreen('player-modal', true);
 });
 document.getElementById('close-player-x')?.addEventListener('click', () => {
     toggleScreen('player-modal', false);
-});
-document.getElementById('link-discord-btn')?.addEventListener('click', () => {
-    console.log(" 1. The button was successfully clicked!");
-
-    // Check if they are a guest
-    if (gameState.currentPlayer === "Guest" || !gameState.currentPlayerId) {
-        console.log("2. Blocked: No player is selected. They are currently a Guest.");
-        showToast("You must select or create a player first!");
-        return;
-    }
-
-    console.log("3. Player is selected. Building the Discord URL...");
-
-    // Make sure you put your REAL Discord Client ID here!
-    const clientId = '1490905676635967508';
-    const redirectUri = encodeURIComponent('https://okbynkairmznzcriuknd.supabase.co/functions/v1/discord-callback');
-    const state = gameState.currentPlayerId;
-
-    const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=identify&state=${state}`;
-
-    console.log("🚀 4. Redirecting browser to:", discordAuthUrl);
-
-    // This is the line that actually changes the page
-    window.location.href = discordAuthUrl;
 });
 
 // --- Create New Player ---
@@ -545,11 +471,34 @@ document.getElementById('lose-menu-btn')?.addEventListener('click', () => {
     toggleScreen('home-screen', true);
     clearBoardState();
     startNewGame();
-    updatePresence(false);
 });
 
 document.getElementById('stats-sort-select')?.addEventListener('change', () => {
     updatePlayerStatsUI(); // Instantly re-sorts and re-renders when they click an option
+    
+    // Snap the table back to the left side
+    const statsContainer = document.querySelector('.stats-container');
+    if (statsContainer) {
+        statsContainer.scrollLeft = 0;
+        statsContainer.scrollTop = 0;
+    }
+});
+
+// --- Player Search Filter ---
+document.getElementById('player-search-input')?.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const buttons = document.querySelectorAll('#player-list-grid button');
+
+    buttons.forEach(btn => {
+        // textContent cleanly grabs the username and ignores the HTML tags for the Shark icon
+        const username = btn.textContent.toLowerCase();
+        
+        if (username.includes(searchTerm)) {
+            btn.classList.remove('hidden');
+        } else {
+            btn.classList.add('hidden');
+        }
+    });
 });
 
 document.getElementById('lose-leaderboard-btn')?.addEventListener('click', () => {
@@ -562,7 +511,6 @@ document.getElementById('lose-leaderboard-btn')?.addEventListener('click', () =>
     toggleScreen('leaderboard-screen', true);
     clearBoardState();
     startNewGame();
-    updatePresence(false);
 });
 
 document.getElementById('back-to-menu-btn')?.addEventListener('click', () => {
@@ -575,8 +523,8 @@ document.getElementById('back-to-menu-btn')?.addEventListener('click', () => {
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
         console.log("Tab woke up! Fetching true state...");
-        loadGameState(); 
-        loadLeaderboard(); 
+        loadGameState();
+        loadLeaderboard();
     }
 });
 
@@ -607,7 +555,6 @@ document.getElementById('submit-new-word')?.addEventListener('click', async () =
         toggleScreen('home-screen', true);
         clearBoardState();
         startNewGame();
-        updatePresence(false);
         return;
     }
 
@@ -650,25 +597,23 @@ document.getElementById('submit-new-word')?.addEventListener('click', async () =
         await loadLeaderboard();
         toggleScreen('leaderboard-screen', true);
         startNewGame();
-        updatePresence(false);
 
-        } catch (error) {
+    } catch (error) {
         setSubmitButtonLoading(false);
         if (error.message && error.message.includes('Word already used')) {
             showToast("That word has already been used in a past game!");
         } else if (error.message && error.message.includes('TOO SLOW!!!')) {
             // Wipe their board, fetch the new reality, and kick them out of the modal
             showToast("Oops! Someone else already guessed it! You may have a bad connection.");
-            
+
             toggleScreen('win-modal', false);
             toggleScreen('game-screen', false);
-            
+
             clearBoardState();
-            await loadGameState(); 
+            await loadGameState();
             startNewGame();
-            
+
             toggleScreen('home-screen', true);
-            updatePresence(false);
         } else {
             showToast(error.message || "Failed to update the database.");
         }

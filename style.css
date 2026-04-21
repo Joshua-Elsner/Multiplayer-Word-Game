@@ -462,7 +462,7 @@ background-color: var(--color-absent) !important;
     width: 100%;
     padding: 12px;
     font-size: 1.1rem;
-    background-color: var(--color-correct);
+    background-color: var(--color-accent);
     color: var(--color-background);
     border: none;
     border-radius: 6px;
@@ -494,11 +494,6 @@ background-color: var(--color-absent) !important;
 
 .lose-content h2 {
     color: #ff4d4d; 
-}
-
-/*Default UI blue*/
-#how-to-play-modal h2 {
-    color: var(--color-text);
 }
 
 .secondary-modal-btn {
@@ -668,81 +663,9 @@ button:disabled:hover {
     transform: translateY(0px); /* Pushes down when clicked */
 }
 
-/* ==========================================
-   PRESENCE INDICATOR
-   ========================================== */
-
-.presence-container {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: var(--color-tile-border);
-    padding: 8px 12px;
-    border-radius: 20px;
-    border: 1px solid var(--color-accent);
-    z-index: 1000; /* Stays on top of everything */
-    font-size: 0.85rem;
-    font-weight: bold;
-    color: var(--color-text);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
-}
-
-.presence-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: var(--color-correct); /* Green */
-}
-
-.presence-dot.inactive {
-    background-color: var(--color-absent); /* Gray */
-    animation: none;
-}
-
-.presence-dot.active {
-    background-color: var(--color-correct);
-    animation: pulse-green 1.5s infinite;
-}
-
-@keyframes pulse-green {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(45, 202, 45, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(45, 202, 45, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(45, 202, 45, 0); }
-}
-
-@media (max-width: 500px) {
-    .presence-container {
-        top: 10px;
-        right: 10px;
-        padding: 6px 10px;
-        font-size: 0.75rem;
-    }
-}
-
 .toast-highlight {
     color: #ff4444;
     font-weight: 900;
-}
-
-.prev-winner-crown {
-    position: absolute;
-    top: -24px; /* Adjust this to move the crown higher/lower */
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 1.3rem; /* Adjust crown size */
-    line-height: 1;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-    cursor: default;
-    user-select: none;
-}
-
-/* Gives extra headroom specifically for the row with the crown */
-tr.has-crown td {
-    padding-top: 30px !important; /* Normal is 12px, giving the crown 18px of space */
 }
 
 #player-stats-screen {
@@ -833,10 +756,6 @@ tr.has-crown td {
 
 /* Mobile table adjustments */
 @media (max-width: 500px) {
-    h1 {
-        font-size: 1.8rem;
-    }
-
     .stats-controls label, #stats-sort-select {
         font-size: 0.85rem;
     }
@@ -908,4 +827,14 @@ tr.has-crown td {
 #player-stats-table th:first-child,
 #player-stats-table td:first-child {
     padding-left: 17px !important;
+    /* Adds a 2px vertical border ONLY to the data rows */
+}
+
+/* Adds a permanent, colorful vertical line ONLY to the data rows */
+#leaderboard-table td:first-child {
+    box-shadow: inset -2px 0 0 var(--color-accent);
+}
+
+#player-stats-table td:first-child {
+    box-shadow: inset -2px 0 0 var(--color-stats-theme);
 }
