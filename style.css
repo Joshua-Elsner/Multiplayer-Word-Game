@@ -866,25 +866,3 @@ button:disabled {
     box-shadow: 0 0 10px var(--color-text);
     transform: scale(1.05);
 }
-
-#key-preview {
-    position: fixed;
-    width: 60px;
-    height: 70px;
-    background-color: var(--color-tile-border);
-    color: var(--color-text);
-    border: 2px solid var(--color-accent);
-    border-radius: 8px;
-    font-size: 2rem;
-    font-weight: bold;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-    /* Crucial: Prevents the preview from stealing the pointerup event */
-    pointer-events: none; 
-    z-index: 200; 
-    
-    /* Center it horizontally on the X coordinate, float it 150% above the Y coordinate */
-    transform: translate(-50%, -150%);
-}
