@@ -268,3 +268,13 @@ export function clearBoardState() {
     localStorage.removeItem('jawrgon_board_state');
     gameState.submittedGuesses = [];
 }
+
+export function replaceLetterInState(letter) {
+    if (gameState.selectedTileIndex === null) return false;
+    
+    // Split, replace, and rejoin string
+    let guessArr = gameState.currentGuess.split('');
+    guessArr[gameState.selectedTileIndex] = letter;
+    gameState.currentGuess = guessArr.join('');
+    return true;
+}

@@ -13,7 +13,8 @@ import {
     gameState, setPlayer, resetGameState, addLetterToState,
     deleteLetterFromState, advanceRow, isValidWord,
     evaluateGuess, processLeaderboardData, processPlayerStatsData,
-    saveBoardState, loadBoardState, clearBoardState
+    saveBoardState, loadBoardState, clearBoardState,
+    replaceLetterInState
 } from './game.js';
 
 import {
@@ -249,14 +250,20 @@ function handleKeyInput(letter) {
     if (letter === "ENTER") {
         submitGuess();
     } else if (letter === "BACK" || letter === "BACKSPACE") {
-        if (deleteLetterFromState()) {
-            updateTileText(gameState.currentRow, gameState.currentTile, "");
-        }
+        // ... (handled in next commit)
     } else if (letter === "CLEAR") {
-        clearCurrentRow();
+        // ... (handled in next commit)
     } else {
-        if (addLetterToState(letter)) {
-            updateTileText(gameState.currentRow, gameState.currentTile - 1, letter);
+        // NEW LOGIC: Replace letter if a bubble is selected
+        if (gameState.selectedTileIndex !== null) {
+            if (replaceLetterInState(letter)) {
+                updateTileText(gameState.currentRow, gameState.selectedTileIndex, letter);
+            }
+        } else {
+            // NORMAL LOGIC: Add letter to the end
+            if (addLetterToState(letter)) {
+                updateTileText(gameState.currentRow, gameState.currentTile - 1, letter);
+            }
         }
     }
 }
