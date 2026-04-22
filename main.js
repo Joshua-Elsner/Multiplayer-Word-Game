@@ -33,6 +33,7 @@ import {
 // ==========================================
 
 let timerInterval = null;
+cacheKeyGeometries();
 
 async function init() {
     try {
@@ -360,6 +361,27 @@ async function handleLoss(isRestore = false) {
 // ==========================================
 // EVENT LISTENERS
 // ==========================================
+
+// --- Virtual Keyboard Hit Detection ---
+let keyGeometries = [];
+
+function cacheKeyGeometries() {
+    keyGeometries = [];
+    document.querySelectorAll('.key').forEach(key => {
+        const rect = key.getBoundingClientRect();
+        keyGeometries.push({
+            id: key.id,
+            textContent: key.textContent.trim(),
+            left: rect.left,
+            right: rect.right,
+            top: rect.top,
+            bottom: rect.bottom
+        });
+    });
+}
+
+// Update bounds when the window resizes or device rotates
+window.addEventListener('resize', cacheKeyGeometries);
 
 export function clearSelection() {
     gameState.selectedTileIndex = null;
