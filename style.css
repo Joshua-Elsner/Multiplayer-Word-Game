@@ -860,3 +860,9 @@ button:disabled {
         color: #475569 !important;
     }
 }
+
+.tile.selected {
+    border: 3px solid var(--color-text);
+    box-shadow: 0 0 10px var(--color-text);
+    transform: scale(1.05);
+}

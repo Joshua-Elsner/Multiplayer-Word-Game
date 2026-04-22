@@ -5,6 +5,9 @@
 import { VALID_WORDS } from './words.js';
 
 export const gameState = {
+
+    selectedTileIndex: null,
+
     // Database sync data
     secretWord: "",
     currentShark: "Loading...",
