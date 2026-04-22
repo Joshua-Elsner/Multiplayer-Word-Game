@@ -286,11 +286,6 @@ background-color: var(--color-absent) !important;
     font-weight: bold;
 }
 
-.menu-buttons button:hover {
-    background-color: var(--color-accent);
-    color: var(--color-background);
-}
-
 #game-screen {
     position: relative;
     display: flex;
@@ -394,11 +389,6 @@ background-color: var(--color-absent) !important;
     font-weight: bold;
 }
 
-.menu-return-btn:hover {
-    background-color: var(--color-accent);
-    color: var(--color-background);
-}
-
 .key.absent {
     background-color: #1e293b !important;
     color: #475569 !important;
@@ -424,10 +414,6 @@ background-color: var(--color-absent) !important;
     transition: color 0.2s ease;
 }
 
-.close-modal-x:hover {
-    color: var(--color-accent);
-}
-
 #player-modal {
     z-index: 100;
 }
@@ -451,11 +437,6 @@ background-color: var(--color-absent) !important;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s ease;
-}
-
-.player-grid button:hover {
-    background-color: var(--color-accent);
-    color: var(--color-background);
 }
 
 #new-player-input {
@@ -522,23 +503,12 @@ background-color: var(--color-absent) !important;
     transition: all 0.2s ease;
 }
 
-.secondary-modal-btn:hover {
-    color: var(--color-text);
-    border-color: var(--color-text);
-    background-color: rgba(125, 211, 252, 0.1); 
-}
-
 /* Disabled Button State */
 button:disabled {
     background-color: #1e293b !important;
     color: #475569 !important;
     border-color: #1e293b !important;
     cursor: not-allowed !important;
-}
-
-button:disabled:hover {
-    background-color: #1e293b !important;
-    color: #475569 !important;
 }
 
 #close-how-to-play-btn {
@@ -573,11 +543,6 @@ button:disabled:hover {
     text-transform: uppercase;
     font-weight: bold;
     transition: all 0.2s ease;
-}
-
-.suggestion-btn:hover {
-    background-color: var(--color-present);
-    color: var(--color-background);
 }
 
 #toast-container {
@@ -673,12 +638,6 @@ button:disabled:hover {
     transition: all 0.2s ease;
 }
 
-.circle-btn:hover {
-    background-color: var(--color-accent);
-    color: var(--color-background);
-    transform: scale(1.05);
-}
-
 .toast-highlight {
     color: #ff4444;
     font-weight: 900;
@@ -745,11 +704,6 @@ button:disabled:hover {
     cursor: pointer;
     font-weight: bold;
     transition: all 0.2s ease;
-}
-
-.stats-return-btn:hover {
-    background-color: var(--color-stats-theme);
-    color: var(--color-background);
 }
 
 #stats-sort-select {
@@ -853,4 +807,56 @@ button:disabled:hover {
 
 #player-stats-table td:first-child {
     box-shadow: inset -2px 0 0 var(--color-stats-theme);
+}
+
+/* ==========================================
+   HOVER STATES (Mouse/Trackpad Only)
+   ========================================== */
+@media (hover: hover) {
+    
+    .menu-buttons button:hover {
+        background-color: var(--color-accent);
+        color: var(--color-background);
+    }
+
+    .menu-return-btn:hover {
+        background-color: var(--color-accent);
+        color: var(--color-background);
+    }
+
+    .stats-return-btn:hover {
+        background-color: var(--color-stats-theme);
+        color: var(--color-background);
+    }
+
+    .close-modal-x:hover {
+        color: var(--color-accent);
+    }
+
+    .player-grid button:hover {
+        background-color: var(--color-accent);
+        color: var(--color-background);
+    }
+
+    .secondary-modal-btn:hover {
+        color: var(--color-text);
+        border-color: var(--color-text);
+        background-color: rgba(125, 211, 252, 0.1);
+    }
+
+    .suggestion-btn:hover {
+        background-color: var(--color-present);
+        color: var(--color-background);
+    }
+
+    .circle-btn:hover {
+        background-color: var(--color-accent);
+        color: var(--color-background);
+        transform: scale(1.05);
+    }
+
+    button:disabled:hover {
+        background-color: #1e293b !important;
+        color: #475569 !important;
+    }
 }
