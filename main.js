@@ -348,6 +348,33 @@ async function handleLoss(isRestore = false) {
 // EVENT LISTENERS
 // ==========================================
 
+export function clearSelection() {
+    gameState.selectedTileIndex = null;
+    document.querySelectorAll('.tile.selected').forEach(t => t.classList.remove('selected'));
+}
+
+document.querySelectorAll('.board-row').forEach((row, rowIndex) => {
+    const tiles = row.querySelectorAll('.tile');
+    tiles.forEach((tile, tileIndex) => {
+        tile.addEventListener('click', () => {
+            // Only allow clicking in the active row
+            if (rowIndex !== gameState.currentRow) return;
+            
+            // Only allow selecting tiles that have a letter in them
+            if (tileIndex >= gameState.currentGuess.length) return;
+
+            // Toggle selection
+            if (gameState.selectedTileIndex === tileIndex) {
+                clearSelection();
+            } else {
+                clearSelection();
+                gameState.selectedTileIndex = tileIndex;
+                tile.classList.add('selected');
+            }
+        });
+    });
+});
+
 // --- Virtual Keyboard Input ---
 let backspaceTimeout = null;
 
@@ -497,7 +524,6 @@ document.getElementById('create-player-btn')?.addEventListener('click', async ()
     }
 });
 
-// --- Modal Controls ---
 // --- Modal Controls ---
 document.getElementById('close-how-to-play-btn')?.addEventListener('click', (e) => {
     e.preventDefault();
