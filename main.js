@@ -13,7 +13,8 @@ import {
     gameState, setPlayer, resetGameState, addLetterToState,
     deleteLetterFromState, advanceRow, isValidWord,
     evaluateGuess, processLeaderboardData, processPlayerStatsData,
-    saveBoardState, loadBoardState, clearBoardState
+    saveBoardState, loadBoardState, clearBoardState,
+    replaceLetterInState
 } from './game.js';
 
 import {
@@ -235,33 +236,51 @@ function restoreBoardUI() {
 // CORE GAME LOOP
 // ==========================================
 
+function clearCurrentRow() {
+    while (gameState.currentTile > 0) {
+        if (deleteLetterFromState()) {
+            updateTileText(gameState.currentRow, gameState.currentTile, "");
+        }
+    }
+}
+
 function handleKeyInput(letter) {
     if (gameState.isGameOver) return;
 
     if (letter === "ENTER") {
         submitGuess();
-    } else if (letter === "BACK" || letter === "BACKSPACE") {
+        } else if (letter === "BACK" || letter === "BACKSPACE") {
+        clearSelection(); // NEW
         if (deleteLetterFromState()) {
             updateTileText(gameState.currentRow, gameState.currentTile, "");
         }
     } else if (letter === "CLEAR") {
-        // Loop backwards and delete until the row is empty
-        while (gameState.currentTile > 0) {
-            if (deleteLetterFromState()) {
-                updateTileText(gameState.currentRow, gameState.currentTile, "");
-            }
-        }
+        clearSelection(); // NEW
+        clearCurrentRow();
     } else {
-        if (addLetterToState(letter)) {
-            // Because addLetterToState increments currentTile, we use currentTile - 1 for the UI index
-            updateTileText(gameState.currentRow, gameState.currentTile - 1, letter);
+        // NEW LOGIC: Replace letter if a bubble is selected
+        if (gameState.selectedTileIndex !== null) {
+            if (replaceLetterInState(letter)) {
+                updateTileText(gameState.currentRow, gameState.selectedTileIndex, letter);
+            }
+        } else {
+            // NORMAL LOGIC: Add letter to the end
+            if (addLetterToState(letter)) {
+                updateTileText(gameState.currentRow, gameState.currentTile - 1, letter);
+            }
         }
     }
 }
 
 async function submitGuess() {
-    if (gameState.currentGuess.length !== 5) return;
+    // 1. Check if they have enough letters
+    if (gameState.currentGuess.length !== 5) {
+        shakeRow(gameState.currentRow);
+        showToast("Not enough letters");
+        return;
+    }
 
+    // 2. Check if it's a valid dictionary word
     const isValid = isValidWord(gameState.currentGuess);
     if (!isValid) {
         shakeRow(gameState.currentRow);
@@ -269,28 +288,30 @@ async function submitGuess() {
         return;
     }
 
-    // 1. Calculate Results (Brain)
+    clearSelection();
+
+    // 3. Calculate Results (Brain)
     const statuses = evaluateGuess(gameState.currentGuess, gameState.secretWord);
 
-    // 2. Update UI (View)
+    // 4. Update UI (View)
     paintRowStatuses(gameState.currentRow, gameState.currentGuess, statuses);
 
-    // 3. Save the Guess (Memory)
-    gameState.submittedGuesses.push(gameState.currentGuess); // <-- ADD THIS
+    // 5. Save the Guess (Memory)
+    gameState.submittedGuesses.push(gameState.currentGuess);
 
-    // 4. Check Win/Loss
+    // 6. Check Win/Loss
     if (gameState.currentGuess === gameState.secretWord) {
         gameState.isGameOver = true;
-        saveBoardState(); // <-- ADD THIS
+        saveBoardState();
         handleWin();
     } else {
         if (gameState.currentRow === 5) { // 6th attempt (0-indexed)
             gameState.isGameOver = true;
-            saveBoardState(); // <-- ADD THIS
+            saveBoardState();
             handleLoss();
         } else {
             advanceRow();
-            saveBoardState(); // <-- ADD THIS
+            saveBoardState();
             updateGuessCounter(gameState.currentRow);
             revealNextRow(gameState.currentRow);
         }
@@ -340,14 +361,66 @@ async function handleLoss(isRestore = false) {
 // EVENT LISTENERS
 // ==========================================
 
-// --- Virtual Keyboard Input ---
-document.querySelectorAll('.key').forEach(key => {
-    key.addEventListener('pointerdown', (e) => {
-        // Prevent the browser from firing a delayed 'click' or trying to drag the element
-        e.preventDefault(); 
-        
-        handleKeyInput(key.textContent.trim());
+export function clearSelection() {
+    gameState.selectedTileIndex = null;
+    document.querySelectorAll('.tile.selected').forEach(t => t.classList.remove('selected'));
+}
+
+document.querySelectorAll('.board-row').forEach((row, rowIndex) => {
+    const tiles = row.querySelectorAll('.tile');
+    tiles.forEach((tile, tileIndex) => {
+        tile.addEventListener('click', () => {
+            // Only allow clicking in the active row
+            if (rowIndex !== gameState.currentRow) return;
+            
+            // Only allow selecting tiles that have a letter in them
+            if (tileIndex >= gameState.currentGuess.length) return;
+
+            // Toggle selection
+            if (gameState.selectedTileIndex === tileIndex) {
+                clearSelection();
+            } else {
+                clearSelection();
+                gameState.selectedTileIndex = tileIndex;
+                tile.classList.add('selected');
+            }
+        });
     });
+});
+
+// --- Virtual Keyboard Input ---
+let backspaceTimeout = null;
+
+document.querySelectorAll('.key').forEach(key => {
+    if (key.id === 'key-backspace') {
+        // Long-press logic for backspace
+        key.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            backspaceTimeout = setTimeout(() => {
+                clearCurrentRow();
+                backspaceTimeout = null; // Reset so pointerup doesn't fire a single backspace
+            }, 500);
+        });
+
+        const cancelBackspace = (e) => {
+            e.preventDefault();
+            if (backspaceTimeout) {
+                clearTimeout(backspaceTimeout);
+                backspaceTimeout = null;
+                handleKeyInput('BACK'); // Timeout didn't finish, do a normal backspace
+            }
+        };
+
+        key.addEventListener('pointerup', cancelBackspace);
+        key.addEventListener('pointerleave', cancelBackspace);
+        
+    } else {
+        // Standard logic for all other keys
+        key.addEventListener('pointerdown', (e) => {
+            e.preventDefault(); 
+            handleKeyInput(key.textContent.trim());
+        });
+    }
 });
 
 // Intercepts and kills double-clicks before the mobile browser can use them to zoom
@@ -464,7 +537,6 @@ document.getElementById('create-player-btn')?.addEventListener('click', async ()
     }
 });
 
-// --- Modal Controls ---
 // --- Modal Controls ---
 document.getElementById('close-how-to-play-btn')?.addEventListener('click', (e) => {
     e.preventDefault();
