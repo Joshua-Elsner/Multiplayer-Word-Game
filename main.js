@@ -249,10 +249,14 @@ function handleKeyInput(letter) {
 
     if (letter === "ENTER") {
         submitGuess();
-    } else if (letter === "BACK" || letter === "BACKSPACE") {
-        // ... (handled in next commit)
+        } else if (letter === "BACK" || letter === "BACKSPACE") {
+        clearSelection(); // NEW
+        if (deleteLetterFromState()) {
+            updateTileText(gameState.currentRow, gameState.currentTile, "");
+        }
     } else if (letter === "CLEAR") {
-        // ... (handled in next commit)
+        clearSelection(); // NEW
+        clearCurrentRow();
     } else {
         // NEW LOGIC: Replace letter if a bubble is selected
         if (gameState.selectedTileIndex !== null) {
@@ -283,6 +287,8 @@ async function submitGuess() {
         showToast("Not in word list");
         return;
     }
+
+    clearSelection();
 
     // 3. Calculate Results (Brain)
     const statuses = evaluateGuess(gameState.currentGuess, gameState.secretWord);
