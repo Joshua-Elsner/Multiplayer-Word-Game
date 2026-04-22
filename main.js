@@ -262,8 +262,14 @@ function handleKeyInput(letter) {
 }
 
 async function submitGuess() {
-    if (gameState.currentGuess.length !== 5) return;
+    // 1. Check if they have enough letters
+    if (gameState.currentGuess.length !== 5) {
+        shakeRow(gameState.currentRow);
+        showToast("Not enough letters");
+        return;
+    }
 
+    // 2. Check if it's a valid dictionary word
     const isValid = isValidWord(gameState.currentGuess);
     if (!isValid) {
         shakeRow(gameState.currentRow);
@@ -271,28 +277,28 @@ async function submitGuess() {
         return;
     }
 
-    // 1. Calculate Results (Brain)
+    // 3. Calculate Results (Brain)
     const statuses = evaluateGuess(gameState.currentGuess, gameState.secretWord);
 
-    // 2. Update UI (View)
+    // 4. Update UI (View)
     paintRowStatuses(gameState.currentRow, gameState.currentGuess, statuses);
 
-    // 3. Save the Guess (Memory)
-    gameState.submittedGuesses.push(gameState.currentGuess); // <-- ADD THIS
+    // 5. Save the Guess (Memory)
+    gameState.submittedGuesses.push(gameState.currentGuess);
 
-    // 4. Check Win/Loss
+    // 6. Check Win/Loss
     if (gameState.currentGuess === gameState.secretWord) {
         gameState.isGameOver = true;
-        saveBoardState(); // <-- ADD THIS
+        saveBoardState();
         handleWin();
     } else {
         if (gameState.currentRow === 5) { // 6th attempt (0-indexed)
             gameState.isGameOver = true;
-            saveBoardState(); // <-- ADD THIS
+            saveBoardState();
             handleLoss();
         } else {
             advanceRow();
-            saveBoardState(); // <-- ADD THIS
+            saveBoardState();
             updateGuessCounter(gameState.currentRow);
             revealNextRow(gameState.currentRow);
         }
