@@ -3,6 +3,8 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-user-select: none; /* Safari/iOS */
+    user-select: none; /* Standard */
 }
 
 /*Color variables*/
@@ -222,6 +224,9 @@ background-color: var(--color-absent) !important;
     border-radius: 6px;
     border: none;
     outline: none;
+
+    -webkit-user-select: auto; /* Safari/iOS */
+    user-select: auto; /* Standard */
 }
 
 #submit-new-word {
@@ -233,6 +238,7 @@ background-color: var(--color-absent) !important;
     border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
+
 }
 
 .lose-content {
@@ -460,6 +466,8 @@ background-color: var(--color-absent) !important;
     outline: none;
     background-color: var(--color-background);
     color: var(--color-text);
+    -webkit-user-select: auto; /* Safari/iOS */
+    user-select: auto; /* Standard */
 }
 
 #create-player-btn {
