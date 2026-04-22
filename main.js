@@ -235,6 +235,14 @@ function restoreBoardUI() {
 // CORE GAME LOOP
 // ==========================================
 
+function clearCurrentRow() {
+    while (gameState.currentTile > 0) {
+        if (deleteLetterFromState()) {
+            updateTileText(gameState.currentRow, gameState.currentTile, "");
+        }
+    }
+}
+
 function handleKeyInput(letter) {
     if (gameState.isGameOver) return;
 
@@ -245,15 +253,9 @@ function handleKeyInput(letter) {
             updateTileText(gameState.currentRow, gameState.currentTile, "");
         }
     } else if (letter === "CLEAR") {
-        // Loop backwards and delete until the row is empty
-        while (gameState.currentTile > 0) {
-            if (deleteLetterFromState()) {
-                updateTileText(gameState.currentRow, gameState.currentTile, "");
-            }
-        }
+        clearCurrentRow();
     } else {
         if (addLetterToState(letter)) {
-            // Because addLetterToState increments currentTile, we use currentTile - 1 for the UI index
             updateTileText(gameState.currentRow, gameState.currentTile - 1, letter);
         }
     }
