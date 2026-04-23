@@ -412,7 +412,7 @@ export function showWeeklyRecap(recapData) {
     // ==========================================
     const awards = [
         { data: recapData.jawbreaker, title: "Jawbreaker", desc: "Most Words Solved", img: "Jawbreaker.png" },
-        { data: recapData.robster, title: "Robster", desc: "Most Yoinks", img: "Robster.png" },
+        { data: recapData.robster, title: "Robster", desc: "Most Yoinks", img: "Robster2.png" },
         { data: recapData.apex, title: "Apex Predator", desc: "Most Fish Eaten", img: "ApexPredator.png" },
         { data: recapData.efishent, title: "E-fish-ent", desc: "Lowest Avg Guesses", img: "E-Fish-Ent.png" }
     ];
@@ -420,14 +420,22 @@ export function showWeeklyRecap(recapData) {
     awards.forEach(award => {
         if (award.data && award.data.players) {
             page2HTML += `
-                <div style="background-color: rgba(125, 211, 252, 0.1); padding: 10px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                    <div>
-                        <div style="color: var(--color-text); font-weight: bold; font-size: 0.85rem; text-transform: uppercase;">${award.title}</div>
-                        <div style="font-size: 0.75rem; color: #888;">${award.desc}</div>
+                <div style="background-color: rgba(125, 211, 252, 0.1); padding: 15px 10px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; height: 100%;">
+                    
+                    <img src="${award.img}" alt="${award.title}" style="width: 70px; height: 70px; object-fit: contain; margin-bottom: 10px;">
+                    
+                    <div style="color: var(--color-text); font-weight: bold; font-size: 0.9rem; text-transform: uppercase;">
+                        ${award.title}
                     </div>
-                    <div style="font-size: 1.1rem; color: white;">
+                    
+                    <div style="font-size: 0.75rem; color: #888; margin-bottom: 12px;">
+                        ${award.desc}
+                    </div>
+                    
+                    <div style="font-size: 1.1rem; color: white; margin-top: auto; font-weight: bold;">
                         ${award.data.players.username}
                     </div>
+                    
                 </div>
             `;
         }
