@@ -5,6 +5,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const supabaseUrl = 'https://okbynkairmznzcriuknd.supabase.co';
 const supabaseKey = 'sb_publishable_ZJGYQbdtUaABBX1lhOw8qw_Ksiw-S54';
 
+
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 let gameEventsChannel;
