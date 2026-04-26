@@ -73,13 +73,13 @@ async function init() {
                         recordYoink(gameState.currentSharkId);
                         sendYoinkBroadcast(gameState.currentSharkId, gameState.currentPlayer);
 
-                        // Trigger the sequence!
-                        animateYoinkSequence(gameState.currentShark);
+                        // Capture the yoinker's name before resetting
+                        const yoinkerName = gameState.currentShark;
 
-                        // Delay the board reset so the animation can finish
-                        setTimeout(() => {
-                            startNewGame();
-                        }, 1500); 
+                        // 1. Instantly wipe the board!
+                        startNewGame();
+
+                        animateYoinkSequence(yoinkerName);
                     }
                 }
             },
