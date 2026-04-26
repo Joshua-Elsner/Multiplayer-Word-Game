@@ -25,7 +25,9 @@ import {
     renderPlayerStatsTable, updateGuessCounter,
     setWeekEndingDate, setStartButtonLoading, setPlayerGridLoading,
     setLeaderboardLoading, setStatsLoading, setSuggestionsLoading,
-    showWeeklyRecap, escapeHTML, animateSharkChomp, animateFishSurprise
+    showWeeklyRecap, escapeHTML, animateSharkChomp, animateFishSurprise,
+    stopSharkDefeatAnimation,
+    startSharkDefeatAnimation
 } from './ui.js';
 
 // ==========================================
@@ -198,6 +200,8 @@ function startNewGame() {
     resetGameState(); // game.js
     resetBoardUI();   // ui.js
 
+    stopSharkDefeatAnimation();
+
     // Check if they have an active game for THIS word
     if (loadBoardState() && gameState.submittedGuesses.length > 0) {
         restoreBoardUI();
@@ -327,6 +331,8 @@ async function handleWin() {
     gameState.isGameOver = true;
     setupWinModal(gameState.currentPlayer);
     toggleScreen('win-modal', true);
+
+    startSharkDefeatAnimation();
 
     if (gameState.currentPlayer !== "Guest") {
         try {
