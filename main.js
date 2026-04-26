@@ -26,8 +26,7 @@ import {
     setWeekEndingDate, setStartButtonLoading, setPlayerGridLoading,
     setLeaderboardLoading, setStatsLoading, setSuggestionsLoading,
     showWeeklyRecap, escapeHTML, animateSharkChomp, animateFishSurprise,
-    stopSharkDefeatAnimation,
-    startSharkDefeatAnimation
+    stopSharkDefeatAnimation, startSharkDefeatAnimation, animateFishVictory
 } from './ui.js';
 
 // ==========================================
@@ -333,6 +332,7 @@ async function handleWin() {
     toggleScreen('win-modal', true);
 
     startSharkDefeatAnimation();
+    animateFishVictory();
 
     if (gameState.currentPlayer !== "Guest") {
         try {

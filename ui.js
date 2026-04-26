@@ -85,6 +85,7 @@ export function resetBoardUI() {
         fishContainer.style.transition = '';
         fishContainer.style.transform = '';
         boardFish.src = 'fish.png';
+    }
 }
 
 /**
@@ -289,10 +290,14 @@ export function animateFishVictory() {
     const moveX = window.innerWidth - rect.right - 20;
     const moveY = -(rect.top - 20);
 
-    // Override the floating animation and apply the flight path
+    // 1. Stop the floating animation first
     container.style.animation = 'none';
-    container.style.transition = 'transform 0.6s ease-out';
-    container.style.transform = `translate(${moveX}px, ${moveY}px)`;
+
+    // 2. Wait exactly one frame so the browser registers the stop, THEN fly!
+    requestAnimationFrame(() => {
+        container.style.transition = 'transform 0.6s ease-out';
+        container.style.transform = `translate(${moveX}px, ${moveY}px)`;
+    });
 
     // Swap the image right as it arrives (600ms)
     setTimeout(() => {
