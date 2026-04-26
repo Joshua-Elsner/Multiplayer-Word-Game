@@ -64,7 +64,9 @@ async function init() {
 
                 if (isGameVisible && oldSecretWord !== gameState.secretWord) {
                     if ((isCurrentlyPlaying && !gameState.isGameOver) || isSettingWord) {
-                        showToast(`YOINK!!!\n<span class="toast-highlight">${escapeHTML(gameState.currentShark)}</span> guessed it!\nWord was: <span class="toast-highlight">${escapeHTML(oldSecretWord)}</span>`, 4000);
+                        // 1. Instantly lock the keyboard!
+                        gameState.isGameOver = true;
+                        
                         if (isSettingWord) {
                             toggleScreen('win-modal', false);
                         }
@@ -73,13 +75,18 @@ async function init() {
                         recordYoink(gameState.currentSharkId);
                         sendYoinkBroadcast(gameState.currentSharkId, gameState.currentPlayer);
 
-                        // Capture the yoinker's name before resetting
                         const yoinkerName = gameState.currentShark;
 
-                        // 1. Instantly wipe the board!
-                        startNewGame();
-
+                        // 2. Trigger the visual animation immediately!
                         animateYoinkSequence(yoinkerName);
+
+                        // 3. Sync the Toast and the Board Reset to the exact 400ms collision
+                        setTimeout(() => {
+                            showToast(`YOINK!!!\n<span class="toast-highlight">${escapeHTML(yoinkerName)}</span> guessed it!\nWord was: <span class="toast-highlight">${escapeHTML(oldSecretWord)}</span>`, 4000);
+                            
+                            // Wiping the board also sets isGameOver back to false, unlocking the keyboard
+                            startNewGame(true); 
+                        }, 400); 
                     }
                 }
             },
@@ -202,11 +209,11 @@ function startSharkTimer() {
     }, 1000);
 }
 
-function startNewGame() {
+function startNewGame(preserveFish = false) {
     resetGameState(); // game.js
-    resetBoardUI();   // ui.js
-
-    stopSharkDefeatAnimation();
+    resetBoardUI(preserveFish); // ui.js
+    
+    stopSharkDefeatAnimation(); 
 
     // Check if they have an active game for THIS word
     if (loadBoardState() && gameState.submittedGuesses.length > 0) {

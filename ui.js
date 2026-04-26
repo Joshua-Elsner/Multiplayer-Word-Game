@@ -56,7 +56,7 @@ export function showToast(message, duration = 2500) {
 /**
  * Completely resets the game board bubbles and keyboard colors for a new game.
  */
-export function resetBoardUI() {
+export function resetBoardUI(preserveFish = false) {
     // Reset all rows and tiles
     for (let r = 0; r < 6; r++) {
         // Only the first row should be visible at the start
@@ -78,14 +78,17 @@ export function resetBoardUI() {
     keys.forEach(key => key.classList.remove('correct', 'present', 'absent'));
     updateGuessCounter(0);
 
-    const fishContainer = document.getElementById('fish-container');
-    const boardFish = document.getElementById('board-fish');
-    if (fishContainer && boardFish) {
-        fishContainer.style.animation = '';
-        fishContainer.style.transition = '';
-        fishContainer.style.transform = '';
-        boardFish.src = 'fish.png';
-        boardFish.classList.remove('spin-fast');
+    // --- ONLY RESET FISH IF FLAG IS FALSE ---
+    if (!preserveFish) {
+        const fishContainer = document.getElementById('fish-container');
+        const boardFish = document.getElementById('board-fish');
+        if (fishContainer && boardFish) {
+            fishContainer.style.animation = '';
+            fishContainer.style.transition = '';
+            fishContainer.style.transform = '';
+            boardFish.src = 'fish.png';
+            boardFish.classList.remove('spin-fast'); 
+        }
     }
 }
 
@@ -315,7 +318,7 @@ export function animateYoinkSequence(yoinkerName) {
     const fishContainer = document.getElementById('fish-container');
     const fish = document.getElementById('board-fish');
     const sharkContainer = document.getElementById('shark-container');
-    const topShark = document.getElementById('top-shark');
+    const topShark = document.getElementById('top-shark'); // Kept for reference if needed
 
     if (!robsterContainer || !fish || !topShark) return;
 
@@ -328,16 +331,13 @@ export function animateYoinkSequence(yoinkerName) {
     robsterContainer.style.left = '-150px';
     robsterContainer.style.transition = 'none';
 
-    // 2. Setup Fish (Surprised & Spinning)
-    fish.src = 'fish_surprised.png';
-    
+    // 2. Setup Fish (Spinning but NO image swap)
     // Ensure the fish gets pulled gracefully down to the start position
     fishContainer.style.transition = 'transform 1.5s ease-in-out';
     fishContainer.style.transform = 'translate(0px, 0px)';
 
-    // 3. Setup Shark (Defeat)
-    stopSharkDefeatAnimation(); // Clear any existing loops
-    topShark.src = 'shark_defeat_1.png';
+    // 3. Setup Shark (Movement but NO image swap)
+    stopSharkDefeatAnimation(); // Clear any existing loops just in case
     sharkContainer.style.transition = 'transform 0.5s ease-in';
 
     // 4. Execute Movements
@@ -347,7 +347,7 @@ export function animateYoinkSequence(yoinkerName) {
         robsterContainer.style.left = `${window.innerWidth + 50}px`;
     });
 
-    // --->  400ms is the exact moment Robster hits the center <---
+    // 400ms is the exact moment Robster hits the center
     setTimeout(() => {
         fish.classList.add('spin-fast');
     }, 400);
@@ -357,14 +357,12 @@ export function animateYoinkSequence(yoinkerName) {
         sharkContainer.style.transform = 'translateY(-200px)';
     }, 1000);
 
-    // 1.5 sec: Shark drops back down, Fish resets, Robster hides
+    // 1.5 sec: Shark drops back down, Fish stops spinning, Robster hides
     setTimeout(() => {
-        topShark.src = 'shark.png';
         sharkContainer.style.transition = 'transform 0.5s ease-out';
         sharkContainer.style.transform = 'translateY(0)';
         
         fish.classList.remove('spin-fast');
-        fish.src = 'fish.png';
         robsterContainer.classList.add('hidden');
     }, 1500);
 }
