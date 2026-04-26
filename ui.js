@@ -232,6 +232,42 @@ export function animateFishSurprise() {
     }, 1000));
 }
 
+// Keep track of the active defeat interval
+let defeatInterval = null;
+
+/**
+ * Starts the alternating defeat animation loop.
+ */
+export function startSharkDefeatAnimation() {
+    const topShark = document.getElementById('top-shark');
+    if (!topShark) return;
+
+    // Clear any existing intervals just to be safe
+    stopSharkDefeatAnimation();
+
+    let isDefeat1 = true;
+    topShark.src = 'shark_defeat_1.png'; // Set immediately
+
+    defeatInterval = setInterval(() => {
+        isDefeat1 = !isDefeat1;
+        topShark.src = isDefeat1 ? 'shark_defeat_1.png' : 'shark_defeat_2.png';
+    }, 1000);
+}
+
+/**
+ * Stops the defeat loop and resets the shark.
+ */
+export function stopSharkDefeatAnimation() {
+    if (defeatInterval) {
+        clearInterval(defeatInterval);
+        defeatInterval = null;
+    }
+    const topShark = document.getElementById('top-shark');
+    if (topShark) {
+        topShark.src = 'shark.png'; // Reset to default
+    }
+}
+
 /**
  * Adjusts the main menu Start button based on who is playing.
  */
