@@ -77,6 +77,14 @@ export function resetBoardUI() {
     // Clear all colors from the virtual keyboard
     keys.forEach(key => key.classList.remove('correct', 'present', 'absent'));
     updateGuessCounter(0);
+
+    const fishContainer = document.getElementById('fish-container');
+    const boardFish = document.getElementById('board-fish');
+    if (fishContainer && boardFish) {
+        fishContainer.style.animation = '';
+        fishContainer.style.transition = '';
+        fishContainer.style.transform = '';
+        boardFish.src = 'fish.png';
 }
 
 /**
@@ -266,6 +274,30 @@ export function stopSharkDefeatAnimation() {
     if (topShark) {
         topShark.src = 'shark.png'; // Reset to default
     }
+}
+
+/**
+ * Flies the fish to the top right and swaps to the victory sprite.
+ */
+export function animateFishVictory() {
+    const container = document.getElementById('fish-container');
+    const fish = document.getElementById('board-fish');
+    if (!container || !fish) return;
+
+    // Calculate distance to the top right (with a 20px padding)
+    const rect = container.getBoundingClientRect();
+    const moveX = window.innerWidth - rect.right - 20;
+    const moveY = -(rect.top - 20);
+
+    // Override the floating animation and apply the flight path
+    container.style.animation = 'none';
+    container.style.transition = 'transform 0.6s ease-out';
+    container.style.transform = `translate(${moveX}px, ${moveY}px)`;
+
+    // Swap the image right as it arrives (600ms)
+    setTimeout(() => {
+        fish.src = 'fish_victory.png';
+    }, 600);
 }
 
 /**
