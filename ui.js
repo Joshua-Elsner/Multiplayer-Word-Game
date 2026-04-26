@@ -330,7 +330,6 @@ export function animateYoinkSequence(yoinkerName) {
 
     // 2. Setup Fish (Surprised & Spinning)
     fish.src = 'fish_surprised.png';
-    fish.classList.add('spin-fast');
     
     // Ensure the fish gets pulled gracefully down to the start position
     fishContainer.style.transition = 'transform 1.5s ease-in-out';
@@ -347,6 +346,11 @@ export function animateYoinkSequence(yoinkerName) {
         robsterContainer.style.transition = 'left 0.8s linear';
         robsterContainer.style.left = `${window.innerWidth + 50}px`;
     });
+
+    // --->  400ms is the exact moment Robster hits the center <---
+    setTimeout(() => {
+        fish.classList.add('spin-fast');
+    }, 400);
 
     // 1 sec: Shark is pulled upwards out of view
     setTimeout(() => {
