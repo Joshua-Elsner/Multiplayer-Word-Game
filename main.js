@@ -25,7 +25,7 @@ import {
     renderPlayerStatsTable, updateGuessCounter,
     setWeekEndingDate, setStartButtonLoading, setPlayerGridLoading,
     setLeaderboardLoading, setStatsLoading, setSuggestionsLoading,
-    showWeeklyRecap, escapeHTML, animateSharkChomp
+    showWeeklyRecap, escapeHTML, animateSharkChomp, animateFishSurprise
 } from './ui.js';
 
 // ==========================================
@@ -308,6 +308,7 @@ async function submitGuess() {
         handleWin();
     } else {
         animateSharkChomp();
+        animateFishSurprise();
 
         if (gameState.currentRow === 5) { // 6th attempt (0-indexed)
             gameState.isGameOver = true;
