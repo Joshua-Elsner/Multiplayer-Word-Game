@@ -56,7 +56,7 @@ async function init() {
             // Callback for game state change
             async () => {
                 const oldSecretWord = gameState.secretWord;
-                await loadGameState();
+                await loadGameState(true);
 
                 const isGameVisible = !document.getElementById('game-screen').classList.contains('hidden');
                 const isCurrentlyPlaying = gameState.currentRow > 0 || gameState.currentTile > 0;
