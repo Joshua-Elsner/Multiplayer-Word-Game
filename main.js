@@ -155,16 +155,25 @@ async function loadPlayers() {
     }
 }
 
-async function loadGameState() {
+async function loadGameState(isRealtimeUpdate = false) {
     const data = await fetchGameState();
     gameState.secretWord = data.secret_word;
     gameState.currentSharkId = data.current_shark_id;
     gameState.sharkStartTime = data.shark_start_time;
     gameState.currentShark = data.players ? data.players.username : "No Shark Yet";
 
-    updateSharkDisplay(gameState.currentShark, gameState.currentPlayer, gameState.secretWord);
-    updateStartButton(gameState.currentPlayer, gameState.currentShark);
-    startSharkTimer();
+    // If it's a realtime update, wait 1 second so the shark is off-screen before swapping names
+    if (isRealtimeUpdate) {
+        setTimeout(() => {
+            updateSharkDisplay(gameState.currentShark, gameState.currentPlayer, gameState.secretWord);
+            updateStartButton(gameState.currentPlayer, gameState.currentShark);
+            startSharkTimer();
+        }, 1000);
+    } else {
+        updateSharkDisplay(gameState.currentShark, gameState.currentPlayer, gameState.secretWord);
+        updateStartButton(gameState.currentPlayer, gameState.currentShark);
+        startSharkTimer();
+    }
 }
 
 async function loadLeaderboard() {
