@@ -27,7 +27,7 @@ import {
     setLeaderboardLoading, setStatsLoading, setSuggestionsLoading,
     showWeeklyRecap, escapeHTML, animateSharkChomp, animateFishSurprise,
     stopSharkDefeatAnimation, startSharkDefeatAnimation, animateFishVictory,
-    animateYoinkSequence, triggerRobsterEasterEgg
+    animateYoinkSequence, triggerRobsterEasterEgg, hideRobsterEasterEgg
 } from './ui.js';
 
 // ==========================================
@@ -156,7 +156,11 @@ async function loadPlayers() {
 }
 
 async function loadGameState(isRealtimeUpdate = false) {
+    // 1. Capture the local reality before fetching the database reality
+    const oldSecretWord = gameState.secretWord; 
+    
     const data = await fetchGameState();
+
     gameState.secretWord = data.secret_word;
     gameState.currentSharkId = data.current_shark_id;
     gameState.sharkStartTime = data.shark_start_time;
@@ -173,6 +177,30 @@ async function loadGameState(isRealtimeUpdate = false) {
         updateSharkDisplay(gameState.currentShark, gameState.currentPlayer, gameState.secretWord);
         updateStartButton(gameState.currentPlayer, gameState.currentShark);
         startSharkTimer();
+    }
+
+    // 2. THE FIX: Lifecycle & Desync Safety Net
+    // Catches dropped packets and visibility wake-ups where the word changed under the player's feet
+    if (!isRealtimeUpdate && oldSecretWord && oldSecretWord !== gameState.secretWord) {
+        
+        const isGameVisible = !document.getElementById('game-screen').classList.contains('hidden');
+        const isCurrentlyPlaying = gameState.currentRow > 0 || gameState.currentTile > 0;
+        const isSettingWord = !document.getElementById('win-modal').classList.contains('hidden');
+
+        // If they are actively looking at the board and mid-game/mid-win...
+        if (isGameVisible && ((isCurrentlyPlaying && !gameState.isGameOver) || isSettingWord)) {
+            
+            gameState.isGameOver = true; // Instantly lock the keyboard
+            
+            if (isSettingWord) {
+                toggleScreen('win-modal', false);
+            }
+            
+            showToast(`The word was changed while you were disconnected!\nWord was: <span class="toast-highlight">${escapeHTML(oldSecretWord)}</span>`, 4000);
+            
+            // Force the board to wipe and unlock for the new word
+            startNewGame(true); 
+        }
     }
 }
 
@@ -415,7 +443,6 @@ function cacheKeyGeometries() {
         keyGeometries.push({
             id: key.id,
             textContent: key.textContent.trim(),
-            // Calculate the exact center X and Y of the key
             centerX: rect.left + (rect.width / 2),
             centerY: rect.top + (rect.height / 2)
         });
@@ -424,13 +451,20 @@ function cacheKeyGeometries() {
 
 const keyboardContainer = document.getElementById('keyboard');
 
+// Cache the preview element globally 
+const keyPreview = document.getElementById('key-preview');
+
 // 1. Define the cancellation logic OUTSIDE the pointerdown event
 const cancelBackspace = (e) => {
     e.preventDefault();
+    
+    // Hide the bubble the exact moment the thumb leaves the screen
+    keyPreview.classList.add('hidden'); 
+
     if (backspaceTimeout) {
         clearTimeout(backspaceTimeout);
         backspaceTimeout = null;
-        handleKeyInput('BACK'); // Timeout didn't finish, do a normal backspace
+        handleKeyInput('BACK');
     }
 };
 
@@ -444,11 +478,8 @@ keyboardContainer.addEventListener('pointerdown', (e) => {
     let closestKey = null;
     let shortestDistance = Infinity;
 
-    // Loop through all keys to find which center is closest to the tap
     keyGeometries.forEach(geo => {
-        // Pythagorean theorem to find the distance between the tap and the key center
         const distance = Math.hypot(geo.centerX - x, geo.centerY - y);
-        
         if (distance < shortestDistance) {
             shortestDistance = distance;
             closestKey = geo;
@@ -456,6 +487,15 @@ keyboardContainer.addEventListener('pointerdown', (e) => {
     });
 
     if (!closestKey) return;
+
+    // Show the floating preview for standard letter keys
+    if (closestKey.id !== 'key-backspace' && closestKey.id !== 'key-enter') {
+        keyPreview.textContent = closestKey.textContent;
+        // Lock it to the dead center of the key being hit
+        keyPreview.style.left = closestKey.centerX + 'px';
+        keyPreview.style.top = closestKey.centerY + 'px';
+        keyPreview.classList.remove('hidden');
+    }
 
     if (closestKey.id === 'key-backspace') {
         backspaceTimeout = setTimeout(() => {
@@ -729,6 +769,7 @@ document.getElementById('lose-leaderboard-btn')?.addEventListener('click', () =>
 document.getElementById('back-to-menu-btn')?.addEventListener('click', () => {
     toggleScreen('leaderboard-screen', false);
     toggleScreen('home-screen', true);
+    hideRobsterEasterEgg();
 });
 
 // --- NATIVE LIFECYCLE SYNC ---

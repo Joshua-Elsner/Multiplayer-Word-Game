@@ -879,8 +879,11 @@ export function escapeHTML(str) {
 }
 
 /**
- * Rolls a 1/20 chance to trigger the Robster peek easter egg.
+ * Rolls a 1/50 chance to trigger the Robster peek easter egg.
  */
+
+let robsterTimeout = null;
+
 export function triggerRobsterEasterEgg() {
     if (Math.random() < 0.02) { // 2% chance
         const robster = document.getElementById('robster-easter-egg');
@@ -894,5 +897,17 @@ export function triggerRobsterEasterEgg() {
             robster.classList.remove('robster-peek');
             robster.classList.add('hidden');
         }, 3050); // 50ms buffer to ensure smooth removal
+    }
+}
+
+export function hideRobsterEasterEgg() {
+    const robster = document.getElementById('robster-easter-egg');
+    if (robster) {
+        robster.classList.remove('robster-peek');
+        robster.classList.add('hidden');
+    }
+    if (robsterTimeout) {
+        clearTimeout(robsterTimeout);
+        robsterTimeout = null;
     }
 }
