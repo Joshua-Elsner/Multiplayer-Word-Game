@@ -156,7 +156,11 @@ async function loadPlayers() {
 }
 
 async function loadGameState(isRealtimeUpdate = false) {
+    // 1. Capture the local reality before fetching the database reality
+    const oldSecretWord = gameState.secretWord; 
+    
     const data = await fetchGameState();
+
     gameState.secretWord = data.secret_word;
     gameState.currentSharkId = data.current_shark_id;
     gameState.sharkStartTime = data.shark_start_time;
@@ -173,6 +177,30 @@ async function loadGameState(isRealtimeUpdate = false) {
         updateSharkDisplay(gameState.currentShark, gameState.currentPlayer, gameState.secretWord);
         updateStartButton(gameState.currentPlayer, gameState.currentShark);
         startSharkTimer();
+    }
+
+    // 2. THE FIX: Lifecycle & Desync Safety Net
+    // Catches dropped packets and visibility wake-ups where the word changed under the player's feet
+    if (!isRealtimeUpdate && oldSecretWord && oldSecretWord !== gameState.secretWord) {
+        
+        const isGameVisible = !document.getElementById('game-screen').classList.contains('hidden');
+        const isCurrentlyPlaying = gameState.currentRow > 0 || gameState.currentTile > 0;
+        const isSettingWord = !document.getElementById('win-modal').classList.contains('hidden');
+
+        // If they are actively looking at the board and mid-game/mid-win...
+        if (isGameVisible && ((isCurrentlyPlaying && !gameState.isGameOver) || isSettingWord)) {
+            
+            gameState.isGameOver = true; // Instantly lock the keyboard
+            
+            if (isSettingWord) {
+                toggleScreen('win-modal', false);
+            }
+            
+            showToast(`The word was changed while you were disconnected!\nWord was: <span class="toast-highlight">${escapeHTML(oldSecretWord)}</span>`, 4000);
+            
+            // Force the board to wipe and unlock for the new word
+            startNewGame(true); 
+        }
     }
 }
 
