@@ -877,3 +877,22 @@ export function escapeHTML(str) {
         '"': '&quot;'
     }[tag]));
 }
+
+/**
+ * Rolls a 1/20 chance to trigger the Robster peek easter egg.
+ */
+export function triggerRobsterEasterEgg() {
+    if (Math.random() < 0.05) { // 5% chance
+        const robster = document.getElementById('robster-easter-egg');
+        if (!robster) return;
+        
+        robster.classList.remove('hidden');
+        robster.classList.add('robster-peek');
+        
+        // Clean up the classes after the 0.8s animation finishes
+        setTimeout(() => {
+            robster.classList.remove('robster-peek');
+            robster.classList.add('hidden');
+        }, 850);
+    }
+}
