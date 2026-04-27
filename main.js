@@ -308,6 +308,15 @@ async function submitGuess() {
         return;
     }
 
+    if (gameState.currentGuess === "YOINK") {
+        document.body.classList.add('spin-screen');
+        
+        // Remove the class after 1 second so it can be triggered again later
+        setTimeout(() => {
+            document.body.classList.remove('spin-screen');
+        }, 1000);
+    }
+
     // 2. Check if it's a valid dictionary word
     const isValid = isValidWord(gameState.currentGuess);
     if (!isValid) {
