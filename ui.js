@@ -84,11 +84,20 @@ export function resetBoardUI(preserveFish = false) {
         const boardFish = document.getElementById('board-fish');
         if (fishContainer && boardFish) {
             fishContainer.style.animation = '';
-            fishContainer.style.transition = '';
-            fishContainer.style.transform = '';
+            
+            // NEW: Force instant snap-back, kill leftover transitions
+            fishContainer.style.transition = 'none'; 
+            fishContainer.style.transform = 'translate(0px, 0px) scale(1)';
+            
             boardFish.src = 'fish.png';
-            boardFish.classList.remove('spin-fast'); 
+            boardFish.classList.remove('spin-fast');
+            
+            // NEW: Ensure opacity is restored if eaten in the last game
+            boardFish.style.opacity = '1'; 
         }
+        
+        const topShark = document.getElementById('top-shark');
+        if (topShark) topShark.src = 'shark.png'; 
     }
 }
 
@@ -910,4 +919,43 @@ export function hideRobsterEasterEgg() {
         clearTimeout(robsterTimeout);
         robsterTimeout = null;
     }
+}
+
+export function animateLossSequence() {
+    const fishContainer = document.getElementById('fish-container');
+    const fish = document.getElementById('board-fish');
+    const topShark = document.getElementById('top-shark');
+
+    if (!fishContainer || !fish || !topShark) return;
+
+    // Calculate distance to the exact top of the screen
+    const rect = fishContainer.getBoundingClientRect();
+    const moveY = -(rect.top); 
+
+    // 1. Spin the fish and stop the idle floating
+    fish.classList.add('spin-fast');
+    fishContainer.style.animation = 'none'; 
+    
+    requestAnimationFrame(() => {
+        // NEW: Fly much faster (0.4s) straight up to the shark
+        fishContainer.style.transition = 'transform 0.4s ease-in';
+        fishContainer.style.transform = `translateY(${moveY}px) scale(0.5)`;
+    });
+
+    // 2. Clear old animations and execute Three FAST Chomps
+    sharkAnimationTimeouts.forEach(clearTimeout);
+    sharkAnimationTimeouts = [];
+
+    let time = 0;
+    for (let i = 0; i < 3; i++) {
+        sharkAnimationTimeouts.push(setTimeout(() => topShark.src = 'shark2.png', time + 100));
+        sharkAnimationTimeouts.push(setTimeout(() => topShark.src = 'shark.png', time + 200));
+        time += 200;
+    }
+
+    // 3. Switch to Yum Shark and hide the eaten fish
+    sharkAnimationTimeouts.push(setTimeout(() => {
+        topShark.src = 'yum_shark.png';
+        fish.style.opacity = '0';
+    }, time + 100));
 }

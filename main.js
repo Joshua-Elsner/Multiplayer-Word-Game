@@ -27,7 +27,8 @@ import {
     setLeaderboardLoading, setStatsLoading, setSuggestionsLoading,
     showWeeklyRecap, escapeHTML, animateSharkChomp, animateFishSurprise,
     stopSharkDefeatAnimation, startSharkDefeatAnimation, animateFishVictory,
-    animateYoinkSequence, triggerRobsterEasterEgg, hideRobsterEasterEgg
+    animateYoinkSequence, triggerRobsterEasterEgg, hideRobsterEasterEgg,
+    animateLossSequence
 } from './ui.js';
 
 // ==========================================
@@ -370,14 +371,14 @@ async function submitGuess() {
         saveBoardState();
         handleWin();
     } else {
-        animateSharkChomp();
-        animateFishSurprise();
-
         if (gameState.currentRow === 5) { // 6th attempt (0-indexed)
             gameState.isGameOver = true;
             saveBoardState();
             handleLoss();
         } else {
+            // ONLY play standard animations if the game continues
+            animateSharkChomp();
+            animateFishSurprise();
             advanceRow();
             saveBoardState();
             updateGuessCounter(gameState.currentRow);
@@ -410,7 +411,16 @@ async function handleWin() {
 
 async function handleLoss(isRestore = false) {
     gameState.isGameOver = true;
-    toggleScreen('lose-modal', true);
+    
+    // Only play the animation and delay the modal if it's a live game
+    if (!isRestore) {
+        animateLossSequence();
+        setTimeout(() => {
+            toggleScreen('lose-modal', true);
+        }, 800); // Wait 0.8s for the fish to be eaten before showing UI
+    } else {
+        toggleScreen('lose-modal', true);
+    }
 
     if (gameState.currentSharkId && !isRestore) {
         try {
