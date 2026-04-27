@@ -613,7 +613,7 @@ export function showWeeklyRecap(recapData) {
             page2HTML += `
                 <div style="background-color: rgba(125, 211, 252, 0.1); padding: 15px 10px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; height: 100%;">
                     
-                    <img src="${award.img}" alt="${award.title}" style="width: 70px; height: 70px; object-fit: contain; margin-bottom: 10px;">
+                    <img src="${award.img}" alt="${award.title}" style="width: 70px; height: 70px; object-fit: contain; margin-bottom: 10px; transform: scale(1.6);">
                     
                     <div style="color: var(--color-text); font-weight: bold; font-size: 0.9rem; text-transform: uppercase;">
                         ${award.title}
