@@ -903,3 +903,25 @@ button:disabled {
     /* translateY(-15px) pulls the image 15 pixels UP. Positive numbers push it down. */
     transform: translateY(-10px); 
 }
+
+#robster-easter-egg {
+    position: fixed;
+    top: 50%;
+    left: -100px; /* Start entirely off-screen */
+    width: 100px;
+    z-index: 1000;
+    transform: translateY(-50%) rotate(15deg); /* Tilted right */
+    pointer-events: none; /* Prevents blocking clicks */
+}
+
+.robster-peek {
+    /* 0.8s total duration */
+    animation: peekAndHide 0.8s ease-in-out forwards;
+}
+
+@keyframes peekAndHide {
+    0% { left: -100px; }
+    15% { left: -30px; } /* Slides in quickly */
+    80% { left: -30px; } /* Holds position for ~0.5 seconds */
+    100% { left: -100px; } /* Darts back out */
+}
