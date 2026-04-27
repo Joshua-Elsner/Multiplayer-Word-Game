@@ -915,13 +915,12 @@ button:disabled {
 }
 
 .robster-peek {
-    /* 0.8s total duration */
-    animation: peekAndHide 0.8s ease-in-out forwards;
+    /* 3s total duration */
+    animation: peekAndHide 3s ease-out forwards;
 }
 
 @keyframes peekAndHide {
-    0% { left: -100px; }
-    15% { left: -30px; } /* Slides in quickly */
-    80% { left: -30px; } /* Holds position for ~0.5 seconds */
-    100% { left: -100px; } /* Darts back out */
+    0% { left: -30px; } /* Starts already peeked */
+    33.3% { left: -30px; } /* Holds position for 1 second */
+    100% { left: -100px; } /* Slowly retreats over 2 seconds */
 }
