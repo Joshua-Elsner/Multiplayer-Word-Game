@@ -25,7 +25,9 @@ import {
     renderPlayerStatsTable, updateGuessCounter,
     setWeekEndingDate, setStartButtonLoading, setPlayerGridLoading,
     setLeaderboardLoading, setStatsLoading, setSuggestionsLoading,
-    showWeeklyRecap, escapeHTML
+    showWeeklyRecap, escapeHTML, animateSharkChomp, animateFishSurprise,
+    stopSharkDefeatAnimation, startSharkDefeatAnimation, animateFishVictory,
+    animateYoinkSequence, triggerRobsterEasterEgg
 } from './ui.js';
 
 // ==========================================
@@ -54,7 +56,7 @@ async function init() {
             // Callback for game state change
             async () => {
                 const oldSecretWord = gameState.secretWord;
-                await loadGameState();
+                await loadGameState(true);
 
                 const isGameVisible = !document.getElementById('game-screen').classList.contains('hidden');
                 const isCurrentlyPlaying = gameState.currentRow > 0 || gameState.currentTile > 0;
@@ -62,7 +64,9 @@ async function init() {
 
                 if (isGameVisible && oldSecretWord !== gameState.secretWord) {
                     if ((isCurrentlyPlaying && !gameState.isGameOver) || isSettingWord) {
-                        showToast(`YOINK!!!\n<span class="toast-highlight">${escapeHTML(gameState.currentShark)}</span> guessed it!\nWord was: <span class="toast-highlight">${escapeHTML(oldSecretWord)}</span>`, 4000);
+                        // 1. Instantly lock the keyboard!
+                        gameState.isGameOver = true;
+                        
                         if (isSettingWord) {
                             toggleScreen('win-modal', false);
                         }
@@ -71,7 +75,18 @@ async function init() {
                         recordYoink(gameState.currentSharkId);
                         sendYoinkBroadcast(gameState.currentSharkId, gameState.currentPlayer);
 
-                        startNewGame();
+                        const yoinkerName = gameState.currentShark;
+
+                        // 2. Trigger the visual animation immediately!
+                        animateYoinkSequence(yoinkerName);
+
+                        // 3. Sync the Toast and the Board Reset to the exact 400ms collision
+                        setTimeout(() => {
+                            showToast(`YOINK!!!\n<span class="toast-highlight">${escapeHTML(yoinkerName)}</span> guessed it!\nWord was: <span class="toast-highlight">${escapeHTML(oldSecretWord)}</span>`, 4000);
+                            
+                            // Wiping the board also sets isGameOver back to false, unlocking the keyboard
+                            startNewGame(true); 
+                        }, 400); 
                     }
                 }
             },
@@ -140,16 +155,25 @@ async function loadPlayers() {
     }
 }
 
-async function loadGameState() {
+async function loadGameState(isRealtimeUpdate = false) {
     const data = await fetchGameState();
     gameState.secretWord = data.secret_word;
     gameState.currentSharkId = data.current_shark_id;
     gameState.sharkStartTime = data.shark_start_time;
     gameState.currentShark = data.players ? data.players.username : "No Shark Yet";
 
-    updateSharkDisplay(gameState.currentShark, gameState.currentPlayer, gameState.secretWord);
-    updateStartButton(gameState.currentPlayer, gameState.currentShark);
-    startSharkTimer();
+    // If it's a realtime update, wait 1 second so the shark is off-screen before swapping names
+    if (isRealtimeUpdate) {
+        setTimeout(() => {
+            updateSharkDisplay(gameState.currentShark, gameState.currentPlayer, gameState.secretWord);
+            updateStartButton(gameState.currentPlayer, gameState.currentShark);
+            startSharkTimer();
+        }, 1000);
+    } else {
+        updateSharkDisplay(gameState.currentShark, gameState.currentPlayer, gameState.secretWord);
+        updateStartButton(gameState.currentPlayer, gameState.currentShark);
+        startSharkTimer();
+    }
 }
 
 async function loadLeaderboard() {
@@ -194,9 +218,11 @@ function startSharkTimer() {
     }, 1000);
 }
 
-function startNewGame() {
+function startNewGame(preserveFish = false) {
     resetGameState(); // game.js
-    resetBoardUI();   // ui.js
+    resetBoardUI(preserveFish); // ui.js
+    
+    stopSharkDefeatAnimation(); 
 
     // Check if they have an active game for THIS word
     if (loadBoardState() && gameState.submittedGuesses.length > 0) {
@@ -282,6 +308,15 @@ async function submitGuess() {
         return;
     }
 
+    if (gameState.currentGuess === "YOINK") {
+        document.body.classList.add('spin-screen');
+        
+        // Remove the class after 1 second so it can be triggered again later
+        setTimeout(() => {
+            document.body.classList.remove('spin-screen');
+        }, 1000);
+    }
+
     // 2. Check if it's a valid dictionary word
     const isValid = isValidWord(gameState.currentGuess);
     if (!isValid) {
@@ -307,6 +342,9 @@ async function submitGuess() {
         saveBoardState();
         handleWin();
     } else {
+        animateSharkChomp();
+        animateFishSurprise();
+
         if (gameState.currentRow === 5) { // 6th attempt (0-indexed)
             gameState.isGameOver = true;
             saveBoardState();
@@ -324,6 +362,9 @@ async function handleWin() {
     gameState.isGameOver = true;
     setupWinModal(gameState.currentPlayer);
     toggleScreen('win-modal', true);
+
+    startSharkDefeatAnimation();
+    animateFishVictory();
 
     if (gameState.currentPlayer !== "Guest") {
         try {
@@ -538,6 +579,7 @@ document.getElementById('leaderboard-btn').addEventListener('click', () => {
     loadLeaderboard();
     toggleScreen('home-screen', false);
     toggleScreen('leaderboard-screen', true);
+    triggerRobsterEasterEgg();
 });
 
 document.getElementById('player-stats-btn')?.addEventListener('click', () => {
@@ -679,6 +721,7 @@ document.getElementById('lose-leaderboard-btn')?.addEventListener('click', () =>
     loadLeaderboard();
 
     toggleScreen('leaderboard-screen', true);
+    triggerRobsterEasterEgg();
     clearBoardState();
     startNewGame();
 });
@@ -770,6 +813,7 @@ document.getElementById('submit-new-word')?.addEventListener('click', async () =
 
         await loadLeaderboard();
         toggleScreen('leaderboard-screen', true);
+        triggerRobsterEasterEgg();
         startNewGame();
 
     } catch (error) {
