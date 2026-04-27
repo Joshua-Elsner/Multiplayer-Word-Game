@@ -633,7 +633,6 @@ document.getElementById('player-stats-btn')?.addEventListener('click', () => {
 document.getElementById('stats-back-to-menu-btn')?.addEventListener('click', () => {
     toggleScreen('player-stats-screen', false);
     toggleScreen('home-screen', true);
-    hideRobsterEasterEgg();
 });
 
 document.getElementById('how-to-play-btn').addEventListener('click', () => {
@@ -770,6 +769,7 @@ document.getElementById('lose-leaderboard-btn')?.addEventListener('click', () =>
 document.getElementById('back-to-menu-btn')?.addEventListener('click', () => {
     toggleScreen('leaderboard-screen', false);
     toggleScreen('home-screen', true);
+    hideRobsterEasterEgg();
 });
 
 // --- NATIVE LIFECYCLE SYNC ---
