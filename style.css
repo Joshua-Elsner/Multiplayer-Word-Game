@@ -874,3 +874,32 @@ button:disabled {
 .spin-fast {
     animation: spinFast 0.2s linear infinite !important;
 }
+
+.title-images-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px; /* Space between the shark and fish */
+    margin-bottom: 10px; /* Space before the JAWRGON! title */
+}
+
+.title-image {
+    /* Limits the height so it never takes up more than 15% of the screen */
+    max-height: 15vh; 
+    
+    /* Fallback width so they don't blow up on ultra-tall screens */
+    max-width: 120px; 
+    
+    /* Keeps the image aspect ratio from squishing */
+    object-fit: contain; 
+}
+
+#title-fish {
+    /* scale(1.2) makes it 20% larger. scale(1.5) would be 50% larger. */
+    transform: scale(1.2); 
+}
+
+#title-shark {
+    /* translateY(-15px) pulls the image 15 pixels UP. Positive numbers push it down. */
+    transform: translateY(-10px); 
+}
