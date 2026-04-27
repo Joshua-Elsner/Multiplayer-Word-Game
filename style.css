@@ -936,3 +936,13 @@ button:disabled {
     33.3% { left: -30px; } /* Holds position for 1 second */
     100% { left: -100px; } /* Slowly retreats over 2 seconds */
 }
+
+.spin-screen {
+    /* 1s duration, smooth acceleration and deceleration */
+    animation: barrelRoll 1s ease-in-out;
+}
+
+@keyframes barrelRoll {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
