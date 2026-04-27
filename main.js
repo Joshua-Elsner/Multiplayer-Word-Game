@@ -27,7 +27,7 @@ import {
     setLeaderboardLoading, setStatsLoading, setSuggestionsLoading,
     showWeeklyRecap, escapeHTML, animateSharkChomp, animateFishSurprise,
     stopSharkDefeatAnimation, startSharkDefeatAnimation, animateFishVictory,
-    animateYoinkSequence, triggerRobsterEasterEgg
+    animateYoinkSequence, triggerRobsterEasterEgg, hideRobsterEasterEgg
 } from './ui.js';
 
 // ==========================================
@@ -633,6 +633,7 @@ document.getElementById('player-stats-btn')?.addEventListener('click', () => {
 document.getElementById('stats-back-to-menu-btn')?.addEventListener('click', () => {
     toggleScreen('player-stats-screen', false);
     toggleScreen('home-screen', true);
+    hideRobsterEasterEgg();
 });
 
 document.getElementById('how-to-play-btn').addEventListener('click', () => {
