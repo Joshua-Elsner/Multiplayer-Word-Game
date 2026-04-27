@@ -451,16 +451,10 @@ function cacheKeyGeometries() {
 
 const keyboardContainer = document.getElementById('keyboard');
 
-// Cache the preview element globally 
-const keyPreview = document.getElementById('key-preview');
-
 // 1. Define the cancellation logic OUTSIDE the pointerdown event
 const cancelBackspace = (e) => {
     e.preventDefault();
     
-    // Hide the bubble the exact moment the thumb leaves the screen
-    keyPreview.classList.add('hidden'); 
-
     if (backspaceTimeout) {
         clearTimeout(backspaceTimeout);
         backspaceTimeout = null;
@@ -487,15 +481,6 @@ keyboardContainer.addEventListener('pointerdown', (e) => {
     });
 
     if (!closestKey) return;
-
-    // Show the floating preview for standard letter keys
-    if (closestKey.id !== 'key-backspace' && closestKey.id !== 'key-enter') {
-        keyPreview.textContent = closestKey.textContent;
-        // Lock it to the dead center of the key being hit
-        keyPreview.style.left = closestKey.centerX + 'px';
-        keyPreview.style.top = closestKey.centerY + 'px';
-        keyPreview.classList.remove('hidden');
-    }
 
     if (closestKey.id === 'key-backspace') {
         backspaceTimeout = setTimeout(() => {
