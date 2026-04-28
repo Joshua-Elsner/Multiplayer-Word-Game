@@ -13,3 +13,6 @@ supabase/snippets/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Editor Configuration
+.vscode/
