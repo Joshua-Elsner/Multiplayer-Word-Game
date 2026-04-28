@@ -85,19 +85,19 @@ export function resetBoardUI(preserveFish = false) {
         if (fishContainer && boardFish) {
             fishContainer.style.animation = '';
             
-            // NEW: Force instant snap-back, kill leftover transitions
+            // Force instant snap-back, kill leftover transitions
             fishContainer.style.transition = 'none'; 
             fishContainer.style.transform = 'translate(0px, 0px) scale(1)';
             
-            boardFish.src = 'fish.png';
+            boardFish.src = 'assets/fish.png';
             boardFish.classList.remove('spin-fast');
             
-            // NEW: Ensure opacity is restored if eaten in the last game
+            // Ensure opacity is restored if eaten in the last game
             boardFish.style.opacity = '1'; 
         }
         
         const topShark = document.getElementById('top-shark');
-        if (topShark) topShark.src = 'shark.png'; 
+        if (topShark) topShark.src = 'assets/shark.png'; 
     }
 }
 
@@ -213,21 +213,21 @@ export function animateSharkChomp() {
     sharkAnimationTimeouts = [];
 
     // Swap to shark2.png immediately
-    topShark.src = 'shark2.png';
+    topShark.src = 'assets/shark2.png';
 
     // 0.25 seconds: back to normal
     sharkAnimationTimeouts.push(setTimeout(() => {
-        topShark.src = 'shark.png';
+        topShark.src = 'assets/shark.png';
     }, 250));
 
     // 0.5 seconds: back to shark2
     sharkAnimationTimeouts.push(setTimeout(() => {
-        topShark.src = 'shark2.png';
+        topShark.src = 'assets/shark2.png';
     }, 500));
 
     // 0.75 seconds: settle back to normal
     sharkAnimationTimeouts.push(setTimeout(() => {
-        topShark.src = 'shark.png';
+        topShark.src = 'assets/shark.png';
     }, 750));
 }
 
@@ -246,11 +246,11 @@ export function animateFishSurprise() {
     fishAnimationTimeouts = [];
 
     // Swap to fish_surprised.png immediately
-    boardFish.src = 'fish_surprised.png';
+    boardFish.src = 'assets/fish_surprised.png';
 
     // 1.0 seconds: back to normal
     fishAnimationTimeouts.push(setTimeout(() => {
-        boardFish.src = 'fish.png';
+        boardFish.src = 'assets/fish.png';
     }, 1000));
 }
 
@@ -268,11 +268,11 @@ export function startSharkDefeatAnimation() {
     stopSharkDefeatAnimation();
 
     let isDefeat1 = true;
-    topShark.src = 'shark_defeat_1.png'; // Set immediately
+    topShark.src = 'assets/shark_defeat_1.png'; // Set immediately
 
     defeatInterval = setInterval(() => {
         isDefeat1 = !isDefeat1;
-        topShark.src = isDefeat1 ? 'shark_defeat_1.png' : 'shark_defeat_2.png';
+        topShark.src = isDefeat1 ? 'assets/shark_defeat_1.png' : 'assets/shark_defeat_2.png';
     }, 1000);
 }
 
@@ -286,7 +286,7 @@ export function stopSharkDefeatAnimation() {
     }
     const topShark = document.getElementById('top-shark');
     if (topShark) {
-        topShark.src = 'shark.png'; // Reset to default
+        topShark.src = 'assets/shark.png'; // Reset to default
     }
 }
 
@@ -314,7 +314,7 @@ export function animateFishVictory() {
 
     // Swap the image right as it arrives (600ms)
     setTimeout(() => {
-        fish.src = 'fish_victory.png';
+        fish.src = 'assets/fish_victory.png';
     }, 600);
 }
 
@@ -611,11 +611,11 @@ export function showWeeklyRecap(recapData) {
     // PAGE 2: Special Awards
     // ==========================================
     const awards = [
-        { data: recapData.jawbreaker, title: "Jawbreaker", desc: "Most Words Solved", img: "Jawbreaker.png" },
-        { data: recapData.robster, title: "Robster", desc: "Most Yoinks", img: "Robster2.png" },
-        { data: recapData.apex, title: "Apex Predator", desc: "Most Fish Eaten", img: "ApexPredator.png" },
-        { data: recapData.efishent, title: "E-fish-ent", desc: "Lowest Avg Guesses", img: "E-Fish-Ent.png" }
-    ];
+    { data: recapData.jawbreaker, title: "Jawbreaker", desc: "Most Words Solved", img: "assets/Jawbreaker.png" },
+    { data: recapData.robster, title: "Robster", desc: "Most Yoinks", img: "assets/Robster2.png" },
+    { data: recapData.apex, title: "Apex Predator", desc: "Most Fish Eaten", img: "assets/ApexPredator.png" },
+    { data: recapData.efishent, title: "E-fish-ent", desc: "Lowest Avg Guesses", img: "assets/E-Fish-Ent.png" }
+];
 
     awards.forEach(award => {
         if (award.data && award.data.players) {
@@ -948,14 +948,14 @@ export function animateLossSequence() {
 
     let time = 0;
     for (let i = 0; i < 3; i++) {
-        sharkAnimationTimeouts.push(setTimeout(() => topShark.src = 'shark2.png', time + 100));
-        sharkAnimationTimeouts.push(setTimeout(() => topShark.src = 'shark.png', time + 200));
+        sharkAnimationTimeouts.push(setTimeout(() => topShark.src = 'assets/shark2.png', time + 100));
+        sharkAnimationTimeouts.push(setTimeout(() => topShark.src = 'assets/shark.png', time + 200));
         time += 200;
     }
 
     // 3. Switch to Yum Shark and hide the eaten fish
     sharkAnimationTimeouts.push(setTimeout(() => {
-        topShark.src = 'yum_shark.png';
+        topShark.src = 'assets/yum_shark.png';
         fish.style.opacity = '0';
     }, time + 100));
 }
