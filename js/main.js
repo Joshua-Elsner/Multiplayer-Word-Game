@@ -52,7 +52,34 @@ async function init() {
 
         // 1. Core Game State Subscriptions
         setupRealtimeSubscriptions(
-            () => { loadLeaderboard(); loadPlayers(); },
+            // Callback for Leaderboard / Player changes (The Zero-Read Patch)
+            (payload) => {
+                // Ignore empty payloads or deletes for now
+                if (!payload || !payload.new) return;
+
+                // Find if this player already exists in our local memory
+                const playerIndex = gameState.cachedPlayers.findIndex(p => p.id === payload.new.id);
+
+                if (playerIndex !== -1) {
+                    // Update the existing player's stats locally
+                    gameState.cachedPlayers[playerIndex] = { 
+                        ...gameState.cachedPlayers[playerIndex], 
+                        ...payload.new 
+                    };
+                } else if (payload.eventType === 'INSERT') {
+                    // If someone just created a new character, push them to the array
+                    gameState.cachedPlayers.push(payload.new);
+                }
+
+                // Re-sort and re-render the UI instantly using the local cache!
+                updateLeaderboardUI();
+                
+                // Update the All-Time stats screen if they happen to be looking at it
+                const statsScreen = document.getElementById('player-stats-screen');
+                if (statsScreen && !statsScreen.classList.contains('hidden')) {
+                    updatePlayerStatsUI();
+                }
+            },
 
             // Callback for game state change
             async () => {
@@ -87,7 +114,7 @@ async function init() {
                             
                             // Wiping the board also sets isGameOver back to false, unlocking the keyboard
                             startNewGame(true); 
-                        }, 400); 
+                        }, 400);
                     }
                 }
             },
@@ -95,7 +122,8 @@ async function init() {
             // Callback for Yoink Broadcasts
             (payload) => {
                 if (gameState.currentPlayerId === payload.sharkId) {
-                    showToast(`<span class="toast-highlight">${escapeHTML(payload.yoinkedName)}</span> got yoinked! Gottem!`, 3500);
+                    showToast(`<span class="toast-highlight">${escapeHTML(payload.yoinkedName)}</span> 
+got yoinked! Gottem!`, 3500);
                 }
             }
         );
