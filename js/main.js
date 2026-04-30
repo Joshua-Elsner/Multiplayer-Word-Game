@@ -52,29 +52,26 @@ async function init() {
 
         // 1. Core Game State Subscriptions
         setupRealtimeSubscriptions(
-            // Callback for Leaderboard / Player changes (The Zero-Read Patch)
-            (payload) => {
-                // Ignore empty payloads or deletes for now
-                if (!payload || !payload.new) return;
+            // Callback for Leaderboard / Player changes
+            (eventPayload) => {
+                if (!eventPayload || !eventPayload.player_id) return;
 
-                // Find if this player already exists in our local memory
-                const playerIndex = gameState.cachedPlayers.findIndex(p => p.id === payload.new.id);
+                const playerIndex = gameState.cachedPlayers.findIndex(p => p.id === eventPayload.player_id);
+                if (playerIndex === -1) return; 
 
-                if (playerIndex !== -1) {
-                    // Update the existing player's stats locally
-                    gameState.cachedPlayers[playerIndex] = { 
-                        ...gameState.cachedPlayers[playerIndex], 
-                        ...payload.new 
-                    };
-                } else if (payload.eventType === 'INSERT') {
-                    // If someone just created a new character, push them to the array
-                    gameState.cachedPlayers.push(payload.new);
+                // Manually calculate the new reality based on the event type
+                if (eventPayload.event_type === 'FISH_EATEN') {
+                    gameState.cachedPlayers[playerIndex].weekly_fish_eaten += 1;
+                } 
+                else if (eventPayload.event_type === 'YOINK') {
+                    gameState.cachedPlayers[playerIndex].weekly_yoinks += 1;
+                }
+                else if (eventPayload.event_type === 'NEW_SHARK') {
+                    gameState.cachedPlayers[playerIndex].weekly_sharks_evaded += 1;
                 }
 
-                // Re-sort and re-render the UI instantly using the local cache!
                 updateLeaderboardUI();
                 
-                // Update the All-Time stats screen if they happen to be looking at it
                 const statsScreen = document.getElementById('player-stats-screen');
                 if (statsScreen && !statsScreen.classList.contains('hidden')) {
                     updatePlayerStatsUI();
