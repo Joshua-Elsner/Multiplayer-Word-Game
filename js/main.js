@@ -56,18 +56,52 @@ async function init() {
             (eventPayload) => {
                 if (!eventPayload || !eventPayload.player_id) return;
 
+                console.log("📥 Realtime Event Received:", eventPayload.event_type, eventPayload.payload);
+
                 const playerIndex = gameState.cachedPlayers.findIndex(p => p.id === eventPayload.player_id);
                 if (playerIndex === -1) return; 
 
-                // Manually calculate the new reality based on the event type
+                // Create a quick reference to the player to keep the code clean
+                const player = gameState.cachedPlayers[playerIndex];
+
+                // Manually calculate the new reality based on the event type using (value || 0) safeties
                 if (eventPayload.event_type === 'FISH_EATEN') {
-                    gameState.cachedPlayers[playerIndex].weekly_fish_eaten += 1;
+                    player.weekly_fish_eaten = (player.weekly_fish_eaten || 0) + 1;
+                    player.fish_eaten = (player.fish_eaten || 0) + 1;
                 } 
                 else if (eventPayload.event_type === 'YOINK') {
-                    gameState.cachedPlayers[playerIndex].weekly_yoinks += 1;
+                    player.weekly_yoinks = (player.weekly_yoinks || 0) + 1;
+                    player.yoinks = (player.yoinks || 0) + 1;
                 }
                 else if (eventPayload.event_type === 'NEW_SHARK') {
-                    gameState.cachedPlayers[playerIndex].weekly_sharks_evaded += 1;
+                    player.weekly_sharks_evaded = (player.weekly_sharks_evaded || 0) + 1;
+                    player.sharks_evaded = (player.sharks_evaded || 0) + 1;
+                    
+                    // Unpack the JSON payload to safely update the winner's average guesses
+                    if (eventPayload.payload) {
+                        const guesses = eventPayload.payload.guesses_used || 0;
+                        player.weekly_guesses = (player.weekly_guesses || 0) + guesses;
+                        player.all_time_guesses = (player.all_time_guesses || 0) + guesses;
+                        
+                        // Treat it as a strict boolean check just in case it arrived as a string
+                        if (eventPayload.payload.is_retry !== true && eventPayload.payload.is_retry !== 'true') {
+                            player.weekly_puzzles_played = (player.weekly_puzzles_played || 0) + 1;
+                            player.all_time_puzzles_played = (player.all_time_puzzles_played || 0) + 1;
+                        }
+                    }
+                }
+                else if (eventPayload.event_type === 'PUZZLE_LOST') {
+                    // Unpack the JSON payload to safely update the loser's average guesses
+                    if (eventPayload.payload) {
+                        const guesses = eventPayload.payload.guesses_used || 0;
+                        player.weekly_guesses = (player.weekly_guesses || 0) + guesses;
+                        player.all_time_guesses = (player.all_time_guesses || 0) + guesses;
+                        
+                        if (eventPayload.payload.is_retry !== true && eventPayload.payload.is_retry !== 'true') {
+                            player.weekly_puzzles_played = (player.weekly_puzzles_played || 0) + 1;
+                            player.all_time_puzzles_played = (player.all_time_puzzles_played || 0) + 1;
+                        }
+                    }
                 }
 
                 updateLeaderboardUI();
