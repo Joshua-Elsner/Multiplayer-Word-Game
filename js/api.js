@@ -126,14 +126,16 @@ export async function fetchWordSuggestions() {
  * @param {Function} onGameStateChange - Callback fired when a new shark takes over
  */
 export function setupRealtimeSubscriptions(onLeaderboardChange, onGameStateChange, onYoinkBroadcast) {
-    // 1. Listen for changes to the Leaderboard (players table)
+    // 1. Listen for changes to the Game Events table (Lightweight Leaderboard updates)
     supabase
-        .channel('players-channel')
+        .channel('game-events-channel')
         .on(
             'postgres_changes',
-            { event: '*', schema: 'public', table: 'players' },
+            { event: 'INSERT', schema: 'public', table: 'game_events' },
             (payload) => {
-                if (onLeaderboardChange) onLeaderboardChange(payload);
+                if (onLeaderboardChange) {
+                    onLeaderboardChange(payload.new);
+                }
             }
         )
         .subscribe();

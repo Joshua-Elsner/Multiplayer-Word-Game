@@ -1,0 +1,1 @@
+ALTER TABLE game_events ALTER COLUMN payload DROP NOT NULL;
