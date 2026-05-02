@@ -485,15 +485,24 @@ export function setSuggestionsLoading() {
     const suggestionsContainer = document.getElementById('word-suggestions');
     const sug1Btn = document.getElementById('suggestion-1');
     const sug2Btn = document.getElementById('suggestion-2');
+    const pTag = suggestionsContainer?.querySelector('p');
+    const btnContainer = suggestionsContainer?.querySelector('div');
 
     if (suggestionsContainer && sug1Btn && sug2Btn) {
-        // Set the first button to loading and disable it
+        // Reset the header style back to normal
+        if (pTag) {
+            pTag.textContent = "Suggestions:";
+            pTag.style.color = "#888";
+            pTag.style.fontWeight = "normal";
+            pTag.style.fontSize = "0.85rem";
+        }
+        
+        // Unhide the button container
+        if (btnContainer) btnContainer.classList.remove('hidden');
+
         sug1Btn.textContent = "Loading...";
         sug1Btn.disabled = true; 
-        
-        // Hide the second button completely
         sug2Btn.classList.add('hidden'); 
-        
         suggestionsContainer.classList.remove('hidden');
     }
 }
@@ -958,4 +967,22 @@ export function animateLossSequence() {
         topShark.src = 'assets/yum_shark.png';
         fish.style.opacity = '0';
     }, time + 100));
+}
+
+export function renderNoSuggestions() {
+    const suggestionsContainer = document.getElementById('word-suggestions');
+    const pTag = suggestionsContainer?.querySelector('p');
+    const btnContainer = suggestionsContainer?.querySelector('div');
+
+    if (!suggestionsContainer || !pTag || !btnContainer) return;
+
+    // Turn the header red and update the text
+    pTag.textContent = "NONE LEFT. YELL AT JOSH.";
+    pTag.style.color = "#ff4d4d"; // Red color from your theme
+    pTag.style.fontWeight = "bold";
+    pTag.style.fontSize = "1rem";
+
+    // Hide the buttons so just the text shows
+    btnContainer.classList.add('hidden');
+    suggestionsContainer.classList.remove('hidden');
 }
