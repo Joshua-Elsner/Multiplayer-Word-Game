@@ -28,7 +28,7 @@ import {
     showWeeklyRecap, escapeHTML, animateSharkChomp, animateFishSurprise,
     stopSharkDefeatAnimation, startSharkDefeatAnimation, animateFishVictory,
     animateYoinkSequence, triggerRobsterEasterEgg, hideRobsterEasterEgg,
-    animateLossSequence
+    animateLossSequence, renderNoSuggestions
 } from './ui.js';
 
 // ==========================================
@@ -59,7 +59,7 @@ async function init() {
                 console.log("📥 Realtime Event Received:", eventPayload.event_type, eventPayload.payload);
 
                 const playerIndex = gameState.cachedPlayers.findIndex(p => p.id === eventPayload.player_id);
-                if (playerIndex === -1) return; 
+                if (playerIndex === -1) return;
 
                 // Create a quick reference to the player to keep the code clean
                 const player = gameState.cachedPlayers[playerIndex];
@@ -68,7 +68,7 @@ async function init() {
                 if (eventPayload.event_type === 'FISH_EATEN') {
                     player.weekly_fish_eaten = (player.weekly_fish_eaten || 0) + 1;
                     player.fish_eaten = (player.fish_eaten || 0) + 1;
-                } 
+                }
                 else if (eventPayload.event_type === 'YOINK') {
                     player.weekly_yoinks = (player.weekly_yoinks || 0) + 1;
                     player.yoinks = (player.yoinks || 0) + 1;
@@ -76,13 +76,13 @@ async function init() {
                 else if (eventPayload.event_type === 'NEW_SHARK') {
                     player.weekly_sharks_evaded = (player.weekly_sharks_evaded || 0) + 1;
                     player.sharks_evaded = (player.sharks_evaded || 0) + 1;
-                    
+
                     // Unpack the JSON payload to safely update the winner's average guesses
                     if (eventPayload.payload) {
                         const guesses = eventPayload.payload.guesses_used || 0;
                         player.weekly_guesses = (player.weekly_guesses || 0) + guesses;
                         player.all_time_guesses = (player.all_time_guesses || 0) + guesses;
-                        
+
                         // Treat it as a strict boolean check just in case it arrived as a string
                         if (eventPayload.payload.is_retry !== true && eventPayload.payload.is_retry !== 'true') {
                             player.weekly_puzzles_played = (player.weekly_puzzles_played || 0) + 1;
@@ -96,7 +96,7 @@ async function init() {
                         const guesses = eventPayload.payload.guesses_used || 0;
                         player.weekly_guesses = (player.weekly_guesses || 0) + guesses;
                         player.all_time_guesses = (player.all_time_guesses || 0) + guesses;
-                        
+
                         if (eventPayload.payload.is_retry !== true && eventPayload.payload.is_retry !== 'true') {
                             player.weekly_puzzles_played = (player.weekly_puzzles_played || 0) + 1;
                             player.all_time_puzzles_played = (player.all_time_puzzles_played || 0) + 1;
@@ -105,7 +105,7 @@ async function init() {
                 }
 
                 updateLeaderboardUI();
-                
+
                 const statsScreen = document.getElementById('player-stats-screen');
                 if (statsScreen && !statsScreen.classList.contains('hidden')) {
                     updatePlayerStatsUI();
@@ -125,7 +125,7 @@ async function init() {
                     if ((isCurrentlyPlaying && !gameState.isGameOver) || isSettingWord) {
                         // 1. Instantly lock the keyboard!
                         gameState.isGameOver = true;
-                        
+
                         if (isSettingWord) {
                             toggleScreen('win-modal', false);
                         }
@@ -142,9 +142,9 @@ async function init() {
                         // 3. Sync the Toast and the Board Reset to the exact 400ms collision
                         setTimeout(() => {
                             showToast(`YOINK!!!\n<span class="toast-highlight">${escapeHTML(yoinkerName)}</span> guessed it!\nWord was: <span class="toast-highlight">${escapeHTML(oldSecretWord)}</span>`, 4000);
-                            
+
                             // Wiping the board also sets isGameOver back to false, unlocking the keyboard
-                            startNewGame(true); 
+                            startNewGame(true);
                         }, 400);
                     }
                 }
@@ -217,8 +217,8 @@ async function loadPlayers() {
 
 async function loadGameState(isRealtimeUpdate = false) {
     // 1. Capture the local reality before fetching the database reality
-    const oldSecretWord = gameState.secretWord; 
-    
+    const oldSecretWord = gameState.secretWord;
+
     const data = await fetchGameState();
 
     gameState.secretWord = data.secret_word;
@@ -242,24 +242,24 @@ async function loadGameState(isRealtimeUpdate = false) {
     // 2. THE FIX: Lifecycle & Desync Safety Net
     // Catches dropped packets and visibility wake-ups where the word changed under the player's feet
     if (!isRealtimeUpdate && oldSecretWord && oldSecretWord !== gameState.secretWord) {
-        
+
         const isGameVisible = !document.getElementById('game-screen').classList.contains('hidden');
         const isCurrentlyPlaying = gameState.currentRow > 0 || gameState.currentTile > 0;
         const isSettingWord = !document.getElementById('win-modal').classList.contains('hidden');
 
         // If they are actively looking at the board and mid-game/mid-win...
         if (isGameVisible && ((isCurrentlyPlaying && !gameState.isGameOver) || isSettingWord)) {
-            
+
             gameState.isGameOver = true; // Instantly lock the keyboard
-            
+
             if (isSettingWord) {
                 toggleScreen('win-modal', false);
             }
-            
+
             showToast(`The word was changed while you were disconnected!\nWord was: <span class="toast-highlight">${escapeHTML(oldSecretWord)}</span>`, 4000);
-            
+
             // Force the board to wipe and unlock for the new word
-            startNewGame(true); 
+            startNewGame(true);
         }
     }
 }
@@ -309,8 +309,8 @@ function startSharkTimer() {
 function startNewGame(preserveFish = false) {
     resetGameState(); // game.js
     resetBoardUI(preserveFish); // ui.js
-    
-    stopSharkDefeatAnimation(); 
+
+    stopSharkDefeatAnimation();
 
     // Check if they have an active game for THIS word
     if (loadBoardState() && gameState.submittedGuesses.length > 0) {
@@ -398,7 +398,7 @@ async function submitGuess() {
 
     if (gameState.currentGuess === "YOINK") {
         document.body.classList.add('spin-screen');
-        
+
         // Remove the class after 1 second so it can be triggered again later
         setTimeout(() => {
             document.body.classList.remove('spin-screen');
@@ -459,8 +459,12 @@ async function handleWin() {
             setSuggestionsLoading();
             // Ask the database for 2 words
             const suggestions = await fetchWordSuggestions();
+
             if (suggestions && suggestions.length === 2) {
                 renderWordSuggestions(suggestions[0], suggestions[1]);
+            } else {
+                // Trigger the custom error message
+                renderNoSuggestions();
             }
         } catch (error) {
             console.error("Failed to load word suggestions:", error);
@@ -470,7 +474,7 @@ async function handleWin() {
 
 async function handleLoss(isRestore = false) {
     gameState.isGameOver = true;
-    
+
     // Only play the animation and delay the modal if it's a live game
     if (!isRestore) {
         animateLossSequence();
@@ -503,7 +507,7 @@ async function handleLoss(isRestore = false) {
 
 // --- Virtual Keyboard Hit Detection ---
 let keyGeometries = [];
-let backspaceTimeout = null; 
+let backspaceTimeout = null;
 
 function cacheKeyGeometries() {
     keyGeometries = [];
@@ -523,7 +527,7 @@ const keyboardContainer = document.getElementById('keyboard');
 // 1. Define the cancellation logic OUTSIDE the pointerdown event
 const cancelBackspace = (e) => {
     e.preventDefault();
-    
+
     if (backspaceTimeout) {
         clearTimeout(backspaceTimeout);
         backspaceTimeout = null;
