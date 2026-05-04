@@ -36,6 +36,8 @@ import {
 // ==========================================
 
 let timerInterval = null;
+let yoinkComboCount = 0;
+let yoinkComboTimer = null;
 
 async function init() {
     try {
@@ -89,6 +91,8 @@ async function init() {
                             player.all_time_puzzles_played = (player.all_time_puzzles_played || 0) + 1;
                         }
                     }
+                    yoinkComboCount = 0;
+                    if (yoinkComboTimer) clearTimeout(yoinkComboTimer);
                 }
                 else if (eventPayload.event_type === 'PUZZLE_LOST') {
                     // Unpack the JSON payload to safely update the loser's average guesses
@@ -153,8 +157,27 @@ async function init() {
             // Callback for Yoink Broadcasts
             (payload) => {
                 if (gameState.currentPlayerId === payload.sharkId) {
-                    showToast(`<span class="toast-highlight">${escapeHTML(payload.yoinkedName)}</span> 
-got yoinked! Gottem!`, 3500);
+                    // 1. Show the standard individual toast immediately
+                    showToast(`<span class="toast-highlight">${escapeHTML(payload.yoinkedName)}</span> got yoinked! Gottem!`, 3500);
+
+                    // 2. Track the combo
+                    yoinkComboCount++;
+                    
+                    // 3. Reset the evaluation timer every time a new yoink comes in
+                    if (yoinkComboTimer) clearTimeout(yoinkComboTimer);
+                    
+                    // 4. Evaluate the combo 4 seconds after the LAST yoink was received
+                    // (This ensures the 3.5s individual toasts are completely gone)
+                    yoinkComboTimer = setTimeout(() => {
+                        if (yoinkComboCount === 2) {
+                            showToast(`<strong>Yin-Yoink</strong><br><img src="assets/YinYoink.png" alt="Yin-Yoink" style="width: 80px; margin: 8px 0;"><br><span style="color: gray; font-size: 0.9rem;">Double!</span>`, 4000);
+                        } else if (yoinkComboCount >= 3) {
+                            showToast(`<strong>Yotta-Yoink</strong><br><img src="assets/YottaYoink.png" alt="Yotta-Yoink" style="width: 80px; margin: 8px 0;"><br><span style="color: gray; font-size: 0.9rem;">Triple! (Or more. Sorry.)</span>`, 4000);
+                        }
+                        
+                        // Reset for the next round
+                        yoinkComboCount = 0;
+                    }, 4000);
                 }
             }
         );
