@@ -58,58 +58,42 @@ async function init() {
             (eventPayload) => {
                 if (!eventPayload || !eventPayload.player_id) return;
 
-                console.log("📥 Realtime Event Received:", eventPayload.event_type, eventPayload.payload);
+                console.log("Realtime Event Received:", eventPayload.event_type, eventPayload.payload);
 
                 const playerIndex = gameState.cachedPlayers.findIndex(p => p.id === eventPayload.player_id);
                 if (playerIndex === -1) return;
 
-                // Create a quick reference to the player to keep the code clean
                 const player = gameState.cachedPlayers[playerIndex];
+                const data = eventPayload.payload || {};
 
-                // Manually calculate the new reality based on the event type using (value || 0) safeties
+                // No more guessing. Accept the database's absolute reality.
                 if (eventPayload.event_type === 'FISH_EATEN') {
-                    player.weekly_fish_eaten = (player.weekly_fish_eaten || 0) + 1;
-                    player.fish_eaten = (player.fish_eaten || 0) + 1;
+                    player.weekly_fish_eaten = data.weekly_fish_eaten;
+                    player.fish_eaten = data.fish_eaten;
                 }
                 else if (eventPayload.event_type === 'YOINK') {
-                    player.weekly_yoinks = (player.weekly_yoinks || 0) + 1;
-                    player.yoinks = (player.yoinks || 0) + 1;
+                    player.weekly_yoinks = data.weekly_yoinks;
+                    player.yoinks = data.yoinks;
                 }
                 else if (eventPayload.event_type === 'NEW_SHARK') {
-                    player.weekly_sharks_evaded = (player.weekly_sharks_evaded || 0) + 1;
-                    player.sharks_evaded = (player.sharks_evaded || 0) + 1;
+                    player.weekly_sharks_evaded = data.weekly_sharks_evaded;
+                    player.sharks_evaded = data.sharks_evaded;
+                    player.weekly_guesses = data.weekly_guesses;
+                    player.all_time_guesses = data.all_time_guesses;
+                    player.weekly_puzzles_played = data.weekly_puzzles_played;
+                    player.all_time_puzzles_played = data.all_time_puzzles_played;
 
-                    // Unpack the JSON payload to safely update the winner's average guesses
-                    if (eventPayload.payload) {
-                        const guesses = eventPayload.payload.guesses_used || 0;
-                        player.weekly_guesses = (player.weekly_guesses || 0) + guesses;
-                        player.all_time_guesses = (player.all_time_guesses || 0) + guesses;
-
-                        // Treat it as a strict boolean check just in case it arrived as a string
-                        if (eventPayload.payload.is_retry !== true && eventPayload.payload.is_retry !== 'true') {
-                            player.weekly_puzzles_played = (player.weekly_puzzles_played || 0) + 1;
-                            player.all_time_puzzles_played = (player.all_time_puzzles_played || 0) + 1;
-                        }
-                    }
                     yoinkComboCount = 0;
                     if (yoinkComboTimer) clearTimeout(yoinkComboTimer);
                 }
                 else if (eventPayload.event_type === 'PUZZLE_LOST') {
-                    // Unpack the JSON payload to safely update the loser's average guesses
-                    if (eventPayload.payload) {
-                        const guesses = eventPayload.payload.guesses_used || 0;
-                        player.weekly_guesses = (player.weekly_guesses || 0) + guesses;
-                        player.all_time_guesses = (player.all_time_guesses || 0) + guesses;
-
-                        if (eventPayload.payload.is_retry !== true && eventPayload.payload.is_retry !== 'true') {
-                            player.weekly_puzzles_played = (player.weekly_puzzles_played || 0) + 1;
-                            player.all_time_puzzles_played = (player.all_time_puzzles_played || 0) + 1;
-                        }
-                    }
+                    player.weekly_guesses = data.weekly_guesses;
+                    player.all_time_guesses = data.all_time_guesses;
+                    player.weekly_puzzles_played = data.weekly_puzzles_played;
+                    player.all_time_puzzles_played = data.all_time_puzzles_played;
                 }
 
                 updateLeaderboardUI();
-
                 const statsScreen = document.getElementById('player-stats-screen');
                 if (statsScreen && !statsScreen.classList.contains('hidden')) {
                     updatePlayerStatsUI();
@@ -162,10 +146,10 @@ async function init() {
 
                     // 2. Track the combo
                     yoinkComboCount++;
-                    
+
                     // 3. Reset the evaluation timer every time a new yoink comes in
                     if (yoinkComboTimer) clearTimeout(yoinkComboTimer);
-                    
+
                     // 4. Evaluate the combo 4 seconds after the LAST yoink was received
                     // (This ensures the 3.5s individual toasts are completely gone)
                     yoinkComboTimer = setTimeout(() => {
@@ -174,7 +158,7 @@ async function init() {
                         } else if (yoinkComboCount >= 3) {
                             showToast(`<strong>Yotta-Yoink</strong><br><img src="assets/YottaYoink.png" alt="Yotta-Yoink" style="width: 80px; margin: 8px 0;"><br><span style="color: gray; font-size: 0.9rem;">Triple! (Or more. Sorry.)</span>`, 4000);
                         }
-                        
+
                         // Reset for the next round
                         yoinkComboCount = 0;
                     }, 4000);
